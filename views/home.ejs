@@ -3,29 +3,72 @@
 <head>
    <meta charset="UTF-8">
    <title>Random Title</title>
+   <style>
+      .album {
+         aspect-ratio: 1.0;
+         width: 128px;
+      }
+   </style>
 </head>
    <body>
-      <p><%= msg %></p>
+      <p>Track info:</p>
       <input id="track-title" type="text" placeholder="title"/>
       <span> by </span>
       <input id="track-artist" type="text" placeholder="artist" />
       <br />
+      <p>Upload track:</p>
       <input id="track-upload" type="file", accept=".mp3,.wav" />
       <br />
+      <p>Upload album cover:</p>
+      <input id="track-album" type="file", accept=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp,.svg" />
+      <br />
       <button onclick="upload()">Upload</button>
-   <script>
-   const upload = async () => {
-      const input = document.querySelector("#track-upload")
+      <button onclick="newevent()">New Event</button>
 
-      if (input.files.length == 0) {
+      <hr />
+
+      <% for (let i = 0; i < events.length; i++) { %>
+         <h2><%= events[i].title %></h2>
+         <p><%= events[i].date %></p>
+         <p><%= events[i].desc %></p>
+         <% for (let j = 0; j < events[i].tracks.length; j++) { %>
+            <% let track = events[i].tracks[j] %>
+            <img class="album" src="<%= track.album %>" />
+            <p><%= track.artist %> - <%= track.title %></p>
+            <audio controls>
+               <source src="<%= track.url %>">
+            </audio>
+         <% } %>
+      <% } %>
+   <script>
+   const newevent = () => {
+      fetch("http://localhost:8080/eventcreate", {
+         method: "post",
+         headers: {
+            "Content-Type": "application/json"
+         },
+         body: JSON.stringify({
+            id: "testid",
+            name: "test event",
+            desc: "An event devoted to testing"
+         })
+      })
+   }
+   const upload = async () => {
+      const trackinput = document.querySelector("#track-upload")
+      const albuminput = document.querySelector("#track-album")
+
+      if (trackinput.files.length == 0) {
          return alert("Select a file to upload")
       }
 
       let url = "http://localhost:8080/upload"
       let formdata = new FormData()
-      let file = input.files[0]
+      let track = trackinput.files[0]
+      let album = albuminput.files.length != 0 ? albuminput.files[0] : undefined
 
-      formdata.append("file", file)
+      formdata.append("track", track)
+      if (album) formdata.append("album", album)
       formdata.append("title", document.querySelector("#track-title").value)
       formdata.append("artist", document.querySelector("#track-artist").value)
 
