@@ -6,6 +6,7 @@ const { Dropbox } = require("dropbox")
 const { WritableStreamBuffer } = require("stream-buffers")
 const { print } = require("./utils.js")
 const fb = require("./firebase.js")
+const ic = require("browser-image-compression")
 require("dotenv").config()
 
 const app = express()
@@ -17,7 +18,9 @@ const dbx = new Dropbox({
    fetch: fetch
 })
 
-let current_event = ""
+const MAX_TRACK_SIZE_KB = 6500
+const MAX_ALBUM_SIZE_KB = 10
+let current_event = "05272024_testid"
 let events = []
 
 app.set("view engine", "ejs")
@@ -42,13 +45,12 @@ fb.setup_collection_listener("events", async (e) => {
       events.push(event)
    }
 
-   console.log(events)
 })
 
 // given a multer file obj, try to stream the 
 // data to dropbox, on /targetpath/file
 // returns [the filename, link to file]
-const stream_file_to_dropbox = async (file, targetpath) => {
+const stream_upload_file = async (file, targetpath) => {
    const filename = `${Date.now()}_${file.originalname}`
    const filebuffer = file.buffer
 
@@ -107,13 +109,31 @@ app.post("/upload", upload.fields([
 
          const trackfile = files.track[0]
          const albumfile = files.album ? files.album[0] : undefined
+         if (albumfile && !/\.webp$/i.test(albumfile.originalname)) {
+            console.log(albumfile.originalname)
+            return res.status(400).send("Must be a valid webp image")
+         }
+
+         // validate file sizes
+         if (trackfile.buffer.length > MAX_TRACK_SIZE_KB) {
+            //return res.status(400).send("Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024) + "mb limit)")
+         }
+         if (albumfile && albumfile.buffer.length > MAX_ALBUM_SIZE_KB) {
+            //return res.status(400).send("Album file is too big (exceeds " + MAX_ALBUM_SIZE_KB + "kb limit)")
+         }
+
+         /*
+         console.log("track is of size " + trackfile.buffer.length / 1024)
+         if (albumfile) console.log("album is of size " + albumfile.buffer.length / 1024)
+         else console.log("no albumfile")
+         */
 
          // try to stream file to dropbox
-         let track_out = await stream_file_to_dropbox(trackfile, "tracks")
+         let track_out = await stream_upload_file(trackfile, "tracks")
          let filename = track_out[0]
          let url = track_out[1]
          let album = albumfile ? 
-            (await stream_file_to_dropbox(albumfile, "covers"))[1] :
+            (await stream_upload_file(albumfile, "covers"))[1] :
             "todo link to default file"
          // save entry into database
          const newentry = {
@@ -135,6 +155,7 @@ app.post("/upload", upload.fields([
 
          res.status(200).send("Successfully uploaded")
       } catch (err) {
+         throw err
          print("Error uploading file: " + err)
          res.status(400).send("Error uploading file")
       }

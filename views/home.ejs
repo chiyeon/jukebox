@@ -17,13 +17,13 @@
       <input id="track-artist" type="text" placeholder="artist" />
       <br />
       <p>Upload track:</p>
-      <input id="track-upload" type="file", accept=".mp3,.wav" />
+      <input id="track-upload" type="file" accept=".mp3,.wav" />
       <br />
       <p>Upload album cover:</p>
-      <input id="track-album" type="file", accept=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp,.svg" />
+      <input id="track-album" type="file" accept=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp" />
       <br />
-      <button onclick="upload()">Upload</button>
-      <button onclick="newevent()">New Event</button>
+      <button onclick="upload()" id="upload-button">Upload</button>
+      <button id="event-button">New Event</button>
 
       <hr />
 
@@ -41,6 +41,53 @@
          <% } %>
       <% } %>
    <script>
+
+   const compress_image = (file, dim, quality) => {
+      return new Promise((resolve, reject) => {
+         const reader = new FileReader()
+         reader.onload = (e) => {
+            const img = new Image()
+               
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                let width = img.width
+                let height = img.height
+                
+                if (width > height) {
+                    if (width > dim) {
+                        height *= dim / width
+                        width = dim
+                    }
+                } else {
+                    if (height > dim) {
+                        width *= dim / height
+                        height = dim
+                    }
+                }
+                
+                canvas.width = dim
+                canvas.height = dim
+                const ctx = canvas.getContext('2d')
+                ctx.imageSmoothingEnabled = true;
+                ctx.drawImage(img, 0, 0, dim, dim)
+                
+                canvas.toBlob(blob => {
+                    const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + '.webp', { type: 'image/webp' });
+                    resolve(compressedFile);
+                }, 'image/webp', quality)
+            }
+            
+            img.src = e.target.result;
+         }
+           
+         reader.onerror = (error) => {
+            reject(error);
+         }
+        
+         reader.readAsDataURL(file);
+      })
+   }
+
    const newevent = () => {
       fetch("http://localhost:8080/eventcreate", {
          method: "post",
@@ -54,7 +101,9 @@
          })
       })
    }
+
    const upload = async () => {
+      console.log("Attempting upload")
       const trackinput = document.querySelector("#track-upload")
       const albuminput = document.querySelector("#track-album")
 
@@ -62,16 +111,20 @@
          return alert("Select a file to upload")
       }
 
+      console.log("Loading & compressing files")
       let url = "http://localhost:8080/upload"
       let formdata = new FormData()
       let track = trackinput.files[0]
-      let album = albuminput.files.length != 0 ? albuminput.files[0] : undefined
+      let album = albuminput.files.length != 0 ? await compress_image(albuminput.files[0], 256, 0.5) : undefined
+
+      if (album) console.log(`Compressed album from ${albuminput.files[0].size}kb to ${album.size}kb.`)
 
       formdata.append("track", track)
       if (album) formdata.append("album", album)
       formdata.append("title", document.querySelector("#track-title").value)
       formdata.append("artist", document.querySelector("#track-artist").value)
 
+      console.log("Submitting files")
       try {
          let res = await fetch(url, {
             method: "POST",
