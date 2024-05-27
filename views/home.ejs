@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Random Title</title>
+</head>
+<body>
+<p><%= msg %></p>
+
+<input id="track-upload" type="file", accept=".mp3,.wav" />
+<button onclick="upload()">Upload</button>
+
+<script>
+const upload = async () => {
+   const input = document.querySelector("#track-upload")
+
+   if (input.files.length == 0) {
+      return alert("Select a file to upload")
+   }
+
+   let url = "http://localhost:8080/upload"
+   let formdata = new FormData()
+   let file = input.files[0]
+
+   formdata.append("file", file)
+   formdata.append("title", file.name)
+
+   try {
+      let res = await fetch(url, {
+         method: "POST",
+         body: formdata
+      })
+
+      if (res.status == 200) {
+         alert("Successfully uploaded!")
+      } else {
+         throw res.statusText
+      }
+   } catch (e) {
+      alert("Error: " + e)
+   }
+
+}
+</script>
+</body>
+
+
+</html>
+
