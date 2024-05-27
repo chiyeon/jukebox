@@ -23,8 +23,17 @@ app.get("/", (req, res) => {
 
 app.post("/upload", upload.single("file"), async (req, res) => {
    try {
+      // get & validate our data
+      const artist = req.body.artist
+      const title = req.body.title
+
+      if (artist == undefined || title == undefined || artist.length == 0 || title.length == 0) {
+         return res.status(500).send("Invalid artist/title")
+      }
+
+      // try to stream file to dropbox
       const file = req.file
-      const filename = file.originalname
+      const filename = `${Date.now()}_${file.originalname}`
       const filebuffer = file.buffer
 
       const bufferstream = new WritableStreamBuffer({
@@ -34,7 +43,19 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
       bufferstream.end(filebuffer)
 
-      await dbx.filesUpload({ path: `/${filename}`, contents: bufferstream.getContents() })
+      let path = `/tracks/${filename}`
+      await dbx.filesUpload({ path: path, contents: bufferstream.getContents() })
+      let sharedlink = (await dbx.sharingCreateSharedLinkWithSettings({ path: path })).result.url
+      let url = new URL(sharedlink)
+      url.searchParams.set("dl", "1")
+      sharedlink = url.toString()
+
+      // save entry into database
+      const newentry = {
+         artist, title, url: sharedlink
+      }
+
+      console.log(newentry)
 
       res.status(200).send("Successfully uploaded")
    } catch (err) {
