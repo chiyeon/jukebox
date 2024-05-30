@@ -6,7 +6,6 @@ const { Dropbox } = require("dropbox")
 const { WritableStreamBuffer } = require("stream-buffers")
 const { print } = require("./utils.js")
 const fb = require("./firebase.js")
-const ic = require("browser-image-compression")
 require("dotenv").config()
 
 const app = express()
@@ -25,8 +24,13 @@ let events = []
 
 app.set("view engine", "ejs")
 app.use(express.json())
+app.use(express.static(__dirname + "/public"))
 app.get("/", (req, res) => {
    res.render("home", { events })
+})
+
+app.get("/upload", (req, res) => {
+   res.render("upload")
 })
 
 fb.setup_collection_listener("events", async (e) => {
@@ -161,4 +165,4 @@ app.post("/upload", upload.fields([
       }
    })
 
-app.listen(8080, () => print("started"))
+app.listen(8080, () => print("started on port " + PORT))

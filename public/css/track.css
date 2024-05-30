@@ -1,0 +1,31 @@
+.track {
+   width: 500px;
+   height: 75px;
+   background-color: #f1f1f1;
+   border-radius: 4px;
+
+   display: flex;
+   flex-direction: row;
+   gap: 10px;
+}
+
+.track .track-album {
+   height: 100%;
+   aspect-ratio: 1.0;
+   border-radius: 4px;
+}
+
+.track p {
+   margin: 0;
+}
+
+.track audio {
+   height: 24px;
+}
+
+.track .track-body {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   gap: 10px;
+}
