@@ -27,6 +27,8 @@ const authenticate_token = (req, res, next) => {
    let authheader = req.headers["authorization"]
    let token = authheader && authheader.split(" ")[1]
 
+   console.log(token)
+
    if (!token) {
       return res.status(400).send({ message: "Authorization failed." })
    }

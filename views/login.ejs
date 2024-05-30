@@ -50,7 +50,7 @@
             let res = await (await fetch(url + "/test", {
                method: "GET",
                headers: {
-                  "authorization": token
+                  "Authorization": `Bearer: ${token}`
                }
             })).json()
             console.log(res.message)
