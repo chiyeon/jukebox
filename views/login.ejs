@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Jukebox</title>
+</head>
+   <body>
+      <form>
+         <label for="username">Username</label>
+         <input id="login-username" type="text" placeholder="capybara" name="username" required>
+
+         <label for="password">Password</label>
+         <input id="login-password" type="password" placeholder="passw0rd" name="password" required>
+
+         <button id="login-button" type="submit" onclick="login(event)">Login</button>
+      </form>
+
+      <button onclick="test()">Test Token (put in password)</button>
+
+      <script>
+
+            let url = "http://localhost:8080"
+         const login = async (e) => {
+            e.preventDefault()
+
+            const username = document.querySelector("#login-username").value
+            const password = document.querySelector("#login-password").value
+
+            if (username == "" || password == "") return alert("Input password/username")
+
+            const body = {
+               username, password
+            }
+
+            let res = await (await fetch(url + "/login", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json"
+               },
+               body: JSON.stringify(body)
+            })).json()
+
+            console.log(res.message)
+            if (res.token) console.log(res.token)
+         }
+
+         const test = async (e) => {
+            let token = document.querySelector("#login-password").value
+
+            let res = await (await fetch(url + "/test", {
+               method: "GET",
+               headers: {
+                  "authorization": token
+               }
+            })).json()
+            console.log(res.message)
+         }
+      </script>
+   </body>
+</html>
+

@@ -7,6 +7,7 @@ const { WritableStreamBuffer } = require("stream-buffers")
 const { print } = require("./utils.js")
 const fb = require("./firebase.js")
 require("dotenv").config()
+const jwt = require("jsonwebtoken")
 
 const app = express()
 const PORT = process.env.PORT | 8080
@@ -22,6 +23,25 @@ const MAX_ALBUM_SIZE_KB = 10
 let current_event = "05272024_testid"
 let events = []
 
+const authenticate_token = (req, res, next) => {
+   let authheader = req.headers["authorization"]
+   let token = authheader && authheader.split(" ")[1]
+
+   if (!token) {
+      return res.status(400).send({ message: "Authorization failed." })
+   }
+
+   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+         console.log(err)
+         return res.status(400).send({ message: "Invalid token" })
+      }
+
+      req.user = user
+   })
+   next()
+}
+
 app.set("view engine", "ejs")
 app.use(express.json())
 app.use(express.static(__dirname + "/public"))
@@ -31,6 +51,10 @@ app.get("/", (req, res) => {
 
 app.get("/upload", (req, res) => {
    res.render("upload")
+})
+
+app.get("/login", (req, res) => {
+   res.render("login")
 })
 
 fb.setup_collection_listener("events", async (e) => {
@@ -164,5 +188,33 @@ app.post("/upload", upload.fields([
          res.status(400).send("Error uploading file")
       }
    })
+
+// TEMPORARY
+let users = {
+   "capybara": "passw0rd"
+}
+
+app.post("/login", (req, res) => {
+   let user = req.body.username 
+   let password = req.body.password
+
+   if (user == undefined || password == undefined || user == "" || password == "") {
+      return res.status(400).send({ message: "Invalid request" })
+   }
+   
+   // authenticate user
+   if (users[user] != password) {
+      return res.status(400).send({ message: "Invalid username/password combination"})
+   }
+
+   // create our access token
+   let token = jwt.sign({user}, process.env.JWT_SECRET, { expiresIn: "60s" })
+
+   return res.status(200).send({ message: "Login successful", token })
+})
+
+app.get("/test", authenticate_token, (req, res) => {
+   res.send({ message: "User authorized" })
+})
 
 app.listen(8080, () => print("started on port " + PORT))
