@@ -1,0 +1,9 @@
+<div class="track">
+   <img class="track-album" src="<%= track.album %>" />
+   <div class="track-body">
+      <p><%= track.artist %> - <%= track.title %></p>
+      <audio controls>
+         <source src="<%= track.url %>" type="audio/mpeg">
+      </audio>
+   </div>
+</div>
