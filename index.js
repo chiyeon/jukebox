@@ -2,32 +2,28 @@ const fs = require("fs")
 const express = require("express")
 const multer = require("multer")
 const ejs = require("ejs")
-const { Dropbox } = require("dropbox")
-const { WritableStreamBuffer } = require("stream-buffers")
 const { print } = require("./utils.js")
 const fb = require("./firebase.js")
 require("dotenv").config()
 const jwt = require("jsonwebtoken")
+const { Storage } = require("@google-cloud/storage")
 
 const app = express()
 const PORT = process.env.PORT | 8080
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
-let dbx
+const gstorage = new Storage({
+   keyFilename: "./keys/tmf-beat-8d14f249b137.json"
+})
+const tracks_bucket_name = "jukebox-tracks"
+const albums_bucket_name = "jukebox-albums"
+const tracks_bucket = gstorage.bucket(tracks_bucket_name)
+const albums_bucket = gstorage.bucket(albums_bucket_name)
 
 const MAX_TRACK_SIZE_KB = 6500
 const MAX_ALBUM_SIZE_KB = 10
-let current_event = "05302024_testid"
+let current_event = "05312024_testid"
 let events = []
-
-const update_dropbox_instance = async () => {
-   dbx = new Dropbox({
-      fetch: fetch,
-      clientId: process.env.DROPBOX_ID,
-      clientSecret: process.env.DROPBOX_SECRET,
-      accessToken: await get_dropbox_access_token()
-   })
-}
 
 const authenticate_token = (req, res, next) => {
    let authheader = req.headers["authorization"]
@@ -46,20 +42,6 @@ const authenticate_token = (req, res, next) => {
       req.user = user
    })
    next()
-}
-
-const get_dropbox_access_token = async () => {
-   const res = await (await fetch("https://api.dropbox.com/oauth2/token", {
-      method: "POST",
-      body: new URLSearchParams({
-         "refresh_token": process.env.DROPBOX_REFRESH_TOKEN,
-         "client_id": process.env.DROPBOX_ID,
-         "client_secret": process.env.DROPBOX_SECRET,
-         "grant_type": "refresh_token"
-      })
-   })).json()
-
-   return res.access_token
 }
 
 app.set("view engine", "ejs")
@@ -95,27 +77,22 @@ fb.setup_collection_listener("events", async (e) => {
 
 })
 
-// given a multer file obj, try to stream the 
-// data to dropbox, on /targetpath/file
-// returns [the filename, link to file]
-const stream_upload_file = async (file, targetpath) => {
+// given multer file, stream & upload to google cloud storage
+const upload_file = async (file, bucket) => {
    const filename = `${Date.now()}_${file.originalname}`
-   const filebuffer = file.buffer
+   const filecloud = bucket.file(filename)
 
-   const bufferstream = new WritableStreamBuffer({
-      initialSize: (100 * 1024),
-      incrementAmount: (10 * 1024)
+   await filecloud.save(file.buffer, {
+      contentType: file.mimetype
+   }, (err) => {
+      if (err) console.log("error")
    })
 
-   bufferstream.end(filebuffer)
+   return filename
+}
 
-   let path = `/${targetpath}/${filename}`
-   await dbx.filesUpload({ path: path, contents: bufferstream.getContents() })
-
-   let sharedlink = (await dbx.sharingCreateSharedLinkWithSettings({ path: path })).result.url
-   let url = new URL(sharedlink)
-   url.searchParams.set("dl", "1")
-   return [filename, url.toString()]
+const get_gcloud_link = (filename, bucketname) => {
+   return `https://storage.googleapis.com/${bucketname}/${filename}`
 }
 
 app.post("/eventcreate", (req, res) => {
@@ -163,28 +140,19 @@ app.post("/upload", upload.fields([
          }
 
          // validate file sizes
-         if (trackfile.buffer.length > MAX_TRACK_SIZE_KB) {
-            //return res.status(400).send("Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024) + "mb limit)")
+         if (trackfile.buffer.length / 1024 > MAX_TRACK_SIZE_KB) {
+            return res.status(400).send("Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024) + "mb limit)")
          }
-         if (albumfile && albumfile.buffer.length > MAX_ALBUM_SIZE_KB) {
-            //return res.status(400).send("Album file is too big (exceeds " + MAX_ALBUM_SIZE_KB + "kb limit)")
+         if (albumfile && albumfile.buffer.length / 1024 > MAX_ALBUM_SIZE_KB) {
+            return res.status(400).send("Album file is too big (exceeds " + MAX_ALBUM_SIZE_KB + "kb limit)")
          }
 
-         /*
-         console.log("track is of size " + trackfile.buffer.length / 1024)
-         if (albumfile) console.log("album is of size " + albumfile.buffer.length / 1024)
-         else console.log("no albumfile")
-         */
+         let filename = await upload_file(trackfile, tracks_bucket)
+         let url = get_gcloud_link(filename, tracks_bucket_name)
+         let album
+         if (albumfile) album = get_gcloud_link(await upload_file(albumfile, albums_bucket), albums_bucket_name)
+         else album = get_gcloud_link("default.webp", albums_bucket_name)
 
-         // try to stream file to dropbox
-         await update_dropbox_instance()
-
-         let track_out = await stream_upload_file(trackfile, "tracks")
-         let filename = track_out[0]
-         let url = track_out[1]
-         let album = albumfile ? 
-            (await stream_upload_file(albumfile, "covers"))[1] :
-            "todo link to default file"
          // save entry into database
          const newentry = {
             artist,
@@ -241,5 +209,4 @@ app.get("/test", authenticate_token, (req, res) => {
 
 app.listen(8080, () => {
    print("started on port " + PORT)
-   get_dropbox_access_token()
 })
