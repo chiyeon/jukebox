@@ -49,20 +49,6 @@ const compress_image = (file, dim, quality) => {
    })
 }
 
-const newevent = () => {
-   fetch("http://localhost:8080/eventcreate", {
-      method: "post",
-      headers: {
-         "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-         id: "testid",
-         name: "test event",
-         desc: "An event devoted to testing"
-      })
-   })
-}
-
 // load given inputs,
 // check & compress/format
 // submit to backend
@@ -71,7 +57,6 @@ const upload = async () => {
    const trackinput = document.querySelector("#track-upload")
    const albuminput = document.querySelector("#track-album")
    const title = document.querySelector("#track-title").value
-   const artist = document.querySelector("#track-artist").value
 
    if (trackinput.files.length == 0) {
       return alert("Select a file to upload")
@@ -79,9 +64,6 @@ const upload = async () => {
 
    if (title == "" || title == undefined) {
       return alert("Invalid title")
-   }
-   if (artist == "" || artist == undefined) {
-      return alert("Invalid artist")
    }
 
    console.log("Loading & compressing files")
@@ -95,7 +77,6 @@ const upload = async () => {
    formdata.append("track", track)
    if (album) formdata.append("album", album)
    formdata.append("title", title)
-   formdata.append("artist", artist)
 
    console.log("Submitting files")
    try {

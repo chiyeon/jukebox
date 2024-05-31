@@ -134,7 +134,7 @@ app.post("/upload", authenticate_token, upload.fields([
          }
 
          // get & validate our data
-         const artist = req.body.artist
+         const artist = user_data.username
          const title = req.body.title
 
          if (artist == undefined || title == undefined || artist.length == 0 || title.length == 0) {

@@ -1,0 +1,30 @@
+<div class="header">
+   <h2>JUKEBOX</h2>
+   <div class="links">
+      <a href="/">Home</a>
+      <a href="/login">Login</a>
+      <a href="/upload">Upload</a>
+      <a>Sign Out</a>
+   </div>
+
+   <style>
+      .header .links {
+         display: flex;
+         flex-direction: row;
+         gap: 10px;
+      }
+   </style>
+
+   <script>
+      const logout = async () => {
+         let res = fetch("http://localhost:8080/logout", {
+            method: "post",
+            credentials: "include"
+         })
+
+         if (res.status == 200) {
+            console.log("signed out")
+         } 
+      }
+   </script>
+</div>

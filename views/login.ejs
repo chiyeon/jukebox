@@ -5,6 +5,7 @@
    <title>Jukebox</title>
 </head>
    <body>
+      <%- include("components/header") %>
       <form>
          <label for="username">Username</label>
          <input id="login-username" type="text" placeholder="capybara" name="username" required>
@@ -15,8 +16,6 @@
          <button id="login-button" type="submit" onclick="login(event)">Login</button>
          <button id="login-button" type="submit" onclick="register(event)">Register</button>
       </form>
-
-      <button onclick="test()">Test Token (put in password)</button>
 
       <script>
 
@@ -73,18 +72,6 @@
             } else {
                alert((await res.json()).message)      
             }
-         }
-
-         const test = async (e) => {
-            let token = document.querySelector("#login-password").value
-
-            let res = await (await fetch(url + "/test", {
-               method: "GET",
-               headers: {
-                  "Authorization": `Bearer: ${token}`
-               }
-            })).json()
-            console.log(res.message)
          }
 
          const save_cookie = (token) => {
