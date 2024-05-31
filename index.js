@@ -13,21 +13,25 @@ const app = express()
 const PORT = process.env.PORT | 8080
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
-const dbx = new Dropbox({
-   accessToken: process.env.DROPBOX_TOKEN,
-   fetch: fetch
-})
+let dbx
 
 const MAX_TRACK_SIZE_KB = 6500
 const MAX_ALBUM_SIZE_KB = 10
-let current_event = "05272024_testid"
+let current_event = "05302024_testid"
 let events = []
+
+const update_dropbox_instance = async () => {
+   dbx = new Dropbox({
+      fetch: fetch,
+      clientId: process.env.DROPBOX_ID,
+      clientSecret: process.env.DROPBOX_SECRET,
+      accessToken: await get_dropbox_access_token()
+   })
+}
 
 const authenticate_token = (req, res, next) => {
    let authheader = req.headers["authorization"]
    let token = authheader && authheader.split(" ")[1]
-
-   console.log(token)
 
    if (!token) {
       return res.status(400).send({ message: "Authorization failed." })
@@ -42,6 +46,20 @@ const authenticate_token = (req, res, next) => {
       req.user = user
    })
    next()
+}
+
+const get_dropbox_access_token = async () => {
+   const res = await (await fetch("https://api.dropbox.com/oauth2/token", {
+      method: "POST",
+      body: new URLSearchParams({
+         "refresh_token": process.env.DROPBOX_REFRESH_TOKEN,
+         "client_id": process.env.DROPBOX_ID,
+         "client_secret": process.env.DROPBOX_SECRET,
+         "grant_type": "refresh_token"
+      })
+   })).json()
+
+   return res.access_token
 }
 
 app.set("view engine", "ejs")
@@ -159,6 +177,8 @@ app.post("/upload", upload.fields([
          */
 
          // try to stream file to dropbox
+         await update_dropbox_instance()
+
          let track_out = await stream_upload_file(trackfile, "tracks")
          let filename = track_out[0]
          let url = track_out[1]
@@ -219,4 +239,7 @@ app.get("/test", authenticate_token, (req, res) => {
    res.send({ message: "User authorized" })
 })
 
-app.listen(8080, () => print("started on port " + PORT))
+app.listen(8080, () => {
+   print("started on port " + PORT)
+   get_dropbox_access_token()
+})
