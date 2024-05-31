@@ -280,8 +280,13 @@ app.post("/signup", async (req, res) => {
    }
 })
 
-app.get("/test", authenticate_token, (req, res) => {
-   res.send({ message: "User authorized" })
+app.post("/logout", (req, res) => {
+   const token = req.cookies.authToken
+   if (!token) {
+      res.status(200).send({ message: "No need to sign out" })
+   }
+   res.clearCookie("authentication_token")
+   res.status(200).send({ message: "Signed out successfully" })
 })
 
 app.listen(8080, () => {

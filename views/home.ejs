@@ -6,10 +6,21 @@
    <link href="/css/track.css" rel="stylesheet" type="text/css">
 </head>
    <body>
+      <a onclick="logout()">Sign Out</a>
       <% events.forEach(event => { %>
          <%- include("components/event", { event }) %>
       <% }) %>
    <script>
+      const logout = async () => {
+         let res = fetch("http://localhost:8080/logout", {
+            method: "post",
+            credentials: "include"
+         })
+
+         if (res.status == 200) {
+            console.log("signed out")
+         } 
+      }
    </script>
    </body>
 </html>

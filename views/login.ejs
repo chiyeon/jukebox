@@ -33,15 +33,19 @@
                username, password
             }
 
-            let res = await (await fetch(url + "/login", {
+            let res = await fetch(url + "/login", {
                method: "POST",
                headers: {
                   "Content-Type": "application/json"
                },
                body: JSON.stringify(body)
-            })).json()
+            })
 
-            //if (res.token) save_cookie(res.token)
+            if (res.status == 200) {
+                window.location = "/"
+            } else {
+               alert((await res.json()).message)      
+            }
          }
 
          const register = async (e) => {
@@ -56,15 +60,19 @@
                username, password
             }
 
-            let res = await (await fetch(url + "/signup", {
+            let res = await fetch(url + "/signup", {
                method: "POST",
                headers: {
                   "Content-Type": "application/json"
                },
                body: JSON.stringify(body)
-            })).json()
+            })
 
-            //if (res.token) save_cookie(token)
+            if (res.status == 200) {
+                window.location = "/"
+            } else {
+               alert((await res.json()).message)      
+            }
          }
 
          const test = async (e) => {
