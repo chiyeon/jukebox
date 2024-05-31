@@ -20,8 +20,8 @@ const albums_bucket_name = "jukebox-albums"
 const tracks_bucket = gstorage.bucket(tracks_bucket_name)
 const albums_bucket = gstorage.bucket(albums_bucket_name)
 
-const MAX_TRACK_SIZE_KB = 6500
-const MAX_ALBUM_SIZE_KB = 10
+const MAX_TRACK_SIZE_KB = 15000
+const MAX_ALBUM_SIZE_KB = 20
 let current_event = "05312024_testid"
 let events = []
 

@@ -88,7 +88,7 @@ const upload = async () => {
    let url = "http://localhost:8080/upload"
    let formdata = new FormData()
    let track = trackinput.files[0]
-   let album = albuminput.files.length != 0 ? await compress_image(albuminput.files[0], 256, 0.5) : undefined
+   let album = albuminput.files.length != 0 ? await compress_image(albuminput.files[0], 512, 0.9) : undefined
 
    if (album) console.log(`Compressed album from ${albuminput.files[0].size}kb to ${album.size}kb.`)
 
