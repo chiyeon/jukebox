@@ -5,12 +5,17 @@ require('dotenv').config()
 
 const { print } = require("./utils.js")
 
-const { initializeApp } = require("firebase/app")
-const { arrayUnion, getFirestore, doc, setDoc, getDoc, query, collection, getDocs, deleteDoc, onSnapshot, updateDoc } = require("firebase/firestore")
+const admin = require("firebase-admin")
+const fb_key = require(process.env.FB_SERVICE_ACC_KEY)
+const { FieldValue } = require("firebase-admin/firestore")
+const {  doc, setDoc, getDoc, query, collection, getDocs, deleteDoc, onSnapshot, updateDoc } = require("firebase/firestore")
 
 const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG)
-const firebase_app = initializeApp(firebaseConfig)
-const db = getFirestore(firebase_app)
+const app = admin.initializeApp({
+   credential: admin.credential.cert(fb_key)
+})
+
+const db = admin.firestore(app)
 
 print("Connected to Firebase!")
 
@@ -25,8 +30,7 @@ print("Connected to Firebase!")
  * @returns {Object}                   Collection mapped as document to data
  */
 const get_collection = async (collection_name) => {
-   let q = query(collection(db, collection_name))
-   let q_snap = await getDocs(q)
+   let q_snap = await db.collection(collection_name).get()
    let output = {}
 
    q_snap.forEach(doc => {
@@ -53,7 +57,7 @@ const set_doc_path = async (path, data) => {
  * @param {Object} data       New data to set
  */
 const set_doc = async(col_name, doc_name, data) => {
-   await setDoc(doc(db, col_name, doc_name), data)
+   await db.collection(col_name).doc(doc_name).set(data)
 }
 
 /**
@@ -63,10 +67,10 @@ const set_doc = async(col_name, doc_name, data) => {
  * @returns {Object}          Firebase Document Data
  */
 const get_doc = async (col_name, doc_name) => {
-   let doc_snap = await getDoc(doc(db, col_name, doc_name))
+   let doc = await db.collection(col_name).doc(doc_name).get()
 
-   if (doc_snap.exists()) 
-      return doc_snap.data()
+   if (doc.exists) 
+      return doc.data()
    return undefined
 }
 
@@ -88,7 +92,7 @@ const get_doc_path = async(path) => {
  * @returns {Object}          Firebase Document Data
  */
 const update_doc = async (col_name, doc_name, data) => {
-   await updateDoc(doc(db, col_name, doc_name), data)
+   await db.collection(col_name).doc(doc_name).update(data)
 }
 
 /**
@@ -121,7 +125,7 @@ const delete_collection = async(col_name) => {
  * @param {String} doc_name ID of Firebase Document
  */
 const delete_doc = async(col_name, doc_name) => {
-   await deleteDoc(doc(db, col_name, doc_name))
+   await db.collection(col_name).doc(doc_name).delete()
 }
 
 /**
@@ -140,15 +144,15 @@ const delete_doc_path = async(path) => {
  * @param {()} callback Function with argument as updated version
  */
 const setup_collection_listener = (col_name, callback) => {
-   let q = query(collection(db, col_name))
-   let snap = onSnapshot(q, (q_snap) => {
+   db.collection(col_name).onSnapshot(snap => {
       let output = {}
-
-      q_snap.forEach(doc => {
-         output[doc.id] = doc.data()
+      snap.docChanges().forEach(change => {
+         output[change.doc.id] = change.doc.data()
       })
 
       callback(output)
+
+      //callback(output)
    })
 }
 
@@ -160,24 +164,10 @@ const setup_collection_listener = (col_name, callback) => {
  * @param callback Function to call with most updated version as argument
  */
 const setup_document_listener = (col_name, doc_id, callback) => {
-   let snap = onSnapshot(doc(db, col_name, doc_id), (doc) => {
+   db.collection(col_name).doc(doc_id).onSnapshot(doc => {
       callback(doc.data())
    })
 }
-
-/**
- * Listens to changes in a target document, starting a callback
- * function with the most updated version as an arg
- * @param path Path to document (collection/document)
- * @param callback Function to call with most updated version as argument
- */
-const setup_document_listener_path = (path, callback) => {
-   let path_split = path.split("/")
-   let snap = onSnapshot(doc(db, path_split[0], path_split[1]), (doc) => {
-      callback(doc.data())
-   })
-}
-
 
 /*
  * bye bye !!
@@ -195,6 +185,5 @@ module.exports = {
    delete_doc_path,
    setup_collection_listener,
    setup_document_listener,
-   setup_document_listener_path,
-   arrayUnion
+   FieldValue 
 }

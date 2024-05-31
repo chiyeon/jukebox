@@ -7,7 +7,7 @@
 </head>
    <body>
       <%- include("components/header") %>
-      <% events.forEach(event => { %>
+      <% Object.values(events).forEach(event => { %>
          <%- include("components/event", { event }) %>
       <% }) %>
    </body>

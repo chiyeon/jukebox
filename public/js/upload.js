@@ -94,7 +94,19 @@ const upload = async () => {
    } catch (e) {
       alert("Error: " + e)
    }
+}
 
-
+const newevent = () => {
+   fetch("http://localhost:8080/eventcreate", {
+      method: "post",
+      headers: {
+         "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+         id: "anothertest",
+         name: "test event 2",
+         desc: "An(other) event devoted to testing"
+      })
+   })
 }
 

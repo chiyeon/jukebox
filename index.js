@@ -15,7 +15,7 @@ const PORT = process.env.PORT | 8080
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
 const gstorage = new Storage({
-   keyFilename: "./keys/tmf-beat-8d14f249b137.json"
+   keyFilename: process.env.GCLOUD_SERVICE_ACC_KEY 
 })
 const tracks_bucket_name = "jukebox-tracks"
 const albums_bucket_name = "jukebox-albums"
@@ -29,8 +29,8 @@ const MAX_ALBUM_SIZE_KB = 50
 const USER_BASE = 0     // basic account, cannot do anything
 const USER_NORMAL = 1   // normal account that can upload to beat battles
 const USER_ADMIN = 2    // superuser access
-let current_event = "05312024_testid"
-let events = []
+let current_event = "1717195884965_anothertest"
+let events = {}
 
 const authenticate_token = (req, res, next) => {
    let token = req.cookies.authentication_token 
@@ -43,6 +43,31 @@ const authenticate_token = (req, res, next) => {
       if (err) {
          console.log(err)
          return res.status(400).send({ message: "Invalid token" })
+      }
+
+      req.user = user.username
+   })
+   next()
+}
+
+const authenticate_token_admin = (req, res, next) => {
+   let token = req.cookies.authentication_token 
+
+   if (!token) {
+      return res.status(400).send({ message: "Authorization failed." })
+   }
+
+   jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+      if (err) {
+         console.log(err)
+         return res.status(400).send({ message: "Invalid token" })
+      }
+
+      let userdata = await fb.get_doc("users", req.user)
+
+      if (userdata < USER_ADMIN) {
+         console.log(`User ${req.user} attempted superuser task`)
+         return res.status(400).send({ message: "Invalid permissions" })
       }
 
       req.user = user.username
@@ -66,23 +91,7 @@ app.get("/login", (req, res) => {
    res.render("login")
 })
 
-fb.setup_collection_listener("events", async (e) => {
-   events = []
 
-   let keys = Object.keys(e)
-   for (let i = 0; i < keys.length; i++) {
-      let event = e[keys[i]]
-      let track_ids = event.tracks
-      event.tracks = []
-
-      for (let j = 0; j < track_ids.length; j++) {
-         event.tracks.push(await fb.get_doc("tracks", track_ids[j]))
-      }
-
-      events.push(event)
-   }
-
-})
 
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
@@ -103,7 +112,7 @@ const get_gcloud_link = (filename, bucketname) => {
 }
 
 app.post("/eventcreate", (req, res) => {
-   current_event = `${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '')}_${req.body.id}`
+   current_event = `${Date.now()}_${req.body.id}`
    const date = Date.now()
    const name = req.body.name
    const desc = req.body.desc
@@ -183,7 +192,7 @@ app.post("/upload", authenticate_token, upload.fields([
          fb.set_doc("tracks", filename, newentry)
          // save track to current event
          fb.update_doc("events", current_event, {
-            tracks: fb.arrayUnion(filename)
+            tracks: fb.FieldValue.arrayUnion(filename)
          })
 
          res.status(200).send({ message: "Successfully uploaded" })
@@ -303,5 +312,21 @@ app.post("/user", authenticate_token, async (req, res) => {
 })
 
 app.listen(8080, () => {
+   fb.setup_collection_listener("events", async (e) => {
+      let keys = Object.keys(e)
+      for (let i = 0; i < keys.length; i++) {
+         let event = e[keys[i]]
+         let track_ids = event.tracks
+         event.tracks = []
+
+         for (let j = 0; j < track_ids.length; j++) {
+            event.tracks.push(await fb.get_doc("tracks", track_ids[j]))
+         }
+
+         events[keys[i]] = event
+      }
+
+   })
+
    print("started on port " + PORT)
 })
