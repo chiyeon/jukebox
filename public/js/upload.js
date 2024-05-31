@@ -101,6 +101,7 @@ const upload = async () => {
    try {
       let res = await fetch(url, {
          method: "POST",
+         credentials: "include",
          body: formdata
       })
 
@@ -112,5 +113,7 @@ const upload = async () => {
    } catch (e) {
       alert("Error: " + e)
    }
+
+
 }
 

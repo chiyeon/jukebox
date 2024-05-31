@@ -7,6 +7,8 @@ const fb = require("./firebase.js")
 require("dotenv").config()
 const jwt = require("jsonwebtoken")
 const { Storage } = require("@google-cloud/storage")
+const bcrypt = require("bcrypt")
+const cookieparser = require("cookie-parser")
 
 const app = express()
 const PORT = process.env.PORT | 8080
@@ -20,14 +22,18 @@ const albums_bucket_name = "jukebox-albums"
 const tracks_bucket = gstorage.bucket(tracks_bucket_name)
 const albums_bucket = gstorage.bucket(albums_bucket_name)
 
+const token_expiration_time = "400d"
 const MAX_TRACK_SIZE_KB = 15000
 const MAX_ALBUM_SIZE_KB = 20
+// user permissions
+const USER_BASE = 0     // basic account, cannot do anything
+const USER_NORMAL = 1   // normal account that can upload to beat battles
+const USER_ADMIN = 2    // superuser access
 let current_event = "05312024_testid"
 let events = []
 
 const authenticate_token = (req, res, next) => {
-   let authheader = req.headers["authorization"]
-   let token = authheader && authheader.split(" ")[1]
+   let token = req.cookies.authentication_token 
 
    if (!token) {
       return res.status(400).send({ message: "Authorization failed." })
@@ -39,13 +45,14 @@ const authenticate_token = (req, res, next) => {
          return res.status(400).send({ message: "Invalid token" })
       }
 
-      req.user = user
+      req.user = user.username
    })
    next()
 }
 
 app.set("view engine", "ejs")
 app.use(express.json())
+app.use(cookieparser())
 app.use(express.static(__dirname + "/public"))
 app.get("/", (req, res) => {
    res.render("home", { events })
@@ -109,42 +116,50 @@ app.post("/eventcreate", (req, res) => {
    return res.status(200)
 })
 
-app.post("/upload", upload.fields([
+app.post("/upload", authenticate_token, upload.fields([
       { name: "track" },
       { name: "album", maxCount: 1 }
    ]), async (req, res) => {
       if (current_event == undefined || current_event == "") {
-         return res.status(400).send("No event is open")
+         return res.status(400).send({ message: "No event is open" })
       }
 
       try {
+         // first check if we have user perms to upload tracks
+         // it is USER_NORMAL
+         let user_data = await fb.get_doc("users", req.user)
+         if (!user_data) return res.status(400).send({ message: "Invalid user" })
+         if (user_data.permissions < USER_NORMAL) {
+            return res.status(400).send({ message: "Invalid user permissions" })
+         }
+
          // get & validate our data
          const artist = req.body.artist
          const title = req.body.title
 
          if (artist == undefined || title == undefined || artist.length == 0 || title.length == 0) {
-            return res.status(400).send("Invalid artist/title")
+            return res.status(400).send({ message: "Invalid artist/title" })
          }
 
          const files = req.files
          
          if (!files.track) {
-            return res.status(400).send("Upload a file")
+            return res.status(400).send({ message: "Upload a file" })
          }
 
          const trackfile = files.track[0]
          const albumfile = files.album ? files.album[0] : undefined
          if (albumfile && !/\.webp$/i.test(albumfile.originalname)) {
             console.log(albumfile.originalname)
-            return res.status(400).send("Must be a valid webp image")
+            return res.status(400).send({ message: "Must be a valid webp image" })
          }
 
          // validate file sizes
          if (trackfile.buffer.length / 1024 > MAX_TRACK_SIZE_KB) {
-            return res.status(400).send("Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024) + "mb limit)")
+            return res.status(400).send({ message: "Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024 / 1024) + "mb limit)" })
          }
          if (albumfile && albumfile.buffer.length / 1024 > MAX_ALBUM_SIZE_KB) {
-            return res.status(400).send("Album file is too big (exceeds " + MAX_ALBUM_SIZE_KB + "kb limit)")
+            return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(MAX_ALBUM_SIZE_KB / 1024)+ "kb limit)" })
          }
 
          let filename = await upload_file(trackfile, tracks_bucket)
@@ -171,36 +186,98 @@ app.post("/upload", upload.fields([
             tracks: fb.arrayUnion(filename)
          })
 
-         res.status(200).send("Successfully uploaded")
+         res.status(200).send({ message: "Successfully uploaded" })
       } catch (err) {
          throw err
          print("Error uploading file: " + err)
-         res.status(400).send("Error uploading file")
+         res.status(400).send({ message: "Error uploading file" })
       }
    })
 
-// TEMPORARY
-let users = {
-   "capybara": "passw0rd"
-}
+app.post("/login", async (req, res) => {
+   try {
+      let username = req.body.username 
+      let password = req.body.password
 
-app.post("/login", (req, res) => {
-   let user = req.body.username 
-   let password = req.body.password
+      // validate packet
+      if (username == undefined || password == undefined || username == "" || password == "") {
+         return res.status(400).send({ message: "Invalid request" })
+      }
+      
+      // authenticate user
+      let user_data = await fb.get_doc("passwords", username)
+      if (user_data == undefined) {
+         return res.status(400).send({ message: "Invalid username/password combination" })
+      }
 
-   if (user == undefined || password == undefined || user == "" || password == "") {
-      return res.status(400).send({ message: "Invalid request" })
+      if (!(await bcrypt.compare(password, user_data.password))) {
+         return res.status(400).send({ message: "Invalid username/password combination" })
+      }
+
+      // create our access token
+      let token = jwt.sign({username}, process.env.JWT_SECRET, { expiresIn: token_expiration_time })
+
+      res.cookie("authentication_token", token, {
+         httpOnly: true,
+         secure: true,
+         sameSite: "Strict",
+         maxAge: 400 * 24 * 60 * 60 * 1000
+      })
+      res.status(200).send({ message: "Login successful" })
+   } catch (err) {
+      res.status(500).send({ message: "Unable to login" })
+      console.log(err)
    }
-   
-   // authenticate user
-   if (users[user] != password) {
-      return res.status(400).send({ message: "Invalid username/password combination"})
+})
+
+app.post("/signup", async (req, res) => {
+   try {
+      let user = req.body.username
+      let password = req.body.password
+
+      // validate packet
+      if (user == undefined || password == undefined || user == "" || password == "") {
+         return res.status(400).send({ message: "Invalid request" })
+      }
+
+      // check if username exists
+      if ((await fb.get_doc("passwords", user)) != undefined) {
+         return res.status(400).send({ message: "Username is taken" })
+      }
+
+      // create our user, save to db (with hashed password)
+      const hashed_password = await bcrypt.hash(password, 10)
+
+      const newuser = {
+         password: hashed_password,
+      }
+
+      await fb.set_doc("passwords", user, newuser)
+
+      await fb.set_doc("users", user, {
+         username: user,
+         creation_date: new Date(),
+         streams: 0,
+         listens: 0,
+         display_name: user,
+         permissions: USER_NORMAL
+      })
+
+      const token = jwt.sign({ user }, process.env.JWT_SECRET, {
+         expiresIn: token_expiration_time
+      })
+
+      res.cookie("authentication_token", token, {
+         httpOnly: true,
+         secure: true,
+         sameSite: "Strict",
+         maxAge: 400 * 24 * 60 * 60 * 1000
+      })
+      res.status(200).json({ message: "Account created successfully!" })
+   } catch (err) {
+      res.status(500).json({ message: "Failed to create account.", error: err })
+      console.log(err)
    }
-
-   // create our access token
-   let token = jwt.sign({user}, process.env.JWT_SECRET, { expiresIn: "60s" })
-
-   return res.status(200).send({ message: "Login successful", token })
 })
 
 app.get("/test", authenticate_token, (req, res) => {

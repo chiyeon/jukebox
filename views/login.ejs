@@ -13,6 +13,7 @@
          <input id="login-password" type="password" placeholder="passw0rd" name="password" required>
 
          <button id="login-button" type="submit" onclick="login(event)">Login</button>
+         <button id="login-button" type="submit" onclick="register(event)">Register</button>
       </form>
 
       <button onclick="test()">Test Token (put in password)</button>
@@ -40,8 +41,30 @@
                body: JSON.stringify(body)
             })).json()
 
-            console.log(res.message)
-            if (res.token) console.log(res.token)
+            //if (res.token) save_cookie(res.token)
+         }
+
+         const register = async (e) => {
+            e.preventDefault()
+
+            const username = document.querySelector("#login-username").value
+            const password = document.querySelector("#login-password").value
+
+            if (username == "" || password == "") return alert("Input password/username")
+
+            const body = {
+               username, password
+            }
+
+            let res = await (await fetch(url + "/signup", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json"
+               },
+               body: JSON.stringify(body)
+            })).json()
+
+            //if (res.token) save_cookie(token)
          }
 
          const test = async (e) => {
@@ -54,6 +77,12 @@
                }
             })).json()
             console.log(res.message)
+         }
+
+         const save_cookie = (token) => {
+            const date = new Date()
+            date.setTime(date.getTime() + (400 * 24 * 60 * 60 * 1000))
+               document.cookie = `jwt=${token}; expires=${date.toUTCString()}; path=/; Secure; HttpOnly; SameSite=Strict`;
          }
       </script>
    </body>
