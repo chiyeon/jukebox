@@ -40,10 +40,13 @@
                body: JSON.stringify(body)
             })
 
+            let json = await res.json()
+
             if (res.status == 200) {
-                window.location = "/"
+               sessionStorage.setItem("user", JSON.stringify(json.user))
+               window.location = "/"
             } else {
-               alert((await res.json()).message)      
+               alert(json.message)      
             }
          }
 
@@ -67,10 +70,13 @@
                body: JSON.stringify(body)
             })
 
+            let json = await res.json()
+
             if (res.status == 200) {
-                window.location = "/"
+               sessionStorage.setItem("user", JSON.stringify(json.user))
+               window.location = "/"
             } else {
-               alert((await res.json()).message)      
+               alert(json.message)      
             }
          }
 

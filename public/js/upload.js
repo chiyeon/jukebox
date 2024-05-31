@@ -72,7 +72,7 @@ const upload = async () => {
    let track = trackinput.files[0]
    let album = albuminput.files.length != 0 ? await compress_image(albuminput.files[0], 512, 0.9) : undefined
 
-   if (album) console.log(`Compressed album from ${albuminput.files[0].size}kb to ${album.size}kb.`)
+   if (album) console.log(`Compressed album from ${albuminput.files[0].size / 1024}kb to ${album.size / 1024}kb.`)
 
    formdata.append("track", track)
    if (album) formdata.append("album", album)

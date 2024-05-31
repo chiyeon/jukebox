@@ -4,7 +4,7 @@
       <a href="/">Home</a>
       <a href="/login">Login</a>
       <a href="/upload">Upload</a>
-      <a>Sign Out</a>
+      <a onclick="logout()">Sign Out</a>
    </div>
 
    <style>
@@ -16,15 +16,39 @@
    </style>
 
    <script>
+      let user = undefined
+
+      const init = async () => {
+         if (sessionStorage.getItem("user") == null) {
+            // we are authenticated, retrieve user data
+            if (document.cookie.includes("authentication_token=")) {
+               let res = await fetch("http://localhost:8080/user", {
+                  credentials: "include"
+               })
+               if (res.status == 200) {
+                  let json = await res.json()
+                  user = json.user
+               }
+            } 
+         } else {
+            user = sessionStorage.getItem("user")
+         }
+
+         console.log(user ? "Logged in" : "not logged in")
+      }
+
       const logout = async () => {
-         let res = fetch("http://localhost:8080/logout", {
+         let res = await fetch("http://localhost:8080/logout", {
             method: "post",
             credentials: "include"
          })
 
          if (res.status == 200) {
             console.log("signed out")
+            sessionStorage.clear()
          } 
       }
+
+      init()
    </script>
 </div>

@@ -24,7 +24,7 @@ const albums_bucket = gstorage.bucket(albums_bucket_name)
 
 const token_expiration_time = "400d"
 const MAX_TRACK_SIZE_KB = 15000
-const MAX_ALBUM_SIZE_KB = 20
+const MAX_ALBUM_SIZE_KB = 50
 // user permissions
 const USER_BASE = 0     // basic account, cannot do anything
 const USER_NORMAL = 1   // normal account that can upload to beat battles
@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
    res.render("home", { events })
 })
 
-app.get("/upload", (req, res) => {
+app.get("/upload", authenticate_token, (req, res) => {
    res.render("upload")
 })
 
@@ -86,7 +86,7 @@ fb.setup_collection_listener("events", async (e) => {
 
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
-   const filename = `${Date.now()}_${file.originalname}`
+   const filename = `${Date.now()}_${file.originalname.replace(/\#/g, "").split(" ").join("_")}`
    const filecloud = bucket.file(filename)
 
    await filecloud.save(file.buffer, {
@@ -99,7 +99,7 @@ const upload_file = async (file, bucket) => {
 }
 
 const get_gcloud_link = (filename, bucketname) => {
-   return `https://storage.googleapis.com/${bucketname}/${filename}`
+   return `https://storage.googleapis.com/${bucketname}/${filename.split(" ").join("_")}`
 }
 
 app.post("/eventcreate", (req, res) => {
@@ -156,10 +156,10 @@ app.post("/upload", authenticate_token, upload.fields([
 
          // validate file sizes
          if (trackfile.buffer.length / 1024 > MAX_TRACK_SIZE_KB) {
-            return res.status(400).send({ message: "Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024 / 1024) + "mb limit)" })
+            return res.status(400).send({ message: "Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024) + "mb limit)" })
          }
          if (albumfile && albumfile.buffer.length / 1024 > MAX_ALBUM_SIZE_KB) {
-            return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(MAX_ALBUM_SIZE_KB / 1024)+ "kb limit)" })
+            return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(MAX_ALBUM_SIZE_KB)+ "kb limit)" })
          }
 
          let filename = await upload_file(trackfile, tracks_bucket)
@@ -205,17 +205,23 @@ app.post("/login", async (req, res) => {
       }
       
       // authenticate user
-      let user_data = await fb.get_doc("passwords", username)
-      if (user_data == undefined) {
+      let password_data = await fb.get_doc("passwords", username)
+      if (password_data == undefined) {
          return res.status(400).send({ message: "Invalid username/password combination" })
       }
 
-      if (!(await bcrypt.compare(password, user_data.password))) {
+      if (!(await bcrypt.compare(password, password_data.password))) {
          return res.status(400).send({ message: "Invalid username/password combination" })
       }
 
       // create our access token
       let token = jwt.sign({username}, process.env.JWT_SECRET, { expiresIn: token_expiration_time })
+
+      // get user data to return to user
+      let userdata = await fb.get_doc("users", username)
+      if (userdata == undefined) {
+         return res.status(400).send({ message: "Invalid account: user data doesn't exist" })
+      }
 
       res.cookie("authentication_token", token, {
          httpOnly: true,
@@ -223,7 +229,7 @@ app.post("/login", async (req, res) => {
          sameSite: "Strict",
          maxAge: 400 * 24 * 60 * 60 * 1000
       })
-      res.status(200).send({ message: "Login successful" })
+      res.status(200).send({ message: "Login successful", user: userdata })
    } catch (err) {
       res.status(500).send({ message: "Unable to login" })
       console.log(err)
@@ -248,20 +254,21 @@ app.post("/signup", async (req, res) => {
       // create our user, save to db (with hashed password)
       const hashed_password = await bcrypt.hash(password, 10)
 
-      const newuser = {
+      const newpassword = {
          password: hashed_password,
       }
 
-      await fb.set_doc("passwords", user, newuser)
-
-      await fb.set_doc("users", user, {
+      const newuser = {
          username: user,
          creation_date: new Date(),
          streams: 0,
          listens: 0,
          display_name: user,
          permissions: USER_NORMAL
-      })
+      }
+
+      await fb.set_doc("passwords", user, newpassword)
+      await fb.set_doc("users", user, newuser)
 
       const token = jwt.sign({ user }, process.env.JWT_SECRET, {
          expiresIn: token_expiration_time
@@ -273,7 +280,7 @@ app.post("/signup", async (req, res) => {
          sameSite: "Strict",
          maxAge: 400 * 24 * 60 * 60 * 1000
       })
-      res.status(200).json({ message: "Account created successfully!" })
+      res.status(200).json({ message: "Account created successfully!", user: newuser })
    } catch (err) {
       res.status(500).json({ message: "Failed to create account.", error: err })
       console.log(err)
@@ -281,12 +288,18 @@ app.post("/signup", async (req, res) => {
 })
 
 app.post("/logout", (req, res) => {
-   const token = req.cookies.authToken
+   const token = req.cookies.authentication_token
    if (!token) {
-      res.status(200).send({ message: "No need to sign out" })
+      return res.status(200).send({ message: "No need to sign out" })
    }
    res.clearCookie("authentication_token")
    res.status(200).send({ message: "Signed out successfully" })
+})
+
+app.post("/user", authenticate_token, async (req, res) => {
+   let userdata = await fb.get_doc("users", req.user)
+
+   res.status(200).send({ message: "Found user data", user: userdata })
 })
 
 app.listen(8080, () => {
