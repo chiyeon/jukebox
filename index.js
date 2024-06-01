@@ -324,7 +324,12 @@ app.listen(8080, () => {
          event.tracks = []
 
          for (let j = 0; j < track_ids.length; j++) {
-            event.tracks.push(await fb.get_doc("tracks", track_ids[j]))
+            // events store tracks as a list of ids
+            // use IDs to get track data
+            // inside each track, use artist USERNAME to get their DISPLAY name
+            let track = await fb.get_doc("tracks", track_ids[j])
+            track.artist = (await fb.get_doc("users", track.artist)).display_name
+            event.tracks.push(track)
          }
 
          events[keys[i]] = event
