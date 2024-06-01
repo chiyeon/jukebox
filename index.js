@@ -1,79 +1,18 @@
+const users = require("./users.js")
+const files = require("./files.js")
 const fs = require("fs")
 const express = require("express")
-const multer = require("multer")
 const ejs = require("ejs")
 const { print } = require("./utils.js")
 const fb = require("./firebase.js")
 require("dotenv").config()
-const jwt = require("jsonwebtoken")
-const { Storage } = require("@google-cloud/storage")
-const bcrypt = require("bcrypt")
 const cookieparser = require("cookie-parser")
 
 const app = express()
 const PORT = process.env.PORT | 8080
-const storage = multer.memoryStorage()
-const upload = multer({ storage })
-const gstorage = new Storage({
-   keyFilename: process.env.GCLOUD_SERVICE_ACC_KEY 
-})
-const tracks_bucket_name = "jukebox-tracks"
-const albums_bucket_name = "jukebox-albums"
-const tracks_bucket = gstorage.bucket(tracks_bucket_name)
-const albums_bucket = gstorage.bucket(albums_bucket_name)
 
-const token_expiration_time = "400d"
-const MAX_TRACK_SIZE_KB = 15000
-const MAX_ALBUM_SIZE_KB = 50
-// user permissions
-const USER_BASE = 0     // basic account, cannot do anything
-const USER_NORMAL = 1   // normal account that can upload to beat battles
-const USER_ADMIN = 2    // superuser access
 let current_event = "1717195884965_anothertest"
 let events = {}
-
-const authenticate_token = (req, res, next) => {
-   let token = req.cookies.authentication_token 
-
-   if (!token) {
-      return res.status(400).send({ message: "Authorization failed." })
-   }
-
-   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-         console.log(err)
-         return res.status(400).send({ message: "Invalid token" })
-      }
-
-      req.username = user.username
-   })
-   next()
-}
-
-const authenticate_token_admin = (req, res, next) => {
-   let token = req.cookies.authentication_token 
-
-   if (!token) {
-      return res.status(400).send({ message: "Authorization failed." })
-   }
-
-   jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
-      if (err) {
-         console.log(err)
-         return res.status(400).send({ message: "Invalid token" })
-      }
-
-      let userdata = await fb.get_doc("users", user.username)
-
-      if (userdata < USER_ADMIN) {
-         console.log(`User ${user.username} attempted superuser task`)
-         return res.status(400).send({ message: "Invalid permissions" })
-      }
-
-      req.username = user.username
-   })
-   next()
-}
 
 app.set("view engine", "ejs")
 app.use(express.json())
@@ -83,7 +22,7 @@ app.get("/", (req, res) => {
    res.render("home", { events })
 })
 
-app.get("/upload", authenticate_token, (req, res) => {
+app.get("/upload", users.authenticate_token, (req, res) => {
    res.render("upload")
 })
 
@@ -91,27 +30,7 @@ app.get("/login", (req, res) => {
    res.render("login")
 })
 
-
-
-// given multer file, stream & upload to google cloud storage
-const upload_file = async (file, bucket) => {
-   const filename = `${Date.now()}_${file.originalname.replace(/\#/g, "").split(" ").join("_")}`
-   const filecloud = bucket.file(filename)
-
-   await filecloud.save(file.buffer, {
-      contentType: file.mimetype
-   }, (err) => {
-      if (err) console.log("error")
-   })
-
-   return filename
-}
-
-const get_gcloud_link = (filename, bucketname) => {
-   return `https://storage.googleapis.com/${bucketname}/${filename.split(" ").join("_")}`
-}
-
-app.post("/eventcreate", (req, res) => {
+app.post("/eventcreate", users.authenticate_token_admin, (req, res) => {
    current_event = `${Date.now()}_${req.body.id}`
    const date = Date.now()
    const name = req.body.name
@@ -125,10 +44,15 @@ app.post("/eventcreate", (req, res) => {
    return res.status(200)
 })
 
-app.post("/upload", authenticate_token, upload.fields([
+// requires authenticated user
+// takes a payload of at least 1 (track) file, up to 2 (second is album) files
+// and a string title
+// validates files then uploads to storage & sets in db
+app.post("/upload", users.authenticate_token, files.upload.fields([
       { name: "track" },
       { name: "album", maxCount: 1 }
    ]), async (req, res) => {
+      // make sure server is pointed at a new event
       if (current_event == undefined || current_event == "") {
          return res.status(400).send({ message: "No event is open" })
       }
@@ -147,7 +71,7 @@ app.post("/upload", authenticate_token, upload.fields([
          }
 
          // get & validate our data
-         const artist = user_data.username
+         const artist = user_data.username // important: user USERNAME! this is used to recall a display name later
          const title = req.body.title
 
          if (artist == undefined || title == undefined || artist.length == 0 || title.length == 0) {
@@ -160,26 +84,26 @@ app.post("/upload", authenticate_token, upload.fields([
             return res.status(400).send({ message: "Upload a file" })
          }
 
+         // track file is required. album optional
          const trackfile = files.track[0]
          const albumfile = files.album ? files.album[0] : undefined
          if (albumfile && !/\.webp$/i.test(albumfile.originalname)) {
-            console.log(albumfile.originalname)
             return res.status(400).send({ message: "Must be a valid webp image" })
          }
 
          // validate file sizes
-         if (trackfile.buffer.length / 1024 > MAX_TRACK_SIZE_KB) {
-            return res.status(400).send({ message: "Track file is too big (exceeds " + Math.floor(MAX_TRACK_SIZE_KB / 1024) + "mb limit)" })
+         if (trackfile.buffer.length / 1024 > files.MAX_TRACK_SIZE_KB) {
+            return res.status(400).send({ message: "Track file is too big (exceeds " + Math.floor(files.MAX_TRACK_SIZE_KB / 1024) + "mb limit)" })
          }
-         if (albumfile && albumfile.buffer.length / 1024 > MAX_ALBUM_SIZE_KB) {
-            return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(MAX_ALBUM_SIZE_KB)+ "kb limit)" })
+         if (albumfile && albumfile.buffer.length / 1024 > files.MAX_ALBUM_SIZE_KB) {
+            return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(files.MAX_ALBUM_SIZE_KB)+ "kb limit)" })
          }
 
-         let filename = await upload_file(trackfile, tracks_bucket)
-         let url = get_gcloud_link(filename, tracks_bucket_name)
+         let filename = await files.upload_file(trackfile, tracks_bucket)
+         let url = files.get_gcloud_link(filename, tracks_bucket_name)
          let album
-         if (albumfile) album = get_gcloud_link(await upload_file(albumfile, albums_bucket), albums_bucket_name)
-         else album = get_gcloud_link("default.webp", albums_bucket_name)
+         if (albumfile) album = files.get_gcloud_link(await files.upload_file(albumfile, albums_bucket), albums_bucket_name)
+         else album = files.get_gcloud_link("default.webp", albums_bucket_name)
 
          // save entry into database
          const newentry = {
@@ -209,26 +133,19 @@ app.post("/upload", authenticate_token, upload.fields([
 
 app.post("/login", async (req, res) => {
    try {
-      let username = req.body.username 
-      let password = req.body.password
+      const username = req.body.username 
+      const password = req.body.password
 
       // validate packet
       if (username == undefined || password == undefined || username == "" || password == "") {
          return res.status(400).send({ message: "Invalid request" })
       }
       
-      // authenticate user
-      let password_data = await fb.get_doc("passwords", username)
-      if (password_data == undefined) {
+      // authenticate user (returns -1 on error)
+      if ((await users.test_password(username, password)) < 0) {
          return res.status(400).send({ message: "Invalid username/password combination" })
       }
-
-      if (!(await bcrypt.compare(password, password_data.password))) {
-         return res.status(400).send({ message: "Invalid username/password combination" })
-      }
-
-      // create our access token
-      let token = jwt.sign({username}, process.env.JWT_SECRET, { expiresIn: token_expiration_time })
+      const token = users.login_user(username, password)
 
       // get user data to return to user
       let userdata = await fb.get_doc("users", username)
@@ -236,16 +153,17 @@ app.post("/login", async (req, res) => {
          return res.status(400).send({ message: "Invalid account: user data doesn't exist" })
       }
 
+      // save cookie w client
       res.cookie("authentication_token", token, {
          httpOnly: true,
          secure: true,
          sameSite: "Strict",
-         maxAge: 400 * 24 * 60 * 60 * 1000
+         maxAge: users.TOKEN_EXPIRATION_TIME
       })
       res.status(200).send({ message: "Login successful", user: userdata })
    } catch (err) {
       res.status(500).send({ message: "Unable to login" })
-      console.log(err)
+      print(err)
    }
 })
 
@@ -264,39 +182,18 @@ app.post("/signup", async (req, res) => {
          return res.status(400).send({ message: "Username is taken" })
       }
 
-      // create our user, save to db (with hashed password)
-      const hashed_password = await bcrypt.hash(password, 10)
-
-      const newpassword = {
-         password: hashed_password,
-      }
-
-      const newuser = {
-         username: username,
-         creation_date: new Date(),
-         streams: 0,
-         listens: 0,
-         display_name: username,
-         permissions: USER_NORMAL
-      }
-
-      await fb.set_doc("passwords", username, newpassword)
-      await fb.set_doc("users", username, newuser)
-
-      const token = jwt.sign({ username }, process.env.JWT_SECRET, {
-         expiresIn: token_expiration_time
-      })
-
+      // get & save token
+      const token = await users.create_new_user(username, password, users.USER_NORMAL)
       res.cookie("authentication_token", token, {
          httpOnly: true,
          secure: true,
          sameSite: "Strict",
-         maxAge: 400 * 24 * 60 * 60 * 1000
+         maxAge: users.TOKEN_EXPIRATION_TIME
       })
       res.status(200).json({ message: "Account created successfully!", user: newuser })
    } catch (err) {
       res.status(500).json({ message: "Failed to create account.", error: err })
-      console.log(err)
+      print(err)
    }
 })
 
@@ -309,13 +206,14 @@ app.post("/logout", (req, res) => {
    res.status(200).send({ message: "Signed out successfully" })
 })
 
-app.post("/user", authenticate_token, async (req, res) => {
+app.post("/user", users.authenticate_token, async (req, res) => {
    let userdata = await fb.get_doc("users", req.username)
 
    res.status(200).send({ message: "Found user data", user: userdata })
 })
 
 app.listen(8080, () => {
+   // listen for updates in collections
    fb.setup_collection_listener("events", async (e) => {
       let keys = Object.keys(e)
       for (let i = 0; i < keys.length; i++) {
