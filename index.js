@@ -45,7 +45,7 @@ const authenticate_token = (req, res, next) => {
          return res.status(400).send({ message: "Invalid token" })
       }
 
-      req.user = user.username
+      req.username = user.username
    })
    next()
 }
@@ -63,14 +63,14 @@ const authenticate_token_admin = (req, res, next) => {
          return res.status(400).send({ message: "Invalid token" })
       }
 
-      let userdata = await fb.get_doc("users", req.user)
+      let userdata = await fb.get_doc("users", user.username)
 
       if (userdata < USER_ADMIN) {
-         console.log(`User ${req.user} attempted superuser task`)
+         console.log(`User ${user.username} attempted superuser task`)
          return res.status(400).send({ message: "Invalid permissions" })
       }
 
-      req.user = user.username
+      req.username = user.username
    })
    next()
 }
@@ -136,7 +136,11 @@ app.post("/upload", authenticate_token, upload.fields([
       try {
          // first check if we have user perms to upload tracks
          // it is USER_NORMAL
-         let user_data = await fb.get_doc("users", req.user)
+         if (req.username == undefined || req.username == "") {
+            return res.status(400).send({ message: "Invalid token" })
+         }
+
+         let user_data = await fb.get_doc("users", req.username)
          if (!user_data) return res.status(400).send({ message: "Invalid user" })
          if (user_data.permissions < USER_NORMAL) {
             return res.status(400).send({ message: "Invalid user permissions" })
@@ -247,16 +251,16 @@ app.post("/login", async (req, res) => {
 
 app.post("/signup", async (req, res) => {
    try {
-      let user = req.body.username
+      let username = req.body.username
       let password = req.body.password
 
       // validate packet
-      if (user == undefined || password == undefined || user == "" || password == "") {
+      if (username == undefined || password == undefined || username == "" || password == "") {
          return res.status(400).send({ message: "Invalid request" })
       }
 
       // check if username exists
-      if ((await fb.get_doc("passwords", user)) != undefined) {
+      if ((await fb.get_doc("passwords", username)) != undefined) {
          return res.status(400).send({ message: "Username is taken" })
       }
 
@@ -268,18 +272,18 @@ app.post("/signup", async (req, res) => {
       }
 
       const newuser = {
-         username: user,
+         username: username,
          creation_date: new Date(),
          streams: 0,
          listens: 0,
-         display_name: user,
+         display_name: username,
          permissions: USER_NORMAL
       }
 
-      await fb.set_doc("passwords", user, newpassword)
-      await fb.set_doc("users", user, newuser)
+      await fb.set_doc("passwords", username, newpassword)
+      await fb.set_doc("users", username, newuser)
 
-      const token = jwt.sign({ user }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ username }, process.env.JWT_SECRET, {
          expiresIn: token_expiration_time
       })
 
@@ -306,7 +310,7 @@ app.post("/logout", (req, res) => {
 })
 
 app.post("/user", authenticate_token, async (req, res) => {
-   let userdata = await fb.get_doc("users", req.user)
+   let userdata = await fb.get_doc("users", req.username)
 
    res.status(200).send({ message: "Found user data", user: userdata })
 })
