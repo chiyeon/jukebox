@@ -142,10 +142,10 @@ app.post("/login", async (req, res) => {
       }
       
       // authenticate user (returns -1 on error)
-      if ((await users.test_password(username, password)) < 0) {
+      const token = await users.login_user(username, password)
+      if (token < 0) {
          return res.status(400).send({ message: "Invalid username/password combination" })
       }
-      const token = users.login_user(username, password)
 
       // get user data to return to user
       let userdata = await fb.get_doc("users", username)

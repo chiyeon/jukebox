@@ -55,8 +55,12 @@ const authenticate_token_admin = (req, res, next) => {
 }
 
 // log into existing user
-// assumes you've checked already !
+// returns auth token on success, -1 on fail
 const login_user = async (username, password) => {
+   if ((await test_password(username, password)) < 0) {
+      return -1
+   }
+
    const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRATION_TIME_STR })
    return token
 }
