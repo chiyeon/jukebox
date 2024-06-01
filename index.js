@@ -66,7 +66,7 @@ app.post("/upload", users.authenticate_token, files.upload.fields([
 
          let user_data = await fb.get_doc("users", req.username)
          if (!user_data) return res.status(400).send({ message: "Invalid user" })
-         if (user_data.permissions < USER_NORMAL) {
+         if (user_data.permissions < users.USER_NORMAL) {
             return res.status(400).send({ message: "Invalid user permissions" })
          }
 
@@ -78,15 +78,15 @@ app.post("/upload", users.authenticate_token, files.upload.fields([
             return res.status(400).send({ message: "Invalid artist/title" })
          }
 
-         const files = req.files
+         const userfiles = req.files
          
-         if (!files.track) {
+         if (!userfiles.track) {
             return res.status(400).send({ message: "Upload a file" })
          }
 
          // track file is required. album optional
-         const trackfile = files.track[0]
-         const albumfile = files.album ? files.album[0] : undefined
+         const trackfile = userfiles.track[0]
+         const albumfile = userfiles.album ? userfiles.album[0] : undefined
          if (albumfile && !/\.webp$/i.test(albumfile.originalname)) {
             return res.status(400).send({ message: "Must be a valid webp image" })
          }
@@ -99,11 +99,11 @@ app.post("/upload", users.authenticate_token, files.upload.fields([
             return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(files.MAX_ALBUM_SIZE_KB)+ "kb limit)" })
          }
 
-         let filename = await files.upload_file(trackfile, tracks_bucket)
-         let url = files.get_gcloud_link(filename, tracks_bucket_name)
+         let filename = await files.upload_file(trackfile, files.tracks_bucket)
+         let url = files.get_gcloud_link(filename, files.tracks_bucket_name)
          let album
-         if (albumfile) album = files.get_gcloud_link(await files.upload_file(albumfile, albums_bucket), albums_bucket_name)
-         else album = files.get_gcloud_link("default.webp", albums_bucket_name)
+         if (albumfile) album = files.get_gcloud_link(await files.upload_file(albumfile, files.albums_bucket), files.albums_bucket_name)
+         else album = files.get_gcloud_link("default.webp", files.albums_bucket_name)
 
          // save entry into database
          const newentry = {
@@ -200,7 +200,7 @@ app.post("/signup", async (req, res) => {
 app.post("/logout", (req, res) => {
    const token = req.cookies.authentication_token
    if (!token) {
-      return res.status(200).send({ message: "No need to sign out" })
+      return res.status(201).send({ message: "No need to sign out" })
    }
    res.clearCookie("authentication_token")
    res.status(200).send({ message: "Signed out successfully" })

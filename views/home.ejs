@@ -7,9 +7,32 @@
 </head>
    <body>
       <%- include("components/header") %>
+      <div id="content">
+
+      </div>
       <% Object.values(events).forEach(event => { %>
          <%- include("components/event", { event }) %>
       <% }) %>
    </body>
+
+   <script>
+      document.addEventListener("DOMContentLoaded", () => {
+         goto(window.location.pathname)
+      })
+
+      const goto = (url, add_to_history = true) => {
+         const content = document.querySelector("#content")
+
+         switch (url) {
+            case "/":
+               content.innerHTML = <%- include('login') %>
+               break
+         }
+
+         if (add_to_history) {
+            window.history.pushState(null, "", url)
+         }
+      }
+   </script>
 </html>
 

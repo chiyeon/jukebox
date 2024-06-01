@@ -36,5 +36,11 @@ const get_gcloud_link = (filename, bucketname) => {
 module.exports = {
    upload,
    upload_file,
-   get_gcloud_link
+   get_gcloud_link,
+   tracks_bucket,
+   albums_bucket,
+   tracks_bucket_name,
+   albums_bucket_name,
+   MAX_TRACK_SIZE_KB,
+   MAX_ALBUM_SIZE_KB
 }

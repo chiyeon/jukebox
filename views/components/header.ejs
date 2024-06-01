@@ -20,25 +20,23 @@
 
       const init = async () => {
          if (sessionStorage.getItem("user") == null) {
-            // we are authenticated, retrieve user data
-            if (document.cookie.includes("authentication_token=")) {
-               let res = await fetch("http://localhost:8080/user", {
-                  credentials: "include"
-               })
-               if (res.status == 200) {
-                  let json = await res.json()
-                  user = json.user
-               }
-            } 
+            // try to retrieve user data
+            let res = await fetch("/user", {
+               method: "POST",
+               credentials: "include"
+            })
+            if (res.status == 200) {
+               let json = await res.json()
+               user = json.user
+            }
          } else {
-            user = sessionStorage.getItem("user")
+            user = JSON.parse(sessionStorage.getItem("user"))
          }
-
-         console.log(user ? "Logged in" : "not logged in")
+         console.log(user ? "Logged in as " + user.username : "not logged in")
       }
 
       const logout = async () => {
-         let res = await fetch("http://localhost:8080/logout", {
+         let res = await fetch("/logout", {
             method: "post",
             credentials: "include"
          })
@@ -46,6 +44,7 @@
          if (res.status == 200) {
             console.log("signed out")
             sessionStorage.clear()
+            window.location = "/"
          } 
       }
 
