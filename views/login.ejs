@@ -1,91 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <title>Jukebox</title>
-</head>
-   <body>
-      <%- include("components/header") %>
-      <form>
-         <label for="username">Username</label>
-         <input id="login-username" type="text" placeholder="capybara" name="username" required>
+<form>
+   <label for="username">Username</label>
+   <input id="login-username" type="text" placeholder="capybara" name="username" required>
 
-         <label for="password">Password</label>
-         <input id="login-password" type="password" placeholder="passw0rd" name="password" required>
+   <label for="password">Password</label>
+   <input id="login-password" type="password" placeholder="passw0rd" name="password" required>
 
-         <button id="login-button" type="submit" onclick="login(event)">Login</button>
-         <button id="login-button" type="submit" onclick="register(event)">Register</button>
-      </form>
-
-      <script>
-
-            let url = "http://localhost:8080"
-         const login = async (e) => {
-            e.preventDefault()
-
-            const username = document.querySelector("#login-username").value
-            const password = document.querySelector("#login-password").value
-
-            if (username == "" || password == "") return alert("Input password/username")
-
-            const body = {
-               username, password
-            }
-
-            let res = await fetch(url + "/login", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json"
-               },
-               body: JSON.stringify(body)
-            })
-
-            let json = await res.json()
-
-            if (res.status == 200) {
-               sessionStorage.setItem("user", JSON.stringify(json.user))
-               window.location = "/"
-            } else {
-               alert(json.message)      
-            }
-         }
-
-         const register = async (e) => {
-            e.preventDefault()
-
-            const username = document.querySelector("#login-username").value
-            const password = document.querySelector("#login-password").value
-
-            if (username == "" || password == "") return alert("Input password/username")
-
-            const body = {
-               username, password
-            }
-
-            let res = await fetch(url + "/signup", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json"
-               },
-               body: JSON.stringify(body)
-            })
-
-            let json = await res.json()
-
-            if (res.status == 200) {
-               sessionStorage.setItem("user", JSON.stringify(json.user))
-               window.location = "/"
-            } else {
-               alert(json.message)      
-            }
-         }
-
-         const save_cookie = (token) => {
-            const date = new Date()
-            date.setTime(date.getTime() + (400 * 24 * 60 * 60 * 1000))
-               document.cookie = `jwt=${token}; expires=${date.toUTCString()}; path=/; Secure; HttpOnly; SameSite=Strict`;
-         }
-      </script>
-   </body>
-</html>
-
+   <button id="login-button" type="submit" onclick="login(event)">Login</button>
+   <button id="login-button" type="submit" onclick="register(event)">Register</button>
+</form>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Jukebox</title>
+   <link href="/css/track.css" rel="stylesheet" type="text/css">
+</head>
+   <body>
+      <%- include("components/header") %>
+      <div id="content">
+         
+      </div>
+      <%- include("components/player") %>
+   </body>
+
+   <script>
+      document.addEventListener("DOMContentLoaded", () => {
+         goto(window.location.pathname)
+         document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', (event) => {
+               event.preventDefault();
+               goto(event.target.pathname);
+            });
+         });
+         window.addEventListener("popstate", () => {
+            goto(window.location.pathname, false);
+         });
+      })
+
+      const playtrack = (url) => {
+         const player = document.querySelector(".player-source")
+         player.src = url
+         player.play()
+      }
+
+      const goto = (url, add_to_history = true) => {
+         const content = document.querySelector("#content")
+
+         switch (url) {
+            case "/":
+               content.innerHTML = `<%- include("home") %>`
+               break
+            case "/login":
+               content.innerHTML = `<%- include("login") %>`
+               break
+            case "/upload":
+               content.innerHTML = `<%- include("upload") %>`
+               break
+         }
+
+         if (add_to_history) {
+            window.history.pushState(null, "", url)
+         }
+      }
+   </script>
+   <script src="/js/login.js"></script>
+   <script src="/js/upload.js"></script>
+</html>
+

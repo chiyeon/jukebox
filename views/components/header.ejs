@@ -42,9 +42,8 @@
          })
 
          if (res.status == 200) {
-            console.log("signed out")
             sessionStorage.clear()
-            window.location = "/"
+            goto("/")
          } 
       }
 

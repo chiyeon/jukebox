@@ -18,17 +18,20 @@ app.set("view engine", "ejs")
 app.use(express.json())
 app.use(cookieparser())
 app.use(express.static(__dirname + "/public"))
-app.get("/", (req, res) => {
-   res.render("home", { events })
+app.get("*", (req, res) => {
+   console.log("bruh")
+   res.render("index", { 
+      events: events,
+   })
 })
 
-app.get("/upload", users.authenticate_token, (req, res) => {
-   res.render("upload")
-})
+// app.get("/upload", users.authenticate_token, (req, res) => {
+//    res.render("upload")
+// })
 
-app.get("/login", (req, res) => {
-   res.render("login")
-})
+// app.get("/login", (req, res) => {
+//    res.render("login")
+// })
 
 app.post("/eventcreate", users.authenticate_token_admin, (req, res) => {
    current_event = `${Date.now()}_${req.body.id}`
