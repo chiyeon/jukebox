@@ -9,12 +9,29 @@ const USER_BASE = 0     // basic account, cannot do anything
 const USER_NORMAL = 1   // normal account that can upload to beat battles
 const USER_ADMIN = 2    // superuser access
 
+const check_token = (token) => {
+   return new Promise((resolve, reject) => {
+      if (!token) {
+         return resolve(false)
+      }
+
+      jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+         if (err) {
+            console.log(err)
+            resolve(false)
+         } else {
+            resolve(true)
+         }
+      })
+   })
+}
+
 // express middleware fn, check for valid authenticate token or throw error
 const authenticate_token = (req, res, next) => {
-   let token = req.cookies.authentication_token 
+   let token = req.cookies.authentication_token
 
    if (!token) {
-      return res.status(400).send({ message: "Authorization failed." })
+      return res.status(400).send({ message: "No token provided." })
    }
 
    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
@@ -33,7 +50,7 @@ const authenticate_token_admin = (req, res, next) => {
    let token = req.cookies.authentication_token 
 
    if (!token) {
-      return res.status(400).send({ message: "Authorization failed." })
+      return res.status(400).send({ message: "No token provided." })
    }
 
    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
@@ -110,4 +127,5 @@ module.exports = {
    login_user,
    create_new_user,
    test_password,
+   check_token,
 }

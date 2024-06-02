@@ -7,23 +7,30 @@ const { print } = require("./utils.js")
 const fb = require("./firebase.js")
 require("dotenv").config()
 const cookieparser = require("cookie-parser")
+const cors = require("cors")
 
 const app = express()
 const PORT = process.env.PORT | 8080
 
-let current_event = "1717195884965_anothertest"
+let current_event = "1717362314700_anothertest"
 let events = {}
+let events_list = []
 
-app.set("view engine", "ejs")
+app.use(cors({
+   credentials: true,
+   origin: [ "http://localhost:5173" ]
+}))
 app.use(express.json())
 app.use(cookieparser())
 app.use(express.static(__dirname + "/public"))
-app.get("*", (req, res) => {
-   console.log("bruh")
-   res.render("index", { 
-      events: events,
-   })
-})
+
+// app.set("view engine", "ejs")
+// app.get("*", (req, res) => {
+//    console.log("bruh")
+//    res.render("index", { 
+//       events: events,
+//    })
+// })
 
 // app.get("/upload", users.authenticate_token, (req, res) => {
 //    res.render("upload")
@@ -160,8 +167,9 @@ app.post("/login", async (req, res) => {
       res.cookie("authentication_token", token, {
          httpOnly: true,
          secure: true,
-         sameSite: "Strict",
-         maxAge: users.TOKEN_EXPIRATION_TIME
+         sameSite: "lax",
+         maxAge: users.TOKEN_EXPIRATION_TIME,
+         overwrite: true
       })
       res.status(200).send({ message: "Login successful", user: userdata })
    } catch (err) {
@@ -187,10 +195,12 @@ app.post("/signup", async (req, res) => {
 
       // get & save token
       const token = await users.create_new_user(username, password, users.USER_NORMAL)
+      let newuser = await fb.get_doc("users", username)
+
       res.cookie("authentication_token", token, {
          httpOnly: true,
          secure: true,
-         sameSite: "Strict",
+         sameSite: "lax",
          maxAge: users.TOKEN_EXPIRATION_TIME
       })
       res.status(200).json({ message: "Account created successfully!", user: newuser })
@@ -209,10 +219,23 @@ app.post("/logout", (req, res) => {
    res.status(200).send({ message: "Signed out successfully" })
 })
 
-app.post("/user", users.authenticate_token, async (req, res) => {
-   let userdata = await fb.get_doc("users", req.username)
+app.get("/user", async (req, res) => {
+   const token = req.cookies.authentication_token
 
-   res.status(200).send({ message: "Found user data", user: userdata })
+   if (!token) return res.status(201).send({ message: "no token"})
+
+   if (await users.check_token(token)) {
+      let userdata = await fb.get_doc("users", req.username)
+      res.status(200).send({ message: "Found user data", user: userdata })
+   } else {
+      res.status(201).send({ message: "Invalid or unprovided token", user: undefined })
+   }
+})
+
+app.get("/events", async (req, res) => {
+   res.json({
+      events: events_list
+   })
 })
 
 app.listen(8080, () => {
@@ -232,10 +255,11 @@ app.listen(8080, () => {
             track.artist = (await fb.get_doc("users", track.artist)).display_name
             event.tracks.push(track)
          }
-
          events[keys[i]] = event
       }
 
+      events_list = Array.from(Object.values(events))
+      events_list.reverse()
    })
 
    print("started on port " + PORT)
