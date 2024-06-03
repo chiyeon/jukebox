@@ -11,11 +11,11 @@ const cookieparser = require("cookie-parser")
 // const cors = require("cors")
 
 const app = express()
-const PORT = process.env.PORT | 8080
+const PORT = process.env.PORT || 3000
 const cookie_settings = {
    httpOnly: true,
-   secure: false,
-   sameSite: "None",
+   secure: false, // prod change to true
+   sameSite: "Strict",
    maxAge: users.TOKEN_EXPIRATION_TIME,
 }
 
@@ -232,7 +232,7 @@ app.get("/api/events", async (req, res) => {
    })
 })
 
-app.listen(8080, () => {
+app.listen(PORT, () => {
    // listen for updates in collections
    fb.setup_collection_listener("events", async (e) => {
       let keys = Object.keys(e)
