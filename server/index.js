@@ -5,6 +5,7 @@ const express = require("express")
 const ejs = require("ejs")
 const { print } = require("./utils.js")
 const fb = require("./firebase.js")
+const path = require("path")
 require("dotenv").config()
 const cookieparser = require("cookie-parser")
 // const cors = require("cors")
@@ -30,9 +31,9 @@ app.use(express.json())
 app.use(cookieparser())
 // app.use(express.static(__dirname + "/public"))
 
-app.use(express.static(__dirname + "/dist"))
+app.use(express.static(path.join(__dirname, "dist")))
 app.get("/", (req, res) => {
-   res.sendFile(__dirname + "/dist/index.html")
+   res.sendFile(path.join(__dirname, "/dist/index.html"))
 })
 
 // app.get("/upload", users.authenticate_token, (req, res) => {
