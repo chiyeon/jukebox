@@ -1,8 +1,10 @@
 <template>
    <div class="player-mini-box">
       <div class="player-mini">
-         <div class="progress-box">
-            <div class="progress" ref="progress_ref"></div>
+         <div class="progress-box" @click="set_progress">
+            <div class="progress-background">
+               <div class="progress" ref="progress_ref" :style="{ width: playback_progress_percent }"></div>
+            </div>
          </div>
          <div class="track-box">
             <img class="album" :src="queue && queue[queue_index] ? queue[queue_index].album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" />
@@ -26,23 +28,22 @@
 </template>
 
 <script setup>
-import { defineProps, ref, watch } from 'vue';
+import { defineProps, ref, watch, onMounted } from 'vue';
 
 const audio_ref = ref(null)
 const progress_ref = ref(null)
 
 const playing = ref(false)
 const queue_index = ref(0)
+const playback_progress_percent = ref("0%")
 
 const props = defineProps([
    "queue"
 ])
 
 const prev_song = () => {
-   if (!audio_ref.value) return
-
    // rewind if more than 3 seconds over, otherwise previous track
-   if (audio_ref.value.currentTime > 3) {
+   if (audio_ref.value.currentTime > 3 || queue_index.value == 0) {
       audio_ref.value.currentTime = 0
    } else {
       queue_index.value--
@@ -51,24 +52,40 @@ const prev_song = () => {
 }
 
 const next_song = () => {
-   if (!audio_ref.value) return
-
    queue_index.value++
    if (queue_index.value >= props.queue.length) queue_index.value = props.queue.length - 1
 }
 
 const toggle_playback = () => {
-   if (!audio_ref.value) return
+   if (audio_ref.value.src == "") return
 
    playing.value = !playing.value
    if (playing.value) audio_ref.value.play()
    else audio_ref.value.pause()
 }
 
+const set_progress = (e) => {
+   if (audio_ref.value.src == "") return
+   audio_ref.value.currentTime = (e.offsetX / e.currentTarget.clientWidth) * audio_ref.value.duration
+   update_progress()
+}
+
 watch(() => props.queue[queue_index.value], (newval, oldval) => {
    audio_ref.value.src = newval.url
    audio_ref.value.play()
    playing.value = true
+})
+
+const update_progress = () => {
+   playback_progress_percent.value = (audio_ref.value.currentTime / audio_ref.value.duration * 100) + "%"
+}
+
+onMounted(() => {
+   setInterval(() => {
+      if (audio_ref.value && audio_ref.value.src != "") {
+         update_progress()
+      }
+   }, 100)
 })
 </script>
 
@@ -79,7 +96,6 @@ watch(() => props.queue[queue_index.value], (newval, oldval) => {
    left: 0;
    width: 100%;
 
-   border-top: 1px solid black;
    background-color: white;
 }
 
@@ -135,8 +151,19 @@ watch(() => props.queue[queue_index.value], (newval, oldval) => {
 
 .progress-box {
    width: 100%;
-   height: 4px;
-   padding-bottom: 20px;
+   height: 12px;
+   margin-bottom: 20px;
+   cursor: pointer;
+
+   display: flex;
+   align-items: center
+}
+
+.progress-background {
+   width: 100%;
+   height: 6px;
+   border-radius: 100px;
+   background-color: #e4e4e4;
 }
 
 .progress {
@@ -144,5 +171,7 @@ watch(() => props.queue[queue_index.value], (newval, oldval) => {
    border-radius: 100px;
    width: 0%;
    height: 100%;
+
+   transition: width 100ms linear;
 }
 </style>
