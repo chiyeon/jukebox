@@ -5,7 +5,7 @@
             <div class="progress" ref="progress_ref"></div>
          </div>
          <div class="track-box">
-            <img class="album" src="https://storage.googleapis.com/jukebox-albums/default.webp" />
+            <img class="album" :src="queue && queue[queue_index] ? queue[queue_index].album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" />
             <div class="content">
                <div class="track-info">
                   <p v-if="queue && queue[queue_index]">{{ queue[queue_index].artist }}</p>
@@ -41,8 +41,13 @@ const props = defineProps([
 const prev_song = () => {
    if (!audio_ref.value) return
 
-   queue_index.value--
-   if (queue_index.value < 0) queue_index.value = 0
+   // rewind if more than 3 seconds over, otherwise previous track
+   if (audio_ref.value.currentTime > 3) {
+      audio_ref.value.currentTime = 0
+   } else {
+      queue_index.value--
+      if (queue_index.value < 0) queue_index.value = 0
+   }
 }
 
 const next_song = () => {
@@ -75,6 +80,7 @@ watch(() => props.queue[queue_index.value], (newval, oldval) => {
    width: 100%;
 
    border-top: 1px solid black;
+   background-color: white;
 }
 
 .player-mini {
@@ -88,11 +94,11 @@ watch(() => props.queue[queue_index.value], (newval, oldval) => {
    display: flex;
    flex-direction: row;
    align-items: center;
-   gap: 60px;
+   gap: 30px;
 }
 
 .album {
-   width: 64px;
+   width: 72px;
 }
 
 .track-info {
