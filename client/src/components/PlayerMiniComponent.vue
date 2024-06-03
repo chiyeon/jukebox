@@ -101,13 +101,14 @@ onMounted(() => {
    width: 100%;
 
    background-color: white;
+   border-top: 1px solid black;
 }
 
 .player-mini {
    max-width: 800px;
    margin: auto;
    padding: 20px;
-   padding-top: 0;
+   padding-top: 20;
 }
 
 .track-box {

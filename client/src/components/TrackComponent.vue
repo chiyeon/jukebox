@@ -1,6 +1,7 @@
 <template>
     <div @click="play_track" :class="{'track': true, 'header': header}">
-      <RouterLink @click="prevent_parent_click" :to="`/u/${track.artist}`" class="artist">{{track.artist_display_name}}</RouterLink>
+      <RouterLink v-if="!header" @click.stop="prevent_parent_click" :to="`/u/${track.artist}`" class="artist">{{track.artist_display_name}}</RouterLink>
+      <p class="artist" v-else>{{track.artist}}</p>
       <p class="title">{{track.title}}</p>
       <div :class="{ controls: true, norender: header }">
          <button @click.stop="add_to_queue">Add to Queue</button>
@@ -27,6 +28,7 @@ const props = defineProps({
 })
 
 const play_track = () => {
+   if (header) return
    if (props.track) {
       store.dispatch("setQueue", [ props.track ])
    }
@@ -39,7 +41,6 @@ const add_to_queue = () => {
 }
 
 const prevent_parent_click = (e) => {
-   e.stopPropogation()
 }
 </script>
 
