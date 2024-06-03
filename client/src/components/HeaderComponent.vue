@@ -16,6 +16,7 @@
 import { RouterLink } from 'vue-router'
 import { onBeforeMount, ref, computed } from 'vue';
 import { useStore } from "vuex"
+import router from "../router"
 
 const store = useStore()
 
@@ -43,6 +44,7 @@ const logout = async () => {
 
    if (res.ok) {
       store.dispatch("setUser", null)
+      router.push("/")
    }
 
 }
