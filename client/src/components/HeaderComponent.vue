@@ -6,6 +6,7 @@
          <div class="space"></div>
          <RouterLink v-if="user" to="/upload">Upload</RouterLink>
          <a v-if="user" @click="logout()">Logout</a>
+         <p v-if="user">{{ user.display_name }}</p>
          <RouterLink v-if="!user" to="/login">Login</RouterLink>
       </div>
    </div>
@@ -13,36 +14,37 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onBeforeMount, ref } from 'vue';
-const user = ref(null)
+import { onBeforeMount, ref, computed } from 'vue';
+import { useStore } from "vuex"
+
+const store = useStore()
+
+const user = computed(() => store.state.user)
 
 onBeforeMount(async () => {
-   // load from storage if we are there
-   user.value = sessionStorage.getItem("user")
-   if (user.value) user.value = JSON.parse(user.value)
-   else {
-      // otherwise try to retrieve
+   if (!user.value) {
+      // try to see if we have a key, new session but saved login
       let res = await fetch("/api/user", {
          method: "get",
          credentials: "include",
-         // mode: "cors"
       })
 
       if (res.status == 200) {
-         user.value = (await res.json()).user
-         sessionStorage.setItem("user", JSON.stringify(user.value))
+         store.dispatch("setUser", (await res.json()).user)
       }
    }
 })
 
 const logout = async () => {
-   user.value = null
-   sessionStorage.removeItem("user")
-   await fetch("/api/logout", {
+   let res = await fetch("/api/logout", {
       credentials: "include",
       method: "post",
-   }),
-   window.location = "/"
+   })
+
+   if (res.ok) {
+      store.dispatch("setUser", null)
+   }
+
 }
 </script>
 
@@ -59,6 +61,10 @@ const logout = async () => {
 
 button {
    outline: none;
+}
+
+p {
+   margin: 0;
 }
 
 a {
