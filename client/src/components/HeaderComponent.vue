@@ -22,7 +22,7 @@ onBeforeMount(async () => {
    if (user.value) user.value = JSON.parse(user.value)
    else {
       // otherwise try to retrieve
-      let res = await fetch("http://localhost:8080/user", {
+      let res = await fetch("/api/user", {
          method: "get",
          credentials: "include",
          // mode: "cors"
@@ -38,7 +38,7 @@ onBeforeMount(async () => {
 const logout = () => {
    user.value = null
    sessionStorage.removeItem("user")
-   fetch("http://localhost:8080/logout", {
+   fetch("/api/logout", {
       credentials: "include",
       method: "post",
       // mode: "cors",

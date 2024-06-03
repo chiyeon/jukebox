@@ -50,7 +50,7 @@ const handle_submit = async (e) => {
         return console.log("Invalid form")
     }
 
-    let res = await fetch("http://localhost:8080/" + (form_type.value ? "signup" : "login"), {
+    let res = await fetch("/api/" + (form_type.value ? "signup" : "login"), {
         method: "post",
         headers: {
             "Content-Type": "application/json"

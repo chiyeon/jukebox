@@ -17,7 +17,7 @@ import { onBeforeMount, ref } from "vue";
 const events = ref([])
 
 onBeforeMount(async () => {
-  events.value = (await (await fetch("http://localhost:8080/events", {
+  events.value = (await (await fetch("/api/events", {
       method: "GET",
    })).json()).events
 })

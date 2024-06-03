@@ -7,19 +7,25 @@ const { print } = require("./utils.js")
 const fb = require("./firebase.js")
 require("dotenv").config()
 const cookieparser = require("cookie-parser")
-const cors = require("cors")
+// const cors = require("cors")
 
 const app = express()
 const PORT = process.env.PORT | 8080
+const cookie_settings = {
+   httpOnly: true,
+   secure: false,
+   sameSite: "None",
+   maxAge: users.TOKEN_EXPIRATION_TIME,
+}
 
 let current_event = "1717362314700_anothertest"
 let events = {}
 let events_list = []
 
-app.use(cors({
-   credentials: true,
-   origin: [ "http://localhost:5173" ]
-}))
+// app.use(cors({
+//    origin: "http://localhost:5173",
+//    credentials: true,
+// }))
 app.use(express.json())
 app.use(cookieparser())
 // app.use(express.static(__dirname + "/public"))
@@ -161,13 +167,7 @@ app.post("/login", async (req, res) => {
       }
 
       // save cookie w client
-      res.cookie("authentication_token", token, {
-         httpOnly: true,
-         secure: true,
-         sameSite: "Strict",
-         maxAge: users.TOKEN_EXPIRATION_TIME,
-         overwrite: true
-      })
+      res.cookie("authentication_token", token, cookie_settings)
       res.status(200).send({ message: "Login successful", user: userdata })
    } catch (err) {
       res.status(500).send({ message: "Unable to login" })
@@ -194,13 +194,7 @@ app.post("/signup", async (req, res) => {
       const token = await users.create_new_user(username, password, users.USER_NORMAL)
       let newuser = await fb.get_doc("users", username)
 
-      res.cookie("authentication_token", token, {
-         httpOnly: true,
-         secure: true,
-         sameSite: "Strict",
-         maxAge: users.TOKEN_EXPIRATION_TIME,
-         overwrite: true
-      })
+      res.cookie("authentication_token", token, cookie_settings)
       res.status(200).json({ message: "Account created successfully!", user: newuser })
    } catch (err) {
       res.status(500).json({ message: "Failed to create account.", error: err })
