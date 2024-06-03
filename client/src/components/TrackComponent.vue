@@ -63,6 +63,7 @@ const add_to_queue = () => {
 
 .artist {
    flex: 0.2;
+   min-width: 100px;
 }
 
 .title {
