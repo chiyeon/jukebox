@@ -32,6 +32,6 @@ h1 {
    font-weight: 900;
 }
 
-h1, h2, h3, p, a, li, button, input, label {
+h1, h2, h3, p, a, li, button, input, label, textarea {
    font-family: "Satoshi";
 }

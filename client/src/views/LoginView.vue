@@ -117,29 +117,28 @@ const switch_to = (type) => {
 }
 
 .form {
-    flex: 1;
-    
-    background-color: #e4e4e4;
+  flex: 1;
+  background-color: #e4e4e4;
 }
 
 form {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 input[type="text"],
 input[type="password"] {
-    padding: 6px 4px;
-    margin-bottom: 8px;
+  padding: 6px 4px;
+  margin-bottom: 8px;
+}
+
+input, label {
+  font-size: 14px;
 }
 
 form button {
-    padding: 12px 0;
-    margin-top: 8px;
-}
-
-label {
-    font-size: 14px;
+  padding: 12px 0;
+  margin-top: 8px;
 }
 </style>
