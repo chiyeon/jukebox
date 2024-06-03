@@ -8,7 +8,8 @@
       <p class="date">Joined {{ new Date(user.creation_date._seconds * 1000).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }) }}</p>
       <p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p>
 
-      <Event v-if="event" :event="event" />
+      <Event v-if="event && event.tracks.length != 0" :event="event" />
+      <p v-else>No published tracks</p>
    </div>
 </template>
 

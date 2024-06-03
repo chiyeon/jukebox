@@ -87,6 +87,7 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          // get & validate our data
          const artist = user_data.username // important: user USERNAME! this is used to recall a display name later
          const title = req.body.title
+         const lyrics = req.body.lyrics ? req.body.lyrics : ""
 
          if (artist == undefined || title == undefined || artist.length == 0 || title.length == 0) {
             return res.status(400).send({ message: "Invalid artist/title" })
@@ -123,6 +124,7 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          const newentry = {
             artist,
             title,
+            lyrics,
             filename,
             url,
             album,
