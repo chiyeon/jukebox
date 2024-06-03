@@ -22,15 +22,12 @@ app.use(cors({
 }))
 app.use(express.json())
 app.use(cookieparser())
-app.use(express.static(__dirname + "/public"))
+// app.use(express.static(__dirname + "/public"))
 
-// app.set("view engine", "ejs")
-// app.get("*", (req, res) => {
-//    console.log("bruh")
-//    res.render("index", { 
-//       events: events,
-//    })
-// })
+app.use(express.static(__dirname + "/dist"))
+app.get("/", (req, res) => {
+   res.sendFile(__dirname + "/dist/index.html")
+})
 
 // app.get("/upload", users.authenticate_token, (req, res) => {
 //    res.render("upload")
@@ -167,7 +164,7 @@ app.post("/login", async (req, res) => {
       res.cookie("authentication_token", token, {
          httpOnly: true,
          secure: true,
-         sameSite: "lax",
+         sameSite: "Strict",
          maxAge: users.TOKEN_EXPIRATION_TIME,
          overwrite: true
       })
@@ -200,8 +197,9 @@ app.post("/signup", async (req, res) => {
       res.cookie("authentication_token", token, {
          httpOnly: true,
          secure: true,
-         sameSite: "lax",
-         maxAge: users.TOKEN_EXPIRATION_TIME
+         sameSite: "Strict",
+         maxAge: users.TOKEN_EXPIRATION_TIME,
+         overwrite: true
       })
       res.status(200).json({ message: "Account created successfully!", user: newuser })
    } catch (err) {
@@ -223,9 +221,10 @@ app.get("/user", async (req, res) => {
    const token = req.cookies.authentication_token
 
    if (!token) return res.status(201).send({ message: "no token"})
+   const user = await users.check_token(token) // returns false on invalid, userdata on valid
 
-   if (await users.check_token(token)) {
-      let userdata = await fb.get_doc("users", req.username)
+   if (user) {
+      let userdata = await fb.get_doc("users", user.username)
       res.status(200).send({ message: "Found user data", user: userdata })
    } else {
       res.status(201).send({ message: "Invalid or unprovided token", user: undefined })

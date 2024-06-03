@@ -41,7 +41,7 @@ const form_tab_refs = [ref(null), ref(null)]
 const username_ref = ref(null)
 const password_ref = ref(null)
 
-const form_type = FORM_LOGIN
+const form_type = ref(FORM_LOGIN)
 
 const handle_submit = async (e) => {
     e.preventDefault()
@@ -50,7 +50,7 @@ const handle_submit = async (e) => {
         return console.log("Invalid form")
     }
 
-    let res = await fetch("http://localhost:8080/" + (form_type ? "signup" : "login"), {
+    let res = await fetch("http://localhost:8080/" + (form_type.value ? "signup" : "login"), {
         method: "post",
         headers: {
             "Content-Type": "application/json"
@@ -64,15 +64,15 @@ const handle_submit = async (e) => {
     let json = await res.json()
 
     if (res.status == 200) {
-        console.log(`${form_type ? "Registered" : "Logged in"} successfully`)
-        // document.location = "/"
+        console.log(`${form_type.value ? "Registered" : "Logged in"} successfully`)
+        document.location = "/"
     } else {
-        console.log(`Unable to ${form_type ? "register" : "login"}: ${json.message}`)
+        console.log(`Unable to ${form_type.value ? "register" : "login"}: ${json.message}`)
     }
 }
 
 const switch_to = (type) => {             
-    form_type = type
+    form_type.value = type
 
     // swap selected class between tabs
     document.querySelector(".tab.selected").classList.remove("selected")

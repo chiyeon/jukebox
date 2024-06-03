@@ -13,36 +13,37 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { onBeforeMount } from 'vue';
-let user = undefined
+import { onBeforeMount, ref } from 'vue';
+const user = ref(null)
 
 onBeforeMount(async () => {
    // load from storage if we are there
-   user = sessionStorage.getItem("user")
-        if (user) user = JSON.parse(user)
-        else {
-            // otherwise try to retrieve
-            let res = await fetch("http://localhost:8080/user", {
-                method: "get",
-                credentials: "include",
-                // mode: "cors"
-            })
+   user.value = sessionStorage.getItem("user")
+   if (user.value) user.value = JSON.parse(user.value)
+   else {
+      // otherwise try to retrieve
+      let res = await fetch("http://localhost:8080/user", {
+         method: "get",
+         credentials: "include",
+         // mode: "cors"
+      })
 
-            if (res.status == 200) {
-                user = (await res.json()).user
-                sessionStorage.setItem("user", JSON.stringify(user))
-            }
-        }
-    })
+      if (res.status == 200) {
+         user.value = (await res.json()).user
+         sessionStorage.setItem("user", JSON.stringify(user.value))
+      }
+   }
+})
 
-    const logout = () => {
-        user = undefined
-        fetch("http://localhost:8080/logout", {
-            credentials: "include",
-            method: "post",
-            // mode: "cors",
-        })
-    }
+const logout = () => {
+   user.value = null
+   sessionStorage.removeItem("user")
+   fetch("http://localhost:8080/logout", {
+      credentials: "include",
+      method: "post",
+      // mode: "cors",
+   })
+}
 </script>
 
 <style scoped>

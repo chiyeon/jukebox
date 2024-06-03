@@ -20,7 +20,7 @@ const check_token = (token) => {
             console.log(err)
             resolve(false)
          } else {
-            resolve(true)
+            resolve(user)
          }
       })
    })

@@ -1,5 +1,5 @@
 node_modules/
-tracks/
+dist/
 keys/
 package-lock.json
 .env
