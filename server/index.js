@@ -43,7 +43,7 @@ app.get("/", (req, res) => {
 //    res.render("login")
 // })
 
-app.post("/eventcreate", users.authenticate_token_admin, (req, res) => {
+app.post("/api/eventcreate", users.authenticate_token_admin, (req, res) => {
    current_event = `${Date.now()}_${req.body.id}`
    const date = Date.now()
    const name = req.body.name
@@ -61,7 +61,7 @@ app.post("/eventcreate", users.authenticate_token_admin, (req, res) => {
 // takes a payload of at least 1 (track) file, up to 2 (second is album) files
 // and a string title
 // validates files then uploads to storage & sets in db
-app.post("/upload", users.authenticate_token, files.upload.fields([
+app.post("/api/upload", users.authenticate_token, files.upload.fields([
       { name: "track" },
       { name: "album", maxCount: 1 }
    ]), async (req, res) => {
@@ -144,7 +144,7 @@ app.post("/upload", users.authenticate_token, files.upload.fields([
       }
    })
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
    try {
       const username = req.body.username 
       const password = req.body.password
@@ -175,7 +175,7 @@ app.post("/login", async (req, res) => {
    }
 })
 
-app.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
    try {
       let username = req.body.username
       let password = req.body.password
@@ -202,7 +202,7 @@ app.post("/signup", async (req, res) => {
    }
 })
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
    const token = req.cookies.authentication_token
    if (!token) {
       return res.status(201).send({ message: "No need to sign out" })
@@ -211,7 +211,7 @@ app.post("/logout", (req, res) => {
    res.status(200).send({ message: "Signed out successfully" })
 })
 
-app.get("/user", async (req, res) => {
+app.get("/api/user", async (req, res) => {
    const token = req.cookies.authentication_token
 
    if (!token) return res.status(201).send({ message: "no token"})
@@ -225,7 +225,7 @@ app.get("/user", async (req, res) => {
    }
 })
 
-app.get("/events", async (req, res) => {
+app.get("/api/events", async (req, res) => {
    res.json({
       events: events_list
    })

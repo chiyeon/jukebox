@@ -5,7 +5,7 @@
          <RouterLink to="/">Listen</RouterLink>
          <div class="space"></div>
          <RouterLink v-if="user" to="/upload">Upload</RouterLink>
-         <button v-if="user" @click="logout()">Logout</button>
+         <a v-if="user" @click="logout()">Logout</a>
          <RouterLink v-if="!user" to="/login">Login</RouterLink>
       </div>
    </div>
@@ -35,29 +35,38 @@ onBeforeMount(async () => {
    }
 })
 
-const logout = () => {
+const logout = async () => {
    user.value = null
    sessionStorage.removeItem("user")
-   fetch("/api/logout", {
+   await fetch("/api/logout", {
       credentials: "include",
       method: "post",
-      // mode: "cors",
-   })
+   }),
+   window.location = "/"
 }
 </script>
 
 <style scoped>
-    .nav {
-        display: flex;
-        flex-direction: row;
-        gap: 20px;
-    }
+.nav {
+   display: flex;
+   flex-direction: row;
+   gap: 20px;
+}
 
-    .space {
-        flex: 1;
-    }
+.space {
+   flex: 1;
+}
 
-    button {
-        outline: none;
-    }
+button {
+   outline: none;
+}
+
+a {
+   color: black;
+   text-decoration: none;
+   cursor: pointer;
+}
+a:hover {
+   opacity: 0.7;
+}
 </style>

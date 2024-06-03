@@ -12,7 +12,7 @@
 
 <script setup>
 import Event from "../components/EventComponent.vue"
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref } from "vue"
 
 const events = ref([])
 

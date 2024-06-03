@@ -1,5 +1,5 @@
 <template>
-    <div :class="{'track': true, 'header': header}">
+    <div @click="play_track" :class="{'track': true, 'header': header}">
         <p class="artist">{{track.artist}}</p>
         <p class="title">{{track.title}}</p>
     </div>
@@ -7,8 +7,10 @@
 
 <script setup>
 import { defineProps } from "vue"
+import { useStore } from "vuex"
 
-defineProps({
+const store = useStore()
+const props = defineProps({
     track: {
         artist: String,
         title: String,
@@ -19,6 +21,12 @@ defineProps({
         default: false
     }
 })
+
+const play_track = () => {
+   if (props.track) {
+      store.dispatch("setQueue", [ props.track ])
+   }
+}
 </script>
 
 <style scoped>
