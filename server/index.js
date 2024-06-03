@@ -212,7 +212,21 @@ app.post("/api/logout", (req, res) => {
    res.status(200).send({ message: "Signed out successfully" })
 })
 
-app.get("/api/user", async (req, res) => {
+app.post("/api/user", async (req, res) => {
+
+   if (req.body.username == undefined) {
+      return res.status(400).send({ message: "Requires 'username' in request body" })
+   }
+
+   let userdata = await fb.get_doc("users", req.body.username)
+   if (userdata) {
+      res.status(200).send({ message: "Found user data", user: userdata })
+   } else {
+      res.status(400).send({ message: "Invalid username", user: undefined })
+   }
+})
+
+app.get("/api/userbytoken", async (req, res) => {
    const token = req.cookies.authentication_token
 
    if (!token) return res.status(201).send({ message: "no token"})
@@ -246,7 +260,7 @@ app.listen(PORT, () => {
             // use IDs to get track data
             // inside each track, use artist USERNAME to get their DISPLAY name
             let track = await fb.get_doc("tracks", track_ids[j])
-            track.artist = (await fb.get_doc("users", track.artist)).display_name
+            track.artist_display_name = (await fb.get_doc("users", track.artist)).display_name
             event.tracks.push(track)
          }
          events[keys[i]] = event

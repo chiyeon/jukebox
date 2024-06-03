@@ -1,16 +1,17 @@
 <template>
     <div @click="play_track" :class="{'track': true, 'header': header}">
-         <p class="artist">{{track.artist}}</p>
-         <p class="title">{{track.title}}</p>
-         <div :class="{ controls: true, norender: header }">
-            <button @click.stop="add_to_queue">Add to Queue</button>
-         </div>
+      <RouterLink @click="prevent_parent_click" :to="`/u/${track.artist}`" class="artist">{{track.artist_display_name}}</RouterLink>
+      <p class="title">{{track.title}}</p>
+      <div :class="{ controls: true, norender: header }">
+         <button @click.stop="add_to_queue">Add to Queue</button>
+      </div>
     </div>
 </template>
 
 <script setup>
 import { defineProps } from "vue"
 import { useStore } from "vuex"
+import { RouterLink } from "vue-router"
 
 const store = useStore()
 const props = defineProps({
@@ -35,6 +36,10 @@ const add_to_queue = () => {
    if (props.track) {
       store.dispatch("addTrack", props.track)
    }
+}
+
+const prevent_parent_click = (e) => {
+   e.stopPropogation()
 }
 </script>
 
@@ -84,5 +89,14 @@ button:hover {
    opacity: 0;
    user-select: none;
    pointer-events: none;
+}
+
+a {
+   color: black;
+   text-decoration: none;
+}
+
+a:hover {
+   text-decoration: underline;
 }
 </style>

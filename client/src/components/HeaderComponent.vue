@@ -6,7 +6,7 @@
          <div class="space"></div>
          <RouterLink v-if="user" to="/upload">Upload</RouterLink>
          <a v-if="user" @click="logout()">Logout</a>
-         <p v-if="user">{{ user.display_name }}</p>
+         <RouterLink v-if="user" :to="`/u/${user.username}`">{{user.username}}</RouterLink>
          <RouterLink v-if="!user" to="/login">Login</RouterLink>
       </div>
    </div>
@@ -25,7 +25,7 @@ const user = computed(() => store.state.user)
 onBeforeMount(async () => {
    if (!user.value) {
       // try to see if we have a key, new session but saved login
-      let res = await fetch("/api/user", {
+      let res = await fetch("/api/userbytoken", {
          method: "get",
          credentials: "include",
       })
