@@ -86,6 +86,10 @@ onMounted(() => {
          update_progress()
       }
    }, 100)
+
+   audio_ref.value.addEventListener("ended", () => {
+      next_song()
+   })
 })
 </script>
 
