@@ -84,6 +84,17 @@ const get_doc_path = async(path) => {
    return get_doc(path_split[0], path_split[1])
 }
 
+// query object is something like this:
+// [ "parameter", "==", "value" ]
+const get_docs_by_query = async (col_name, query) => {
+   let out = []
+   let querysnap = await db.collection(col_name).where(...query).get()
+   querysnap.forEach(doc => {
+      out.push(doc.data())
+   })
+   return out
+}
+
 /**
  * Updates data of a target document
  * @param   {String} col_name Name of Firebase Collection
@@ -185,5 +196,6 @@ module.exports = {
    delete_doc_path,
    setup_collection_listener,
    setup_document_listener,
-   FieldValue 
+   FieldValue,
+   get_docs_by_query
 }

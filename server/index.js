@@ -246,6 +246,18 @@ app.get("/api/events", async (req, res) => {
    })
 })
 
+app.post("/api/tracks", async (req, res) => {
+   if (req.body.username == undefined) {
+      return res.status(400).send({ message: "Invalid username" })
+   }
+
+   let tracks = await fb.get_docs_by_query("tracks", [ "artist", "==", req.body.username ])
+   for (let i = 0; i < tracks.length; i++) {
+      tracks[i].artist_display_name = (await fb.get_doc("users", tracks[i].artist)).display_name
+   }
+   res.status(200).send({ message: "Found user tracks", tracks: tracks })
+})
+
 app.listen(PORT, () => {
    // listen for updates in collections
    fb.setup_collection_listener("events", async (e) => {

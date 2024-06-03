@@ -10,7 +10,7 @@
             <img class="album" :src="queue && queue[queue_index] ? queue[queue_index].album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" />
             <div class="content">
                <div class="track-info">
-                  <p v-if="queue && queue[queue_index]">{{ queue[queue_index].artist }}</p>
+                  <p v-if="queue && queue[queue_index]">{{ queue[queue_index].artist_display_name }}</p>
                   <p v-if="queue && queue[queue_index]"><strong>{{ queue[queue_index].title }}</strong></p>
                   <p v-else>No track selected</p>
                </div>

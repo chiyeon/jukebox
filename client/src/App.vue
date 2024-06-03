@@ -3,12 +3,12 @@
   <RouterView />
   <PlayerMini :queue="queue"/>
 
-  <div>
+  <div class="queue">
     <h2>queue</h2>
     <p
       v-for="track in queue"
       :key="track.url"
-    >{{ track.artist }} - {{ track.title }}</p>
+    >{{ track.artist_display_name }} - {{ track.title }}</p>
   </div>
 </template>
 
@@ -25,5 +25,7 @@ const queue = computed(() => store.state.queue)
 </script>
 
 <style scoped>
-
+.queue {
+   margin-top: auto;
+}
 </style>
