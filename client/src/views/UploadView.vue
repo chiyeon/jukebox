@@ -135,6 +135,7 @@ const upload = async (e) => {
    formdata.append("track", track)
    if (album) formdata.append("album", album)
    formdata.append("title", title)
+   if (lyrics_ref.value.value) formdata.append("lyrics", lyrics_ref.value.value)
 
    console.log("Submitting files")
    try {
