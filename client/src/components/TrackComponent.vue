@@ -30,6 +30,7 @@ const props = defineProps({
 const play_track = () => {
    if (props.header) return
    if (props.track) {
+      store.dispatch("setQueue", [])
       store.dispatch("setQueue", [ props.track ])
    }
 }
