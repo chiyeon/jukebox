@@ -10,7 +10,7 @@
 ..."></textarea>
 
          <label for="track">Audio File</label>
-         <input ref="track_ref" type="file" accept=".mp3,.wav" required>
+         <input ref="track_ref" type="file" accept=".mp3," required>
 
          <label for="album">Album Cover<p class="tag">(optional)</p></label>
          <input ref="album_ref" type="file" accept=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp">

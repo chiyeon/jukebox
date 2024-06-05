@@ -19,7 +19,7 @@ const cookie_settings = {
    maxAge: users.TOKEN_EXPIRATION_TIME,
 }
 
-let current_event = "1717362314700_anothertest"
+let current_event = "test"
 let events = {}
 let events_list = []
 
