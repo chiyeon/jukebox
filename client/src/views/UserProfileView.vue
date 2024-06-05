@@ -346,7 +346,7 @@ textarea {
    margin: 16px 0px;
    width: 100%;
    font-size: 16px;
-   white-space: preserve;
+   white-space: break-spaces;
 }
 
 .bio.input {
