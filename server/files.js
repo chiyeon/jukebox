@@ -15,7 +15,7 @@ const albums_bucket = gstorage.bucket(albums_bucket_name)
 const profiles_bucket = gstorage.bucket(profiles_bucket_name)
 const MAX_TRACK_SIZE_KB = 15000
 const MAX_ALBUM_SIZE_KB = 70 
-const MAX_ICON_SIZE_KB = 20
+const MAX_ICON_SIZE_KB = 25
 
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {

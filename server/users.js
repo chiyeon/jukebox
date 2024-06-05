@@ -94,11 +94,13 @@ const create_new_user = async (user, permissions = USER_BASE) => {
       permissions: permissions,
       bio: user.bio,
       icon: user.icon,
-      email: user.email
    }
 
-   // save hashed password in passwords db
-   await fb.set_doc("passwords", user.username, { password: hashed_password })
+   // save hashed password & user email in passwords db
+   await fb.set_doc("passwords", user.username, { 
+      password: hashed_password,
+      email: user.email
+   })
    // save (public) user data in users db
    await fb.set_doc("users", user.username, newuser)
 

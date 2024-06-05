@@ -77,7 +77,9 @@ const handle_submit = async (e) => {
       formdata.append("email", email_ref.value.value)
       if (bio_ref.value.value != "") formdata.append("bio", bio_ref.value.value)
       if (icon_ref.value.files.length != 0) { 
-         formdata.append("icon", await compress_image(icon_ref.value.files[0], 128, 0.9))
+         const compressed_icon = await compress_image(icon_ref.value.files[0], 256, 0.95)
+         formdata.append("icon", compressed_icon)
+         console.log(`Compressed album from ${icon_ref.value.files[0].size / 1024}kb to ${compressed_icon.size / 1024}kb.`)
       }
    }
 
