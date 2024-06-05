@@ -70,7 +70,7 @@ const autoscale_textarea = (e) => {
 
 const autoscale_textinput = (e) => {
    let width = e.currentTarget.value.length
-   e.currentTarget.style.width = `${width - 1}ch`
+   e.currentTarget.style.width = `${width}ch`
 }
 
 const update_user_page = async () => {
@@ -97,9 +97,6 @@ const update_user_page = async () => {
       if (res_tracks.ok) {
          let tracks = (await res_tracks.json()).tracks
          event.value = {
-            title: `${user.value.display_name}'s Tracks`,
-            date: new Date(),
-            desc: "",
             tracks: tracks
          }
          store.dispatch("setTracks", tracks)

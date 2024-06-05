@@ -47,10 +47,11 @@ const validate_filename = (filename, extensions) => {
    if (!filename || typeof filename != "string") return "Invalid filename"
 
    // ensure has ONE period (one file extension allowed)
-   if (filename.split(".").length != 2) return "Filename contains invalid or too many file extensions"
+   let split = filename.split(".")
+   if (split.length < 2) return "Filename doesn't have file extension"
    if (filename.length < MIN_FILENAME_LENGTH || filename > MAX_FILENAME_LENGTH) return `Filename must be between ${MIN_FILENAME_LENGTH} and ${MAX_FILENAME_LENGTH} characters`
 
-   let extension = filename.split(".")[1]
+   let extension = split[split.length - 1]
    if (!extensions.includes(extension)) return `Extension "${extension}" is invalid`
    console.log(filename)
    if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Filename contains invalid characters"

@@ -1,10 +1,11 @@
 <template>
     <div class="event">
+         <template v-if="event.name">
         <hr />
         <h2>{{event.name}}</h2>
         <p class="date">{{new Date(event.date).toLocaleDateString()}}</p>
         <p class="description">{{event.desc}}</p>
-
+         </template>
         <div class="tracks">
             <Track :track="track_header" :header=true />
             <Track 
@@ -17,6 +18,8 @@
 </template>
 
 <script setup>
+// to make this hold tracks only, we can just only pass tracks
+
 import Track from "./TrackComponent.vue"
 import { defineProps } from "vue"
 

@@ -18,17 +18,23 @@
          <button ref="submit_button_ref" type="submit" @click="upload">UPLOAD</button>
         </form>
    </div>
+   <div class="upload-cover" v-if="uploading">
+      <p>Uploading</p>
+   </div>
 </template>
 
 <script setup>
 
 import { ref } from "vue"
-import { compress_image} from "../utils/image.js"
+import { compress_image } from "../utils/image.js"
+import router from "../router"
 
 const title_ref = ref(null)
 const lyrics_ref = ref(null)
 const track_ref = ref(null)
 const album_ref = ref(null)
+
+const uploading = ref(false)
 
 const convert_wav_to_mp3 = (file) => {
    return new Promise((resolve, reject) => {
@@ -67,15 +73,18 @@ const convert_wav_to_mp3 = (file) => {
 
 const upload = async (e) => {
    e.preventDefault()
+   uploading.value = true
 
    console.log("Attempting upload")
    const title = title_ref.value.value
 
    if (track_ref.value.files.length == 0) {
+      uploading.value = false
       return alert("Select a file to upload")
    }
 
    if (title == "" || title == undefined) {
+      uploading.value = false
       return alert("Invalid title")
    }
 
@@ -102,12 +111,14 @@ const upload = async (e) => {
 
       if (res.status == 200) {
          alert("Successfully uploaded!")
+         router.push("/")
       } else {
-         throw res.statusText
+         throw (await res.json()).message 
       }
    } catch (e) {
       alert("Error: " + e)
    }
+   uploading.value = false
 }
 
 </script>
@@ -162,5 +173,26 @@ input[type="file"] {
    float: right;
    font-size: 12px;
    color: gray;
+}
+
+.upload-cover {
+   position: fixed;
+   width: 100%;
+   height: 100%;
+   background-color: #30303080;
+   top: 0;
+   left: 0;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+
+   z-index: 2;
+}
+
+.upload-cover p {
+   color: white;
+   font-size: 24px;
+   font-weight: bold;
 }
 </style>
