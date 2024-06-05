@@ -149,6 +149,9 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
 
          // track file is required. album optional
          const trackfile = userfiles.track[0]
+         if (!/\.mp3$/i.test(trackfile.originalname)) {
+            return res.status(400).send({ message: "Must be an mp3" })
+         }
          const albumfile = userfiles.album ? userfiles.album[0] : undefined
          if (albumfile && !/\.webp$/i.test(albumfile.originalname)) {
             return res.status(400).send({ message: "Must be a valid webp image" })
