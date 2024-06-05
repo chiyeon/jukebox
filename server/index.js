@@ -96,7 +96,7 @@ app.post("/api/update_icon", users.authenticate_token, files.upload.single("icon
    // delete old icon
    let split_names = (await fb.get_doc("users", req.username)).icon.split("/")
    let old_icon_name = split_names[split_names.length - 1]
-   await files.delete_file(old_icon_name, files.profiles_bucket) 
+   if (old_icon_name != "default_icon.webp") await files.delete_file(old_icon_name, files.profiles_bucket) 
 
    const iconfile = await files.upload_file(icon, files.profiles_bucket)
    let iconlink = files.get_gcloud_link(iconfile, files.profiles_bucket_name)
