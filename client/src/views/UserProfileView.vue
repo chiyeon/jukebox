@@ -17,7 +17,7 @@
                <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p>
             </template>
             <template v-else>
-               <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="30" /> 
+               <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="30" @input="autoscale_textinput" /> 
                <p class="edit name" @click="editing_name = false">cancel</p>
                <p class="edit name submit" @click="submit_new_displayname">submit</p>
             </template>
@@ -32,7 +32,7 @@
          <p class="edit" @click="open_edit_bio" v-if="user && selfuser && user.username == selfuser.username">edit</p>
       </template>
       <template v-else>
-         <textarea ref="newbio_ref" type="text" class="bio input" maxlength="300" />
+         <textarea @input="autoscale_textarea" ref="newbio_ref" type="text" class="bio input" maxlength="300" />
          <p class="edit" @click="editing_bio = false">cancel</p>
          <p class="edit name submit" @click="submit_new_bio">submit</p>
       </template>
@@ -62,6 +62,16 @@ const editing_bio = ref(false)
 const displayname_input_ref = ref(null)
 const newbio_ref = ref(null)
 const icon_ref = ref(null)
+
+const autoscale_textarea = (e) => {
+   e.currentTarget.style.height = "auto"
+   e.currentTarget.style.height = e.currentTarget.scrollHeight + "px"
+}
+
+const autoscale_textinput = (e) => {
+   let width = e.currentTarget.value.length
+   e.currentTarget.style.width = `${width - 1}ch`
+}
 
 const update_user_page = async () => {
    let res = await fetch("/api/user", {
@@ -184,6 +194,7 @@ watch(displayname_input_ref, (newval) => {
    if (newval) {
       displayname_input_ref.value.value = user.value.display_name
       displayname_input_ref.value.focus()
+      autoscale_textinput({ currentTarget: displayname_input_ref.value })
    }
 })
 
@@ -191,6 +202,7 @@ watch(newbio_ref, (newval) => {
    if (newval) {
       newbio_ref.value.value = user.value.bio
       newbio_ref.value.focus()
+      autoscale_textarea({ currentTarget: newbio_ref.value })
    }
 })
 </script>
@@ -229,7 +241,6 @@ h2 {
    font-size: 32px;
    padding: 0;
    border: none;
-   max-width: 300px;
    cursor: text;
    color: black;
    outline: none;
@@ -336,16 +347,17 @@ textarea {
 }
 
 .bio {
-   margin-top: 16px;
+   margin: 16px 0px;
    width: 100%;
    font-size: 16px;
-   white-space: pre;
+   white-space: preserve;
 }
 
 .bio.input {
    padding: 0;
    border: none;
    outline: none;
+   height: max-content;
 }
 
 .editing-name .buttons {
