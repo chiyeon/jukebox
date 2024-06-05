@@ -9,10 +9,10 @@
          </div>
          <div class="track-box">
             <div class="album">
-               <img class="album-icon" :src="queue && queue[queue_index] ? queue[queue_index].album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" />
+               <img class="album-icon" :src="current_song && current_song.album ? current_song.album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" />
                <div class="track-info">
-                  <p v-if="queue && queue[queue_index]">{{ queue[queue_index].artist_display_name }}</p>
-                  <p v-if="queue && queue[queue_index]"><strong>{{ queue[queue_index].title }}</strong></p>
+                  <p v-if="current_song"><strong>{{ current_song.title }}</strong></p>
+                  <RouterLink v-if="current_song" :to="`/u/${current_song.artist}`">{{ current_song.artist_display_name }}</RouterLink>
                   <p v-else>No track selected</p>
                </div>
             </div>
@@ -40,15 +40,26 @@
 </template>
 
 <script setup>
-import { defineProps, ref, watch, onMounted } from 'vue';
+import { defineProps, ref, watch, onMounted, computed } from 'vue';
+import { useStore } from "vuex"
+
+const store = useStore()
 
 const audio_ref = ref(null)
 const progress_ref = ref(null)
 
 const playing = ref(false)
+const queue = computed(() => store.state.queue) // user selected songs
+const fullqueue = ref([]) // we have props.queue which is passed in queue, and this queue which is 
+// props.queue + afterqueue
 const queue_index = ref(0)
+const after_queue_index = ref(-1)
 const playback_progress_percent = ref("0%")
 const volume_percent = ref("100%")
+const current_song = ref(null)
+
+const tracks = computed(() => store.state.tracks) // all tracks user is "pointed at"
+const after_queue = computed(() => store.state.afterQueue) // tracks to play next after queue is over
 
 let is_mouse_down = false
 let last_volume = 0 // last volume before muted. if we aren't muted, its 0
@@ -69,14 +80,16 @@ const prev_song = () => {
    if (audio_ref.value.currentTime > 3 || queue_index.value == 0) {
       audio_ref.value.currentTime = 0
    } else {
+      // 2 cases: we are either playing in queue or in after queue
       queue_index.value--
       if (queue_index.value < 0) queue_index.value = 0
    }
 }
 
 const next_song = () => {
-   queue_index.value++
-   if (queue_index.value >= props.queue.length) queue_index.value = props.queue.length - 1
+   if (queue_index.value < fullqueue.value.length - 1) {
+      queue_index.value++
+   }
 }
 
 const toggle_playback = () => {
@@ -133,19 +146,63 @@ const get_volume_icon = () => {
 
    if (vol <= 0) {
       return volume_icons[3]
-   } else if (vol <= 0.333) {
+   } else if (vol <= 0.34) {
       return volume_icons[2]
-   } else if (vol <= 0.666) {
+   } else if (vol <= 0.67) {
       return volume_icons[1]
    } else {
       return volume_icons[0]
    }
 }
 
-watch(() => props.queue[queue_index.value], (newval, oldval) => {
-   audio_ref.value.src = newval.url
+const update_audio_ref = (track) => {
+   audio_ref.value.src = track.url
    audio_ref.value.play()
    playing.value = true
+}
+
+// update our current song when queue or after queue cahnges
+watch(() => fullqueue.value[queue_index.value], (newval, oldval) => {
+   if (!newval) return
+
+   current_song.value = newval
+   // the watch for current song doesnt update from this. we'll have to do it manually
+   update_audio_ref(newval)
+})
+
+/*
+watch(() => after_queue.value[after_queue_index.value], (newval, oldval) => {
+   if (!newval) return
+
+   current_song.value = newval
+   update_audio_ref(newval)
+})
+*/
+
+// update audio ref to play new songs when current song changes
+watch(current_song.value, (newval, oldval) => {
+   if (!newval) return
+   update_audio_ref(newval)
+})
+
+watch(() => queue.value, (newval, oldval) => {
+   // if queue is empty or being reset (we clicked on a new song to play)
+   // fill teh after queue with stuff below
+   if (!newval || newval.length == 0) return;
+   if (newval.length == 1) {
+      // again in this case, we reset the queue and are clicking on a new song to play
+      queue_index.value = 0 // reset queue to 0
+      let track_index = tracks.value.findIndex(track => track.filename == queue.value[queue_index.value].filename)
+      if (track_index < 0) return;
+
+      store.dispatch("setAfterQueue", tracks.value.slice(track_index + 1))
+
+      // append after queue to queue
+      fullqueue.value = queue.value.concat(after_queue.value)
+   } else {
+      // if we aren't though, we need to insert new songs into the queue BEFORE afterqueue
+      fullqueue.value = queue.value.concat(after_queue.value)
+   }
 })
 
 const update_progress = () => {

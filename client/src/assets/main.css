@@ -36,3 +36,12 @@ h1 {
 h1, h2, h3, p, a, li, button, input, label, textarea {
    font-family: "Satoshi";
 }
+
+a {
+   color: black;
+   text-decoration: none;
+}
+
+a:hover {
+   text-decoration: underline;
+}

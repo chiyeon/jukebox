@@ -9,6 +9,12 @@
       v-for="track in queue"
       :key="track.url"
     >{{ track.artist_display_name }} - {{ track.title }}</p>
+    <hr />
+    <h2>Up next</h2>
+    <p
+      v-for="track in afterQueue"
+      :key="track.url"
+    >{{ track.artist_display_name }} - {{ track.title }}</p>
   </div>
 </template>
 
@@ -22,6 +28,7 @@ import PlayerMini from "./components/PlayerMiniComponent.vue"
 const store = useStore()
 
 const queue = computed(() => store.state.queue)
+const afterQueue = computed(() => store.state.afterQueue)
 </script>
 
 <style scoped>

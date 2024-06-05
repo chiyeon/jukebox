@@ -30,7 +30,6 @@ const props = defineProps({
 const play_track = () => {
    if (props.header) return
    if (props.track) {
-      store.dispatch("setQueue", [])
       store.dispatch("setQueue", [ props.track ])
    }
 }
@@ -54,6 +53,8 @@ const prevent_parent_click = (e) => {
    border-bottom: 1px solid gray;
    display: flex;
    flex-direction: row;
+
+   user-select: none;
 }
 
 .track:not(.header):hover {
@@ -92,14 +93,5 @@ button:hover {
    opacity: 0;
    user-select: none;
    pointer-events: none;
-}
-
-a {
-   color: black;
-   text-decoration: none;
-}
-
-a:hover {
-   text-decoration: underline;
 }
 </style>
