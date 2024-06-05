@@ -19,17 +19,17 @@
       <div class="form">
         <form>
             <label for="username">Username<p class="required" v-if="form_type == FORM_REGISTER">*</p></label>
-            <input ref="username_ref" id="login-username" type="text" placeholder="capybara" name="username" required>
+            <input ref="username_ref" id="login-username" type="text" placeholder="capybara" name="username" maxlength="20" required>
 
             <label for="password">Password<p class="required" v-if="form_type == FORM_REGISTER">*</p></label>
-            <input ref="password_ref" id="login-password" type="password" placeholder="passw0rd" name="password" required>
+            <input ref="password_ref" id="login-password" type="password" placeholder="passw0rd" name="password" maxlength="50" required>
 
             <div v-if="form_type == FORM_REGISTER">
                <label for="email">Email<p class="required">*</p></label>
-               <input ref="email_ref" type="text" placeholder="capybara@fnaf.com" name="email" required>
+               <input ref="email_ref" type="text" placeholder="capybara@fnaf.com" name="email" maxlength="40" required>
 
                <label for="bio">Bio</label>
-               <textarea ref="bio_ref" placeholder="Just a capybara." />
+               <textarea ref="bio_ref" maxlength="300" placeholder="Just a capybara." />
 
                <label for="icon">Icon</label>
                <input ref="icon_ref" type="file" accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp" />

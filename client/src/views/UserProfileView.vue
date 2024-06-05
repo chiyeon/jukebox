@@ -17,7 +17,7 @@
                <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p>
             </template>
             <template v-else>
-               <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="30" @input="autoscale_textinput" /> 
+               <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="20" @input="autoscale_textinput" /> 
                <p class="edit name" @click="editing_name = false">cancel</p>
                <p class="edit name submit" @click="submit_new_displayname">submit</p>
             </template>
@@ -132,7 +132,6 @@ const submit_new_displayname = async () => {
 }
 
 const submit_new_bio = async () => {
-   if (newbio_ref.value.value == "") return alert("Field is empty!")
    if (newbio_ref.value.value == user.bio) return 
 
    let res = await fetch("/api/update_bio", {

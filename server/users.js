@@ -9,6 +9,53 @@ const USER_BASE = 0     // basic account, cannot do anything
 const USER_NORMAL = 1   // normal account that can upload to beat battles
 const USER_ADMIN = 2    // superuser access
 
+// these rules are for display names & usernames
+const MIN_USERNAME_LENGTH = 3
+const MAX_USERNAME_LENGTH = 20
+const MIN_BIO_LENGTH = 0
+const MAX_BIO_LENGTH = 300
+const USERNAME_REGEX_VALIDATION = /^[a-zA-Z0-9_.-]+$/
+const MIN_PASSWORD_LENGTH = 3
+const MAX_PASSWORD_LENGTH = 50
+const PASSWORD_REGEX_VALIDATION = /^[A-Za-z\d@$!%*?&_\-.^#]+$/
+const MIN_EMAIL_LENGTH = 6
+const MAX_EMAIL_LENGTH = 40
+
+const DEFAULT_BIO = "This user has no bio."
+
+const validate_displayname = (displayname) => {
+   if (!displayname || typeof displayname != "string") return "Invalid display name"
+   if (displayname.length < MIN_USERNAME_LENGTH || displayname.length > MAX_USERNAME_LENGTH) return `Displayname must be between ${MIN_USERNAME_LENGTH} and ${MAX_USERNAME_LENGTH} characters`
+   return 0 
+}
+
+const validate_username = (username) => {
+   if (!username || typeof username != "string") return "Invalid username"
+   if (username.length < MIN_USERNAME_LENGTH || username.length > MAX_USERNAME_LENGTH) return `Username must be between ${MIN_USERNAME_LENGTH} and ${MAX_USERNAME_LENGTH} characters`
+   if (!USERNAME_REGEX_VALIDATION.test(username)) return "Contains invalid characters (Must be A-z 0-9 - _ .)"
+   return 0
+}
+
+const validate_bio = (bio) => {
+   if (!bio || typeof bio != "string") return "Invalid bio"
+   if (bio.length < MIN_BIO_LENGTH || bio.length > MAX_BIO_LENGTH) return `Bio must be between ${MIN_BIO_LENGTH} and ${MAX_BIO_LENGTH} characters`
+   return 0
+}
+
+const validate_password = (password) => {
+   if (!password || typeof password != "string") return "Invalid password"
+   if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) return `Password must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`
+   if (!PASSWORD_REGEX_VALIDATION.test(password)) return "Password contains invalid characters (Must be A-z 0-9 !@#$%^&*_-)"
+   return 0
+}
+
+const validate_email = (email) => {
+   if (!email || typeof email != "string") return "Invalid email"
+   if (!email.includes("@") || !email.includes(".")) return "Invalid email"
+   if (email.length < MIN_EMAIL_LENGTH || email.length > MAX_EMAIL_LENGTH) return "Invalid email size"
+   return 0
+}
+
 const check_token = (token) => {
    return new Promise((resolve, reject) => {
       if (!token) {
@@ -133,4 +180,10 @@ module.exports = {
    create_new_user,
    test_password,
    check_token,
+   validate_username,
+   validate_bio,
+   validate_password,
+   validate_email,
+   validate_displayname,
+   DEFAULT_BIO,
 }

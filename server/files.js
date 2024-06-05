@@ -16,7 +16,9 @@ const profiles_bucket = gstorage.bucket(profiles_bucket_name)
 const MAX_TRACK_SIZE_KB = 15000
 const MAX_ALBUM_SIZE_KB = 70 
 const MAX_ICON_SIZE_KB = 25
-
+const MIN_FILENAME_LENGTH = 5
+const MAX_FILENAME_LENGTH = 50
+const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-().]+$/
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
    const filename = `${Date.now()}_${file.originalname.replace(/\#/g, "").split(" ").join("_")}`
@@ -37,7 +39,22 @@ const delete_file = async (file, bucket) => {
 
 // formulate a link to a file in a bucket
 const get_gcloud_link = (filename, bucketname) => {
-   return `https://storage.googleapis.com/${bucketname}/${filename.split(" ").join("_")}`
+   return `https://storage.googleapis.com/${bucketname}/${filename}`
+}
+
+// validates a filename. takes extensions  as a string: ".mp3,.webp"
+const validate_filename = (filename, extensions) => {
+   if (!filename || typeof filename != "string") return "Invalid filename"
+
+   // ensure has ONE period (one file extension allowed)
+   if (filename.split(".").length != 2) return "Contains invalid or too many file extensions"
+   if (filename.length < MIN_FILENAME_LENGTH || filename > MAX_FILENAME_LENGTH) return `Filename must be between ${MIN_FILENAME_LENGTH} and ${MAX_FILENAME_LENGTH} characters`
+
+   let extension = filename.split(".")[1]
+   if (!extensions.includes(extension)) return `Extension "${extension}" is invalid`
+   console.log(filename)
+   if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Contains invalid characters"
+   return 0
 }
 
 module.exports = {
@@ -53,5 +70,6 @@ module.exports = {
    profiles_bucket_name,
    MAX_TRACK_SIZE_KB,
    MAX_ALBUM_SIZE_KB,
-   MAX_ICON_SIZE_KB
+   MAX_ICON_SIZE_KB,
+   validate_filename,
 }

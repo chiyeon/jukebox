@@ -62,8 +62,10 @@ app.post("/api/eventcreate", users.authenticate_token_admin, (req, res) => {
 app.post("/api/update_displayname", users.authenticate_token, async (req, res) => {
    const newname = req.body.display_name
 
-   // todo make validation function
-   if (!newname || newname.length == 0 || newname.length > 30) return res.status(400).send({ message: "Invalid name" })
+   const validation = users.validate_displayname(newname)
+   if (validation != 0) {
+      return res.status(400).send({ message: validation })
+   }
 
    await fb.update_doc("users", req.username, { display_name: newname })
 
@@ -71,10 +73,14 @@ app.post("/api/update_displayname", users.authenticate_token, async (req, res) =
 })
 
 app.post("/api/update_bio", users.authenticate_token, async (req, res) => {
-   const bio = req.body.bio
+   let bio = req.body.bio
 
-   // todo make validation function
-   if (!bio || bio.length == 0 || bio.length > 300) return res.status(400).send({ message: "Invalid bio" })
+   if (!bio || bio.length == 0) bio = users.DEFAULT_BIO
+
+   const validation = users.validate_bio(bio)
+   if (validation != 0) {
+      return res.status(400).send({ message: validation })
+   }
 
    await fb.update_doc("users", req.username, { bio: bio })
 
@@ -83,11 +89,14 @@ app.post("/api/update_bio", users.authenticate_token, async (req, res) => {
 
 app.post("/api/update_icon", users.authenticate_token, files.upload.single("icon"), async (req, res) => {
    if (!req.file) return res.status(400).send({ message: "Submit an icon" })
-   const icon = req.file
+   let icon = req.file
+   icon.originalname = icon.originalname.replace(/ /g, "_")
 
-   if (!/\.webp$/i.test(icon.originalname)) {
-      return res.status(400).send({ message: "Must be a valid webp image" })
+   let validation = files.validate_filename(icon.originalname, ".webp")
+   if (validation != 0) {
+      return res.status(400).send({ message: validation })
    }
+
    // validate picture size
    if (icon.buffer.length / 1024 > files.MAX_ICON_SIZE_KB) {
       return res.status(400).send({ message: "Profile icon file is too big (exceeds " + Math.floor(files.MAX_ICON_SIZE_KB)+ "kb limit)" })
@@ -149,12 +158,19 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
 
          // track file is required. album optional
          const trackfile = userfiles.track[0]
-         if (!/\.mp3$/i.test(trackfile.originalname)) {
-            return res.status(400).send({ message: "Must be an mp3" })
+         trackfile.originalname = trackfile.originalname.replace(/ /g, "_")
+         const trackfile_validation = files.validate_filename(trackfile.originalname, ".mp3")
+         if (trackfile_validation != 0) {
+            return res.status(400).send({ message: trackfile_validation })
          }
+
          const albumfile = userfiles.album ? userfiles.album[0] : undefined
-         if (albumfile && !/\.webp$/i.test(albumfile.originalname)) {
-            return res.status(400).send({ message: "Must be a valid webp image" })
+         if (albumfile) {
+            albumfile.originalname = albumfile.originalname.replace(/ /g, "_")
+            const albumfile_validation = files.validate_filename(albumfile.originalname, ".webp")
+            if (albumfile_validation != 0) {
+               return res.status(400).send({ message: albumfile_validation })
+            }
          }
 
          // validate file sizes
@@ -237,14 +253,21 @@ app.post("/api/signup", files.upload.fields([
          username: req.body.username,
          password: req.body.password,
          email: req.body.email,
-         bio: req.body.bio ? req.body.bio : "This user doesn't have a bio",
+         bio: req.body.bio ? req.body.bio : users.DEFAULT_BIO,
       }
 
-      // validate packet
-      if (user.username == undefined || user.password == undefined || user.username == "" || user.password == "" ||
-         user.username.includes(" ") || user.username.length > 30 || !user.email || user.email == "" || !user.email.includes("@")) {
-         return res.status(400).send({ message: "Invalid request" })
-      }
+      // run validations
+      const validate_username = users.validate_username(user.username)
+      if (validate_username != 0) return res.status(400).send({ message: validate_username })
+
+      const validate_bio = users.validate_bio(user.bio)
+      if (validate_bio != 0) return res.status(400).send({ message: validate_bio })
+
+      const validate_password = users.validate_password(user.password)
+      if (validate_password != 0) return res.status(400).send({ message: validate_password })
+
+      const validate_email = users.validate_email(user.email)
+      if (validate_email != 0) return res.status(400).send({ message: validate_email })
 
       // check if username exists
       if ((await fb.get_doc("passwords", user.username)) != undefined) {
@@ -254,9 +277,10 @@ app.post("/api/signup", files.upload.fields([
       // upload profile picture if there
       const icon = req.files.icon ? req.files.icon[0] : undefined
       if (icon) {
-            console.log("detected image")
-         if (!/\.webp$/i.test(icon.originalname)) {
-            return res.status(400).send({ message: "Must be a valid webp image" })
+         icon.originalname = icon.originalname.replace(/ /g, "_")
+         const validate_iconname = files.validate_filename(icon.originalname, ".webp")
+         if (validate_iconname != 0) {
+            return res.status(400).send({ message: validate_iconname })
          }
          // validate picture size
          if (icon.buffer.length / 1024 > files.MAX_ICON_SIZE_KB) {
