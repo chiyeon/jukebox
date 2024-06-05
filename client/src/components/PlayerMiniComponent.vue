@@ -77,6 +77,7 @@ const props = defineProps([
 ])
 
 const get_as_time = (time) => {
+   if (isNaN(time)) return "0:00"
    let minutes = Math.floor(time / 60)
    let seconds = Math.floor(time % 60)
    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`
@@ -187,12 +188,27 @@ watch(() => fullqueue.value[queue_index.value], (newval, oldval) => {
    current_song.value = newval
    // the watch for current song doesnt update from this. we'll have to do it manually
    update_audio_ref(newval)
+
+   navigator.mediaSession.metadata = new MediaMetadata({
+      title: newval.title,
+      artist: newval.artist_display_name ? newval.artist_display_name : newval.artist,
+      album: "jukebox",
+      artwork: [
+         { 
+            src: newval.album,
+            sizes: "512x512",
+            type: "image/webp"
+         },
+      ],
+    });
 })
 
 // update audio ref to play new songs when current song changes
 watch(current_song.value, (newval, oldval) => {
    if (!newval) return
    update_audio_ref(newval)
+
+
 })
 
 watch(() => queue.value, (newval, oldval) => {
@@ -228,6 +244,14 @@ onMounted(() => {
       progress_ref.value.value = (audio_ref.value.currentTime / audio_ref.value.duration)
       update_progress()
    })
+
+   navigator.mediaSession.setActionHandler('play', () => audio_ref.value.play());
+   navigator.mediaSession.setActionHandler('pause', () => audio_ref.value.pause());
+   navigator.mediaSession.setActionHandler('seekto', ({ seekTime }) => {
+      audio_ref.value.currentTime = seekTime;
+   });
+   navigator.mediaSession.setActionHandler('previoustrack', () => prev_song());
+   navigator.mediaSession.setActionHandler('nexttrack', () => next_song());
 })
 </script>
 
