@@ -6,7 +6,10 @@
          <div class="space"></div>
          <RouterLink v-if="user" to="/upload">Upload</RouterLink>
          <a v-if="user" @click="logout()">Logout</a>
-         <RouterLink v-if="user" :to="`/u/${user.username}`">{{user.username}}</RouterLink>
+         <RouterLink :to="`/u/${user.username}`" class="user-info" v-if="user">
+            <p>{{user.username}}</p>
+            <img :src="user.icon" />
+         </RouterLink>
          <RouterLink v-if="!user" to="/login">Login</RouterLink>
       </div>
    </div>
@@ -55,6 +58,7 @@ const logout = async () => {
    display: flex;
    flex-direction: row;
    gap: 20px;
+   align-items: center;
 }
 
 .space {
@@ -76,5 +80,22 @@ a {
 }
 a:hover {
    opacity: 0.7;
+}
+
+.user-info {
+   display: flex;
+   align-items: center;
+   cursor: pointer;
+}
+
+.user-info:hover {
+   opacity: 0.7;
+}
+
+.user-info img {
+   width: 32px;
+   aspect-ratio: 1.0;
+   margin-left: 10px;
+   border-radius: 100px
 }
 </style>
