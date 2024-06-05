@@ -33,6 +33,6 @@ const afterQueue = computed(() => store.state.afterQueue)
 
 <style scoped>
 .queue {
-   margin-top: auto;
+   margin-top: 400px;
 }
 </style>

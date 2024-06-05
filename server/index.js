@@ -58,6 +58,54 @@ app.post("/api/eventcreate", users.authenticate_token_admin, (req, res) => {
    return res.status(200)
 })
 
+// update user name
+app.post("/api/update_displayname", users.authenticate_token, async (req, res) => {
+   const newname = req.body.display_name
+
+   // todo make validation function
+   if (!newname || newname.length == 0 || newname.length > 30) return res.status(400).send({ message: "Invalid name" })
+
+   await fb.update_doc("users", req.username, { display_name: newname })
+
+   res.status(200).send({ message: "Updated display name" })
+})
+
+app.post("/api/update_bio", users.authenticate_token, async (req, res) => {
+   const bio = req.body.bio
+
+   // todo make validation function
+   if (!bio || bio.length == 0 || bio.length > 300) return res.status(400).send({ message: "Invalid bio" })
+
+   await fb.update_doc("users", req.username, { bio: bio })
+
+   res.status(200).send({ message: "Updated biography" })
+})
+
+app.post("/api/update_icon", users.authenticate_token, files.upload.single("icon"), async (req, res) => {
+   if (!req.file) return res.status(400).send({ message: "Submit an icon" })
+   const icon = req.file
+
+   if (!/\.webp$/i.test(icon.originalname)) {
+      return res.status(400).send({ message: "Must be a valid webp image" })
+   }
+   // validate picture size
+   if (icon.buffer.length / 1024 > files.MAX_ICON_SIZE_KB) {
+      return res.status(400).send({ message: "Profile icon file is too big (exceeds " + Math.floor(files.MAX_ICON_SIZE_KB)+ "kb limit)" })
+   }
+
+   // delete old icon
+   let split_names = (await fb.get_doc("users", req.username)).icon.split("/")
+   let old_icon_name = split_names[split_names.length - 1]
+   await files.delete_file(old_icon_name, files.profiles_bucket) 
+
+   const iconfile = await files.upload_file(icon, files.profiles_bucket)
+   let iconlink = files.get_gcloud_link(iconfile, files.profiles_bucket_name)
+
+   await fb.update_doc("users", req.username, { icon: iconlink })
+
+   res.status(200).send({ message: "Updated icon" })
+})
+
 // requires authenticated user
 // takes a payload of at least 1 (track) file, up to 2 (second is album) files
 // and a string title
@@ -147,7 +195,7 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
       }
    })
 
-app.post("/api/login", async (req, res) => {
+app.post("/api/login", files.upload.none(), async (req, res) => {
    try {
       const username = req.body.username 
       const password = req.body.password
@@ -178,24 +226,48 @@ app.post("/api/login", async (req, res) => {
    }
 })
 
-app.post("/api/signup", async (req, res) => {
+app.post("/api/signup", files.upload.fields([
+      { name: "icon", maxCount: 1 }
+   ]), async (req, res) => {
    try {
-      let username = req.body.username
-      let password = req.body.password
+      const user = {
+         username: req.body.username,
+         password: req.body.password,
+         bio: req.body.bio ? req.body.bio : "This user doesn't have a bio",
+      }
 
       // validate packet
-      if (username == undefined || password == undefined || username == "" || password == "") {
+      if (user.username == undefined || user.password == undefined || user.username == "" || user.password == "" ||
+         user.username.includes(" ") || user.username.length > 30) {
          return res.status(400).send({ message: "Invalid request" })
       }
 
       // check if username exists
-      if ((await fb.get_doc("passwords", username)) != undefined) {
+      if ((await fb.get_doc("passwords", user.username)) != undefined) {
          return res.status(400).send({ message: "Username is taken" })
       }
 
+      // upload profile picture if there
+      const icon = req.files.icon ? req.files.icon[0] : undefined
+      if (icon) {
+            console.log("detected image")
+         if (!/\.webp$/i.test(icon.originalname)) {
+            return res.status(400).send({ message: "Must be a valid webp image" })
+         }
+         // validate picture size
+         if (icon.buffer.length / 1024 > files.MAX_ICON_SIZE_KB) {
+            return res.status(400).send({ message: "Profile icon file is too big (exceeds " + Math.floor(files.MAX_ICON_SIZE_KB)+ "kb limit)" })
+         }
+
+         const iconfile = await files.upload_file(icon, files.profiles_bucket)
+         user.icon = files.get_gcloud_link(iconfile, files.profiles_bucket_name)
+      } else {
+         user.icon = files.get_gcloud_link("default_icon.webp", files.profiles_bucket_name)
+      }
+
       // get & save token
-      const token = await users.create_new_user(username, password, users.USER_NORMAL)
-      let newuser = await fb.get_doc("users", username)
+      const token = await users.create_new_user(user, users.USER_NORMAL)
+      let newuser = await fb.get_doc("users", user.username)
 
       res.cookie("authentication_token", token, cookie_settings)
       res.status(200).json({ message: "Account created successfully!", user: newuser })

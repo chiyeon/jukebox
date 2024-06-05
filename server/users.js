@@ -83,24 +83,26 @@ const login_user = async (username, password) => {
 }
 
 // create new user & return their secure token
-const create_new_user = async (username, password, permissions = USER_BASE) => {
-   const hashed_password = await bcrypt.hash(password, 10)
+const create_new_user = async (user, permissions = USER_BASE) => {
+   const hashed_password = await bcrypt.hash(user.password, 10)
    const newuser = {
-      username,
+      username: user.username,
       creation_date: new Date(),
       streams: 0,
       listens: 0,
-      display_name: username,
-      permissions: permissions
+      display_name: user.username,
+      permissions: permissions,
+      bio: user.bio,
+      icon: user.icon
    }
 
    // save hashed password in passwords db
-   await fb.set_doc("passwords", username, { password: hashed_password })
+   await fb.set_doc("passwords", user.username, { password: hashed_password })
    // save (public) user data in users db
-   await fb.set_doc("users", username, newuser)
+   await fb.set_doc("users", user.username, newuser)
 
    // get our secure token
-   const token = jwt.sign({ username }, process.env.JWT_SECRET, {
+   const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
       expiresIn: TOKEN_EXPIRATION_TIME 
    })
 

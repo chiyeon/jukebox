@@ -18,11 +18,19 @@
       </div>
       <div class="form">
         <form>
-            <label for="username">Username</label>
+            <label for="username">Username<p class="required" v-if="form_type == FORM_REGISTER">*</p></label>
             <input ref="username_ref" id="login-username" type="text" placeholder="capybara" name="username" required>
 
-            <label for="password">Password</label>
+            <label for="password">Password<p class="required" v-if="form_type == FORM_REGISTER">*</p></label>
             <input ref="password_ref" id="login-password" type="password" placeholder="passw0rd" name="password" required>
+
+            <div v-if="form_type == FORM_REGISTER">
+               <label for="bio">Bio</label>
+               <textarea ref="bio_ref" placeholder="Just a capybara." />
+
+               <label for="icon">Icon</label>
+               <input ref="icon_ref" type="file" accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp" />
+            </div>
           
             <button ref="submit_button_ref" type="submit" @click="handle_submit">{{ form_type ? "Register" : "Login" }}</button>
         </form>
@@ -34,6 +42,7 @@
 import { ref } from "vue"
 import { useStore } from "vuex"
 import router from "../router"
+import { compress_image } from "../utils/image.js"
 
 const store = useStore()
 const FORM_LOGIN = 0
@@ -43,6 +52,8 @@ const submit_button_ref = ref(null)
 const form_tab_refs = [ref(null), ref(null)]
 const username_ref = ref(null)
 const password_ref = ref(null)
+const bio_ref = ref(null)
+const icon_ref = ref(null)
 
 const form_type = ref(FORM_LOGIN)
 
@@ -53,15 +64,20 @@ const handle_submit = async (e) => {
         return console.log("Invalid form")
     }
 
+   let formdata = new FormData()
+   formdata.append("username", username_ref.value.value)
+   formdata.append("password", password_ref.value.value)
+
+   if (form_type.value == FORM_REGISTER) {
+      if (bio_ref.value.value != "") formdata.append("bio", bio_ref.value.value)
+      if (icon_ref.value.files.length != 0) { 
+         formdata.append("icon", await compress_image(icon_ref.value.files[0], 128, 0.9))
+      }
+   }
+
     let res = await fetch("/api/" + (form_type.value ? "signup" : "login"), {
-        method: "post",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            username: username_ref.value.value,
-            password: password_ref.value.value
-        })
+        method: "POST",
+         body: formdata
     })
 
     let json = await res.json()
@@ -125,6 +141,11 @@ const switch_to = (type) => {
   background-color: #e4e4e4;
 }
 
+.required {
+   display: inline;
+   color: red;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -132,12 +153,15 @@ form {
 }
 
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+textarea {
   padding: 6px 4px;
   margin-bottom: 8px;
+   width: 100%;
+   box-sizing: border-box;
 }
 
-input, label {
+input, label, textarea {
   font-size: 14px;
 }
 
