@@ -1,9 +1,10 @@
 <template>
    <div class="player-mini-box">
       <div class="player-mini">
-         <div class="progress-box" @click="set_progress">
+         <div class="progress-box">
             <div class="progress-background">
                <div class="progress" ref="progress_ref" :style="{ width: playback_progress_percent }"></div>
+               <input @input="set_progress_by_slider" type="range" min="0" max="1" step="0.01" class="progress-slider" />
             </div>
          </div>
          <div class="track-box">
@@ -23,9 +24,10 @@
             <div class="controls-right">
                <div class="volume-controls">
                   <img class="volume-icon" width="24" height="24" :src="get_volume_icon()" alt="volume" @click="toggle_mute" />
-                  <div class="volume-box" @click="set_volume_by_click">
+                  <div class="volume-box">
                      <div class="volume-background">
                         <div class="volume" ref="volume_ref" :style="{ width: volume_percent }"></div>
+                        <input @input="set_volume_by_slider" ref="volume_slider_ref" type="range" min="0" max="1" value="1" step="0.01" class="volume-slider" />
                      </div>
                   </div>
                </div>
@@ -48,6 +50,7 @@ const queue_index = ref(0)
 const playback_progress_percent = ref("0%")
 const volume_percent = ref("100%")
 
+let is_mouse_down = false
 let last_volume = 0 // last volume before muted. if we aren't muted, its 0
 
 const volume_icons = [
@@ -90,6 +93,12 @@ const set_progress = (e) => {
    update_progress()
 }
 
+const set_progress_by_slider = (e) => {
+   if (audio_ref.value.src == "") return
+   audio_ref.value.currentTime = e.currentTarget.value * audio_ref.value.duration
+   update_progress()
+}
+
 const toggle_mute = () => {
    if (last_volume == 0) {
       // mute us
@@ -104,7 +113,12 @@ const toggle_mute = () => {
 
 const set_volume_by_click = (e) => {
    last_volume = 0
-   set_volume(e.offsetX / e.currentTarget.clientWidth)
+   let new_vol = Math.max(0, Math.min(1, e.offsetX / e.currentTarget.clientWidth))
+   set_volume(new_vol)
+}
+
+const set_volume_by_slider = (e) => {
+   set_volume(e.currentTarget.value)
 }
 
 const set_volume = (volume) => {
@@ -147,6 +161,11 @@ onMounted(() => {
 
    audio_ref.value.addEventListener("ended", () => {
       next_song()
+   })
+
+   audio_ref.value.addEventListener("timeupdate", () => {
+      progress_ref.value.value = (audio_ref.value.currentTime / audio_ref.value.duration)
+      update_progress()
    })
 })
 </script>
@@ -283,8 +302,8 @@ onMounted(() => {
 .progress {
    background-color: orange;
    border-radius: 100px;
-   width: 0%;
    height: 100%;
+   width: 0%;
 
    transition: width 100ms linear;
 }
@@ -293,4 +312,28 @@ onMounted(() => {
    height: 8px; 
 }
 
+.progress-background,
+.volume-background {
+   position: relative;
+}
+
+.volume-slider,
+.progress-slider {
+   appearance: none;
+   -webkit-appearance: none;
+   outline: none;
+   width: 100%;
+
+   position: absolute;
+   top: 0;
+   transform: translateY(-25%);
+
+   margin: 0;
+   opacity: 0;
+   padding: 0;
+
+   cursor: pointer;
+
+   background-color: #e4e4e4;
+}
 </style>
