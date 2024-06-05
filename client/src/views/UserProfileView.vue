@@ -108,7 +108,7 @@ const update_user_page = async () => {
 
 const submit_new_displayname = async () => {
    if (displayname_input_ref.value.value == "") return alert("Field is empty!")
-   if (displayname_input_ref.value.value == user.display_name) return
+   if (displayname_input_ref.value.value == user.value.display_name) return
 
    let res = await fetch("/api/update_displayname", {
       method: "post",
@@ -120,6 +120,7 @@ const submit_new_displayname = async () => {
 
    if (res.ok) {
       update_user_page()
+
       editing_name.value = false 
    } else {
       let json = await res.json()
@@ -152,7 +153,7 @@ const submit_new_bio = async () => {
 const submit_new_icon = async () => {
    if (icon_ref.value.files.length == 0) return alert("select a file!")
    let formdata = new FormData()
-   formdata.append("icon", await compress_image(icon_ref.value.files[0], 128, 0.9))
+   formdata.append("icon", await compress_image(icon_ref.value.files[0], 256, 0.9))
 
    let res = await fetch("/api/update_icon", {
        method: "POST",

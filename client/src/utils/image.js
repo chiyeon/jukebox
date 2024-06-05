@@ -8,32 +8,25 @@ export const compress_image = (file, dim, quality) => {
              const canvas = document.createElement('canvas')
              let width = img.width
              let height = img.height
-              let size = Math.min(width, height, dim);
+            let newsize
 
-              // Calculate the scale factor to fit the image into the square
-              const scaleRatio = size / Math.min(width, height)
+          if (width < height) {
+              newsize = dim / width * height;
+              width = dim;
+              height = newsize;
+          } else {
+              newsize = dim / height * width;
+              width = newsize;
+              height = dim;
+          }
 
-              canvas.width = dim;
-              canvas.height = dim;
-
-              // Calculate the position to center the image
-              const offsetX = (dim - width * scaleRatio) / 2;
-              const offsetY = (dim - height * scaleRatio) / 2;
+            canvas.width = dim
+            canvas.height = dim
 
              const ctx = canvas.getContext('2d')
-             ctx.imageSmoothingEnabled = true;
-              ctx.drawImage(
-                img,
-                0,
-                0,
-                width,
-                height,
-                offsetX,
-                offsetY,
-                width * scaleRatio,
-                height * scaleRatio 
-           );
-
+             var offsetX = (dim - width) / 2;
+             var offsetY = (dim - height) / 2;
+             ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, width, height);
              canvas.toBlob(blob => {
                  const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + '.webp', { type: 'image/webp' });
                  resolve(compressedFile);
