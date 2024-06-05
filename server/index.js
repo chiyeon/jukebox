@@ -202,7 +202,8 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             url,
             album,
             plays: 0,
-            winner: false
+            winner: false,
+            event: current_event
          }
 
          // save track to db
@@ -219,6 +220,34 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          res.status(400).send({ message: "Error uploading file" })
       }
    })
+
+app.post("/api/deletetrack", users.authenticate_token, async (req, res) => {
+   const track_id = req.body.track_id
+   if (!track_id) return res.status(400).send({ message: "Invalid track" })
+
+   // try to find our track
+   const trackdata = await fb.get_doc("tracks", track_id)
+   if (!trackdata) return res.status(400).send({ message: "Invalid track" })
+   if (trackdata.artist != req.username) return res.status(400).send({ message: "You cannot delete this track" })
+
+   // delete the track :c
+
+   // start with deleting track and album ONLY IF NOT DEFAULT !!!
+   let albumfile = trackdata.album.split("/")
+   albumfile = albumfile[albumfile.length - 1]
+   if (albumfile != "default.webp") await files.delete_file(albumfile, files.albums_bucket)
+   
+   let trackfile = trackdata.filename
+   await files.delete_file(trackfile, files.tracks_bucket)
+
+   // then delete data from track & events db
+   await fb.delete_doc("tracks", track_id) 
+   await fb.update_doc("events", trackdata.event, {
+      tracks: fb.FieldValue.arrayRemove(track_id)
+   })
+
+   return res.status(200).send({ message: "Deleted track" })
+})
 
 app.post("/api/login", files.upload.none(), async (req, res) => {
    try {

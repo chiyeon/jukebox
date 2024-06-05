@@ -6,13 +6,20 @@
       <div :class="{ controls: true, norender: header }">
          <button @click.stop="add_to_queue">Add to Queue</button>
       </div>
+      <div v-if="allowDelete">
+         <button class="delete" @click.stop="delete_track(track.filename)">{{ show_delete ? "Yes, delete this track" : "Delete" }}</button>
+         <button v-if="show_delete" @click.stop="cancel_delete">Cancel</button>
+      </div>
     </div>
 </template>
 
 <script setup>
-import { defineProps } from "vue"
+import { defineProps, ref } from "vue"
 import { useStore } from "vuex"
 import { RouterLink } from "vue-router"
+
+const validated_delete = ref(false)
+const show_delete = ref(false)
 
 const store = useStore()
 const props = defineProps({
@@ -24,8 +31,42 @@ const props = defineProps({
     header: {
         type: Boolean,
         default: false
-    }
+    },
+   allowDelete: Boolean
 })
+
+const cancel_delete = () => {
+   show_delete.value = false
+   validated_delete.value = false
+}
+
+const delete_track = async (track_id) => {
+   if (!validated_delete.value) {
+      show_delete.value = true
+      validated_delete.value = true
+      return
+   }
+
+   let res = await fetch("/api/deletetrack", {
+      method: "post",
+      credentials: "include",
+      headers: {
+         "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({ track_id: props.track.filename })
+   })
+
+   if (res.ok) {
+      alert("Deleted track")
+      window.location.reload()
+   } else {
+      let err = (await res.json()).message
+      alert("Error: " + err)
+   }
+
+   show_delete.value = false
+   validated_delete.value = false
+}
 
 const play_track = () => {
    if (props.header) return
@@ -93,5 +134,9 @@ button:hover {
    opacity: 0;
    user-select: none;
    pointer-events: none;
+}
+
+.delete {
+   color: darkred;
 }
 </style>

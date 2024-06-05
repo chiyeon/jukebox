@@ -12,6 +12,7 @@
                 v-for="track in event.tracks"
                 :key="track.url"
                 :track="track"
+                :allowDelete="allowDelete"
             />
         </div>
     </div>
@@ -29,7 +30,8 @@ const track_header = {
 }
 
 defineProps([
-    "event"
+    "event",
+    "allowDelete"
 ])
 </script>
 
