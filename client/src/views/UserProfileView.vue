@@ -12,41 +12,35 @@
             <img class="icon" :src="user.icon" />
          </div>
          <div class="user-info">
-            <h2 class="displayname">{{user.display_name}}</h2>
-            <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p>
+            <template v-if="!editing_name">
+               <h2 class="displayname">{{user.display_name}}</h2>
+               <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p>
+            </template>
+            <template v-else>
+               <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="30" /> 
+               <p class="edit name" @click="editing_name = false">cancel</p>
+               <p class="edit name submit" @click="submit_new_displayname">submit</p>
+            </template>
+
             <p v-if="user.display_name != user.username" class="username">also known as {{user.username}}</p>
             <p class="date">Joined {{ new Date(user.creation_date._seconds * 1000).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }) }}</p>
          </div>
       </div>
-      <p class="bio">{{user.bio}}</p>
-      <p class="edit" @click="open_edit_bio" v-if="user && selfuser && user.username == selfuser.username">edit</p>
+
+      <template v-if="!editing_bio">
+         <p class="bio">{{user.bio}}</p>
+         <p class="edit" @click="open_edit_bio" v-if="user && selfuser && user.username == selfuser.username">edit</p>
+      </template>
+      <template v-else>
+         <textarea ref="newbio_ref" type="text" class="bio input" maxlength="300" />
+         <p class="edit" @click="editing_bio = false">cancel</p>
+         <p class="edit name submit" @click="submit_new_bio">submit</p>
+      </template>
       <hr />
       <p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p>
 
       <Event v-if="event && event.tracks.length != 0" :event="event" />
       <p v-else>No published tracks</p>
-   </div>
-
-   <div v-if="editing_name" class="editing-name-box" id="background" @click="close_if_background">
-      <div class="editing-name">
-         <p>Enter a new display name. Will NOT change your username/login name.</p>
-         <input ref="newname_ref" type="text" placeholder="New display name!" />
-         <span class="buttons">
-            <button @click="editing_name = false" class="cancel">Cancel</button>
-            <button @click="submit_new_displayname">Submit</button>
-         </span>
-      </div>
-   </div>
-
-   <div v-if="editing_bio" class="editing-name-box" id="background" @click="close_if_background">
-      <div class="editing-name bio">
-         <p>Enter a new bio.</p>
-         <textarea ref="newbio_ref" placeholder="Here is my bio..." />
-         <span class="buttons">
-            <button @click="editing_bio = false" class="cancel">Cancel</button>
-            <button @click="submit_new_bio">Submit</button>
-         </span>
-      </div>
    </div>
 </template>
 
@@ -65,7 +59,7 @@ const selfuser = computed(() => store.state.user)
 
 const editing_name = ref(false)
 const editing_bio = ref(false)
-const newname_ref = ref(null)
+const displayname_input_ref = ref(null)
 const newbio_ref = ref(null)
 const icon_ref = ref(null)
 
@@ -106,15 +100,15 @@ const update_user_page = async () => {
 }
 
 const submit_new_displayname = async () => {
-   if (newname_ref.value.value == "") return alert("Field is empty!")
-   if (newname_ref.value.value == user.display_name) return
+   if (displayname_input_ref.value.value == "") return alert("Field is empty!")
+   if (displayname_input_ref.value.value == user.display_name) return
 
    let res = await fetch("/api/update_displayname", {
       method: "post",
       headers: {
          'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ display_name: newname_ref.value.value })
+      body: JSON.stringify({ display_name: displayname_input_ref.value.value })
    })
 
    if (res.ok) {
@@ -178,13 +172,6 @@ const open_edit_bio = () => {
    editing_name.value = false
 }
 
-const close_if_background = (e) => {
-   if (e.target.id == "background") {
-      editing_name.value = false
-      editing_bio.value = false
-   }
-}
-
 onBeforeMount(() => {
    update_user_page()
 })
@@ -193,14 +180,18 @@ watch(() => route.params.username, () => {
    update_user_page()
 })
 
-watch(newname_ref, (newval) => {
-   if (newval)
-      newname_ref.value.value = user.value.display_name
+watch(displayname_input_ref, (newval) => {
+   if (newval) {
+      displayname_input_ref.value.value = user.value.display_name
+      displayname_input_ref.value.focus()
+   }
 })
 
 watch(newbio_ref, (newval) => {
-   if (newval)
+   if (newval) {
       newbio_ref.value.value = user.value.bio
+      newbio_ref.value.focus()
+   }
 })
 </script>
 
@@ -227,6 +218,25 @@ h2 {
 
 .user-info > * {
    margin: 0;
+}
+
+.displayname {
+   font-size: 32px;
+   font-weight: 900;
+}
+
+.displayname.input {
+   font-size: 32px;
+   padding: 0;
+   border: none;
+   max-width: 300px;
+   cursor: text;
+   color: black;
+   outline: none;
+}
+
+.displayname.edit:hover {
+   text-decoration: none;
 }
 
 .displayname, .edit {
@@ -325,9 +335,17 @@ textarea {
    gap: 20px;
 }
 
-.editing-name.bio {
-   max-width: 350px;
+.bio {
+   margin-top: 16px;
    width: 100%;
+   font-size: 16px;
+   white-space: pre;
+}
+
+.bio.input {
+   padding: 0;
+   border: none;
+   outline: none;
 }
 
 .editing-name .buttons {
@@ -353,5 +371,9 @@ textarea {
 
 .edit-icon input {
    display: none;
+}
+
+.submit {
+   color: lightseagreen;
 }
 </style>
