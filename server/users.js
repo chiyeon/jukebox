@@ -93,7 +93,8 @@ const create_new_user = async (user, permissions = USER_BASE) => {
       display_name: user.username,
       permissions: permissions,
       bio: user.bio,
-      icon: user.icon
+      icon: user.icon,
+      email: user.email
    }
 
    // save hashed password in passwords db

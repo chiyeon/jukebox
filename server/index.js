@@ -233,12 +233,13 @@ app.post("/api/signup", files.upload.fields([
       const user = {
          username: req.body.username,
          password: req.body.password,
+         email: req.body.email,
          bio: req.body.bio ? req.body.bio : "This user doesn't have a bio",
       }
 
       // validate packet
       if (user.username == undefined || user.password == undefined || user.username == "" || user.password == "" ||
-         user.username.includes(" ") || user.username.length > 30) {
+         user.username.includes(" ") || user.username.length > 30 || !user.email || user.email == "" || !user.email.includes("@")) {
          return res.status(400).send({ message: "Invalid request" })
       }
 

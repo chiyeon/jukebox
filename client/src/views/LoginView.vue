@@ -25,6 +25,9 @@
             <input ref="password_ref" id="login-password" type="password" placeholder="passw0rd" name="password" required>
 
             <div v-if="form_type == FORM_REGISTER">
+               <label for="email">Email<p class="required">*</p></label>
+               <input ref="email_ref" type="text" placeholder="capybara@fnaf.com" name="email" required>
+
                <label for="bio">Bio</label>
                <textarea ref="bio_ref" placeholder="Just a capybara." />
 
@@ -54,6 +57,7 @@ const username_ref = ref(null)
 const password_ref = ref(null)
 const bio_ref = ref(null)
 const icon_ref = ref(null)
+const email_ref = ref(null)
 
 const form_type = ref(FORM_LOGIN)
 
@@ -61,7 +65,7 @@ const handle_submit = async (e) => {
     e.preventDefault()
 
     if (username_ref.value.value == "" || password_ref.value.value == "") {
-        return console.log("Invalid form")
+        return alert("Must include username and password")
     }
 
    let formdata = new FormData()
@@ -69,6 +73,8 @@ const handle_submit = async (e) => {
    formdata.append("password", password_ref.value.value)
 
    if (form_type.value == FORM_REGISTER) {
+      if (email_ref.value.value == "") return alert("Must include email!")
+      formdata.append("email", email_ref.value.value)
       if (bio_ref.value.value != "") formdata.append("bio", bio_ref.value.value)
       if (icon_ref.value.files.length != 0) { 
          formdata.append("icon", await compress_image(icon_ref.value.files[0], 128, 0.9))
