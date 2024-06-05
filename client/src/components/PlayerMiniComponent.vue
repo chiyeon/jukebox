@@ -170,15 +170,6 @@ watch(() => fullqueue.value[queue_index.value], (newval, oldval) => {
    update_audio_ref(newval)
 })
 
-/*
-watch(() => after_queue.value[after_queue_index.value], (newval, oldval) => {
-   if (!newval) return
-
-   current_song.value = newval
-   update_audio_ref(newval)
-})
-*/
-
 // update audio ref to play new songs when current song changes
 watch(current_song.value, (newval, oldval) => {
    if (!newval) return
@@ -210,12 +201,6 @@ const update_progress = () => {
 }
 
 onMounted(() => {
-   setInterval(() => {
-      if (audio_ref.value && audio_ref.value.src != "") {
-         update_progress()
-      }
-   }, 100)
-
    audio_ref.value.addEventListener("ended", () => {
       next_song()
    })
@@ -361,8 +346,6 @@ onMounted(() => {
    border-radius: 100px;
    height: 100%;
    width: 0%;
-
-   transition: width 100ms linear;
 }
 
 .progress-box:hover .progress-background {
