@@ -2,10 +2,12 @@
    <div class="player-mini-box">
       <div class="player-mini">
          <div class="progress-box">
+            <p class="duration">{{ get_current_playback_time() }}</p>
             <div class="progress-background">
                <div class="progress" ref="progress_ref" :style="{ width: playback_progress_percent }"></div>
                <input @input="set_progress_by_slider" type="range" min="0" max="1" step="0.01" class="progress-slider" />
             </div>
+            <p class="duration">{{ get_song_duration() }}</p>
          </div>
          <div class="track-box">
             <div class="album">
@@ -74,6 +76,26 @@ const volume_icons = [
 const props = defineProps([
    "queue"
 ])
+
+const get_as_time = (time) => {
+   let minutes = Math.floor(time / 60)
+   let seconds = Math.floor(time % 60)
+   return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`
+}
+
+const get_current_playback_time = () => {
+   if (!audio_ref.value || audio_ref.value.src == "") {
+      return "0:00"
+   }
+   return get_as_time(audio_ref.value.currentTime)
+}
+
+const get_song_duration = () => {
+   if (!audio_ref.value || audio_ref.value.src == "") {
+      return "0:00"
+   }
+   return get_as_time(audio_ref.value.duration)
+}
 
 const prev_song = () => {
    // rewind if more than 3 seconds over, otherwise previous track
@@ -375,5 +397,13 @@ onMounted(() => {
    cursor: pointer;
 
    background-color: #e4e4e4;
+}
+
+.progress-background {
+   margin: 0 10px;
+}
+
+.duration {
+   font-size: 13px;
 }
 </style>
