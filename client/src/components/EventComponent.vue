@@ -7,7 +7,7 @@
         <p class="description">{{event.desc}}</p>
          </template>
         <div class="tracks">
-            <Track :track="track_header" :header=true />
+            <!--Track :track="track_header" :header=true /-->
             <Track 
                 v-for="track in event.tracks"
                 :key="track.url"

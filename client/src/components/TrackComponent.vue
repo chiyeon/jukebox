@@ -1,8 +1,11 @@
 <template>
     <div @click="play_track" :class="{'track': true, 'header': header}">
-      <RouterLink v-if="!header" @click.stop="prevent_parent_click" :to="`/u/${track.artist}`" class="artist">{{track.artist_display_name}}</RouterLink>
-      <p class="artist" v-else>{{track.artist}}</p>
-      <p class="title">{{track.title}}</p>
+      <img class="album" :src="track.album" />
+      <div class="track-info">
+         <p class="title">{{track.title}}</p>
+         <RouterLink v-if="!header" @click.stop="prevent_parent_click" :to="`/u/${track.artist}`" class="artist">{{track.artist_display_name}}</RouterLink>
+         <p class="artist" v-else>{{track.artist}}</p>
+      </div>
       <div :class="{ controls: true, norender: header }">
          <button @click.stop="add_to_queue">Add to Queue</button>
       </div>
@@ -94,6 +97,8 @@ const prevent_parent_click = (e) => {
    border-bottom: 1px solid gray;
    display: flex;
    flex-direction: row;
+   align-items: center;
+   gap: 10px;
 
    user-select: none;
 }
@@ -116,8 +121,12 @@ const prevent_parent_click = (e) => {
    min-width: 100px;
 }
 
-.title {
+.track-info {
    flex: 1;
+}
+
+.title {
+   font-weight: bold;
 }
 
 button {
@@ -138,5 +147,10 @@ button:hover {
 
 .delete {
    color: darkred;
+}
+
+.album {
+   height: 48px;
+   padding-left: 10px;
 }
 </style>

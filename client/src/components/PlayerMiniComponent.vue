@@ -235,6 +235,20 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@media (max-width: 550px) {
+   .volume-controls {
+      display: none !important;
+   }
+
+   .track-box {
+      flex-direction: column !important;
+   }
+
+   .album {
+      align-self: flex-start;
+   }
+}
+
 .player-mini-box {
    position: fixed;
    bottom: 0;
