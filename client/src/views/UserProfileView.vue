@@ -15,7 +15,7 @@
 
 <script setup>
 import { useRoute } from "vue-router"
-import { onBeforeMount, ref } from "vue"
+import { onBeforeMount, watch, ref } from "vue"
 import { useStore } from "vuex"
 import Event from "../components/EventComponent.vue"
 
@@ -24,7 +24,7 @@ const event = ref(null)
 const route = useRoute()
 const store = useStore()
 
-onBeforeMount(async () => {
+const update_user_page = async () => {
    let res = await fetch("/api/user", {
       method: "post",
       headers: {
@@ -58,6 +58,15 @@ onBeforeMount(async () => {
    } else {
       user.value = `User ${route.params.username} was not found`
    }
+
+}
+
+onBeforeMount(() => {
+   update_user_page()
+})
+
+watch(() => route.params.username, () => {
+   update_user_page()
 })
 </script>
 
