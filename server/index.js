@@ -99,7 +99,6 @@ app.post("/api/update_icon", users.authenticate_token, files.upload.single("icon
 
    // validate picture size
    if (icon.buffer.length / 1024 > files.MAX_ICON_SIZE_KB) {
-      console.log(icon.buffer.length / 1024)
       return res.status(400).send({ message: "Profile icon file is too big (exceeds " + Math.floor(files.MAX_ICON_SIZE_KB)+ "kb limit)" })
    }
 

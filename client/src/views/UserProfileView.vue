@@ -153,7 +153,7 @@ const submit_new_bio = async () => {
 const submit_new_icon = async () => {
    if (icon_ref.value.files.length == 0) return alert("select a file!")
    let formdata = new FormData()
-   formdata.append("icon", await compress_image(icon_ref.value.files[0], 256, 0.9))
+   formdata.append("icon", await compress_image(icon_ref.value.files[0], 256, 0.7))
 
    let res = await fetch("/api/update_icon", {
        method: "POST",
