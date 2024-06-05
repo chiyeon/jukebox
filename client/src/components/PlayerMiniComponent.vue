@@ -20,7 +20,7 @@
             </div>
             <div class="controls">
                <button class="prev" @click="prev_song"><img width="32" height="32" src="https://img.icons8.com/pixels/32/skip-to-start.png" alt="skip-to-start"/></button>
-               <button class="pause" @click="toggle_playback"><img width="32" height="32" :src="`https://img.icons8.com/pixels/32/${playing ? 'pause' : 'play'}.png`" alt="play"/></button>
+               <button class="pause" @click="toggle_playback"><img width="32" height="32" :src="`https://img.icons8.com/pixels/32/${audio_ref && !audio_ref.paused ? 'pause' : 'play'}.png`" alt="play"/></button>
                <button class="next" @click="next_song"><img width="32" height="32" src="https://img.icons8.com/pixels/32/end.png" alt="end"/></button>
             </div>
             <div class="controls-right">
@@ -50,7 +50,6 @@ const store = useStore()
 const audio_ref = ref(null)
 const progress_ref = ref(null)
 
-const playing = ref(false)
 const queue = computed(() => store.state.queue) // user selected songs
 const fullqueue = ref([]) // we have props.queue which is passed in queue, and this queue which is 
 // props.queue + afterqueue
@@ -117,8 +116,7 @@ const next_song = () => {
 const toggle_playback = () => {
    if (audio_ref.value.src == "") return
 
-   playing.value = !playing.value
-   if (playing.value) audio_ref.value.play()
+   if (audio_ref.value.paused) audio_ref.value.play()
    else audio_ref.value.pause()
 }
 
@@ -180,7 +178,6 @@ const get_volume_icon = () => {
 const update_audio_ref = (track) => {
    audio_ref.value.src = track.url
    audio_ref.value.play()
-   playing.value = true
 }
 
 // update our current song when queue or after queue cahnges
