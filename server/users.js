@@ -20,8 +20,16 @@ const MAX_PASSWORD_LENGTH = 50
 const PASSWORD_REGEX_VALIDATION = /^[A-Za-z\d@$!%*?&_\-.^#]+$/
 const MIN_EMAIL_LENGTH = 6
 const MAX_EMAIL_LENGTH = 40
+const MIN_TITLE_LENGTH = 1
+const MAX_TITLE_LENGTH = 50
 
 const DEFAULT_BIO = "This user has no bio."
+
+const validate_tracktitle = (title) => {
+   if (!title || typeof title != "string") return "Invalid title"
+   if (title.length < MIN_TITLE_LENGTH || title.length > MAX_TITLE_LENGTH) return `Title must be between ${MIN_TITLE_LENGTH} and ${MAX_TITLE_LENGTH} characters`
+   return 0
+}
 
 const validate_displayname = (displayname) => {
    if (!displayname || typeof displayname != "string") return "Invalid display name"
@@ -32,7 +40,7 @@ const validate_displayname = (displayname) => {
 const validate_username = (username) => {
    if (!username || typeof username != "string") return "Invalid username"
    if (username.length < MIN_USERNAME_LENGTH || username.length > MAX_USERNAME_LENGTH) return `Username must be between ${MIN_USERNAME_LENGTH} and ${MAX_USERNAME_LENGTH} characters`
-   if (!USERNAME_REGEX_VALIDATION.test(username)) return "Contains invalid characters (Must be A-z 0-9 - _ .)"
+   if (!USERNAME_REGEX_VALIDATION.test(username)) return "Username contains invalid characters (Must be A-z 0-9 - _ .)"
    return 0
 }
 
@@ -185,5 +193,6 @@ module.exports = {
    validate_password,
    validate_email,
    validate_displayname,
+   validate_tracktitle,
    DEFAULT_BIO,
 }

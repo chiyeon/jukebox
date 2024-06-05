@@ -150,6 +150,11 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             return res.status(400).send({ message: "Invalid artist/title" })
          }
 
+         const validate_title = users.validate_tracktitle(title)
+         if (validate_title != 0) {
+            return res.status(400).send({ message: validate_title })
+         }
+
          const userfiles = req.files
          
          if (!userfiles.track) {

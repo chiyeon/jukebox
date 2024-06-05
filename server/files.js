@@ -18,7 +18,7 @@ const MAX_ALBUM_SIZE_KB = 70
 const MAX_ICON_SIZE_KB = 25
 const MIN_FILENAME_LENGTH = 5
 const MAX_FILENAME_LENGTH = 50
-const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-().]+$/
+const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-()[\].&]+$/
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
    const filename = `${Date.now()}_${file.originalname.replace(/\#/g, "").split(" ").join("_")}`
@@ -47,13 +47,13 @@ const validate_filename = (filename, extensions) => {
    if (!filename || typeof filename != "string") return "Invalid filename"
 
    // ensure has ONE period (one file extension allowed)
-   if (filename.split(".").length != 2) return "Contains invalid or too many file extensions"
+   if (filename.split(".").length != 2) return "Filename contains invalid or too many file extensions"
    if (filename.length < MIN_FILENAME_LENGTH || filename > MAX_FILENAME_LENGTH) return `Filename must be between ${MIN_FILENAME_LENGTH} and ${MAX_FILENAME_LENGTH} characters`
 
    let extension = filename.split(".")[1]
    if (!extensions.includes(extension)) return `Extension "${extension}" is invalid`
    console.log(filename)
-   if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Contains invalid characters"
+   if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Filename contains invalid characters"
    return 0
 }
 
