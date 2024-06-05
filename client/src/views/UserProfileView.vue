@@ -16,11 +16,13 @@
 <script setup>
 import { useRoute } from "vue-router"
 import { onBeforeMount, ref } from "vue"
+import { useStore } from "vuex"
 import Event from "../components/EventComponent.vue"
 
 const user = ref(null)
 const event = ref(null)
 const route = useRoute()
+const store = useStore()
 
 onBeforeMount(async () => {
    let res = await fetch("/api/user", {
@@ -44,12 +46,14 @@ onBeforeMount(async () => {
       })
 
       if (res_tracks.ok) {
+         let tracks = (await res_tracks.json()).tracks
          event.value = {
             title: `${user.value.display_name}'s Tracks`,
             date: new Date(),
             desc: "",
-            tracks: (await res_tracks.json()).tracks
+            tracks: tracks
          }
+         store.dispatch("setTracks", tracks)
       }
    } else {
       user.value = `User ${route.params.username} was not found`
