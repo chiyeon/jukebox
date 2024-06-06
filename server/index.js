@@ -19,7 +19,7 @@ const cookie_settings = {
    maxAge: users.TOKEN_EXPIRATION_TIME,
 }
 
-let current_event = "1717641140844_the_month_of_june__spoon_"
+//let current_event = "1717641140844_the_month_of_june__spoon_"
 let events = {}
 let events_list = []
 
@@ -63,7 +63,8 @@ app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) =>
       name,
       desc,
       tags,
-      tracks: []
+      tracks: [],
+      open: true
    }
    await fb.set_doc("events", current_event, newevent)
    return res.status(200).send({ message: "yay" })
@@ -134,17 +135,20 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
       { name: "track" },
       { name: "album", maxCount: 1 }
    ]), async (req, res) => {
-      // make sure server is pointed at a new event
-      if (current_event == undefined || current_event == "") {
-         return res.status(400).send({ message: "No event is open" })
-      }
-
       try {
          // first check if we have user perms to upload tracks
          // it is USER_NORMAL
          if (req.username == undefined || req.username == "") {
             return res.status(400).send({ message: "Invalid token" })
          }
+
+         // ensure target event exists & is open
+         let current_event = req.body.event
+         if (!current_event || current_event.length == 0) return res.status(400).send({ message: "Invalid event" })
+         const event = await fb.get_doc("events", current_event)
+
+         if (!event) return res.status(400).send({ message: "Event doesn't exist" })
+         if (!event.open) return res.status(400).send({ message: "Event is not open" })
 
          let user_data = await fb.get_doc("users", req.username)
          if (!user_data) return res.status(400).send({ message: "Invalid user" })
@@ -213,7 +217,8 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             album,
             plays: 0,
             winner: false,
-            event: current_event
+            event: current_event,
+            release_date: Date.now()
          }
 
          // save track to db
@@ -402,7 +407,26 @@ app.post("/api/tracks", async (req, res) => {
    for (let i = 0; i < tracks.length; i++) {
       tracks[i].artist_display_name = (await fb.get_doc("users", tracks[i].artist)).display_name
    }
+
+   tracks.reverse()
    res.status(200).send({ message: "Found user tracks", tracks: tracks })
+})
+
+app.get("/api/openevents", users.authenticate_token, async (req, res) => {
+   let open_events = []
+
+   Object.keys(events).forEach(key => {
+      if (events[key].open) {
+         open_events.push({
+            id: key,
+            name: events[key].name
+         })
+      }
+   })
+
+   open_events.reverse()
+
+   res.status(200).send({ events: open_events })
 })
 
 app.listen(PORT, () => {

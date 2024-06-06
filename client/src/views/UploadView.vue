@@ -1,7 +1,16 @@
 <template>
-   <div class="upload-box">
+   <div v-if="show_page" class="upload-box">
       <div class="header"><p>TRACK UPLOAD</p></div>
       <form>
+         <label for="event">Event</label>
+         <select name="event" ref="event_ref">
+            <option
+               v-for="event in open_events"
+               :key="event.id"
+               :value="event.id"
+            >{{ event.name }}</option>
+         </select>
+
          <label for="title">Title</label>
          <input ref="title_ref" type="text" placeholder="The_NewStuff" required>
 
@@ -18,6 +27,9 @@
          <button ref="submit_button_ref" type="submit" @click="upload">UPLOAD</button>
         </form>
    </div>
+   <div v-else>
+      <p>No events are open</p>
+   </div>
    <div class="upload-cover" v-if="uploading">
       <p>Uploading</p>
    </div>
@@ -25,16 +37,35 @@
 
 <script setup>
 
-import { ref } from "vue"
+import { ref, onBeforeMount } from "vue"
 import { compress_image } from "../utils/image.js"
 import router from "../router"
 
+const event_ref = ref(null)
 const title_ref = ref(null)
 const lyrics_ref = ref(null)
 const track_ref = ref(null)
 const album_ref = ref(null)
 
+const open_events = ref([])
 const uploading = ref(false)
+const show_page = ref(false)
+
+onBeforeMount(async () => {
+   // check if there are any open events
+   let res = await fetch("/api/openevents", {
+      method: "get",
+      credentials: "include"
+   })
+
+   if (res.ok) {
+      let events = (await res.json()).events
+      if (events.length != 0) {
+         open_events.value = events
+         show_page.value = true
+      }
+   }
+})
 
 const convert_wav_to_mp3 = (file) => {
    return new Promise((resolve, reject) => {
@@ -73,6 +104,7 @@ const convert_wav_to_mp3 = (file) => {
 
 const upload = async (e) => {
    e.preventDefault()
+   if (uploading.value) return
    uploading.value = true
 
    console.log("Attempting upload")
@@ -100,6 +132,7 @@ const upload = async (e) => {
    if (album) formdata.append("album", album)
    formdata.append("title", title)
    if (lyrics_ref.value.value) formdata.append("lyrics", lyrics_ref.value.value)
+   formdata.append("event", event_ref.value.value)
 
    console.log("Submitting files")
    try {
@@ -145,12 +178,12 @@ form {
    padding: 20px;
 }
 
-input, textarea {
+input, textarea, select {
   padding: 6px 4px;
   margin-bottom: 20px;
 }
 
-input, label, textarea {
+input, label, textarea, select {
   font-size: 14px;
 }
 

@@ -17,6 +17,7 @@
         :track="track"
         :allowDelete="allowDelete"
       />
+         <p v-if="event.tracks.length == 0"><i>No tracks found</i></p>
     </div>
   </div>
 </template>
