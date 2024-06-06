@@ -89,6 +89,11 @@ const props = defineProps([
    "queue"
 ])
 
+const next_repeat = () => {
+   repeat_mode.value++
+   if (repeat_mode.value >= 3) repeat_mode.value = 0
+}
+
 const shuffle_array = (array) => {
    let arr = array.slice(0)
    for (let i = 0; i < arr.length; i++) {
@@ -173,8 +178,26 @@ const prev_song = () => {
 }
 
 const next_song = () => {
-   if (queue_index.value < fullqueue.value.length - 1) {
-      queue_index.value++
+   // replay song if set
+   if (repeat_mode.value == REPEAT_SINGLE) {
+      audio_ref.value.currentTime = 0
+      audio_ref.value.play()
+      return
+   } else {
+      // we are either repeat or end 
+      if (queue_index.value < fullqueue.value.length - 1) {
+         queue_index.value++
+      } else if (repeat_mode.value == REPEAT_MULTI) {
+         if (queue_index.value == 0) {
+            // repeat track
+            audio_ref.value.currentTime = 0
+            audio_ref.value.play()
+         } else {
+            queue_index.value = 0;
+         }
+      } else {
+         // reached end of queue, just stop playback
+      }
    }
 }
 
