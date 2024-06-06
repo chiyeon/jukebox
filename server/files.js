@@ -53,7 +53,6 @@ const validate_filename = (filename, extensions) => {
 
    let extension = split[split.length - 1]
    if (!extensions.includes(extension)) return `Extension "${extension}" is invalid`
-   console.log(filename)
    if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Filename contains invalid characters"
    return 0
 }

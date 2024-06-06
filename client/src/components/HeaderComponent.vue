@@ -4,6 +4,7 @@
       <div class="nav">
          <RouterLink to="/">Listen</RouterLink>
          <div class="space"></div>
+         <RouterLink v-if="user && user.permissions >= 2" to="/s/admin">Console</RouterLink>
          <RouterLink v-if="user" to="/upload">Upload</RouterLink>
          <a v-if="user" @click="logout()">Logout</a>
          <RouterLink :to="`/u/${user.username}`" class="user-info" v-if="user">

@@ -19,7 +19,7 @@ const cookie_settings = {
    maxAge: users.TOKEN_EXPIRATION_TIME,
 }
 
-let current_event = "test"
+let current_event = "1717641140844_the_month_of_june__spoon_"
 let events = {}
 let events_list = []
 
@@ -29,12 +29,20 @@ let events_list = []
 // }))
 app.use(express.json())
 app.use(cookieparser())
-// app.use(express.static(__dirname + "/public"))
 
 app.use(express.static(path.join(__dirname, "dist")))
 app.get("/", (req, res) => {
    res.sendFile(path.join(__dirname, "/dist/index.html"))
 })
+
+/*
+app.set("view engine", "ejs")
+app.use(express.static(__dirname + "/public"))
+app.set("views", path.join(__dirname, "views"))
+app.get("/admin", (req, res) => {
+   res.render("home", { events: [] })
+})
+*/
 
 // app.get("/upload", users.authenticate_token, (req, res) => {
 //    res.render("upload")
@@ -44,20 +52,21 @@ app.get("/", (req, res) => {
 //    res.render("login")
 // })
 
-app.post("/api/eventcreate", users.authenticate_token_admin, (req, res) => {
+app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) => {
    current_event = `${Date.now()}_${req.body.id}`
    const date = Date.now()
    const name = req.body.name
    const desc = req.body.desc
-   const events = req.body.events
-   fb.set_doc("events", current_event, {
+   const tags = req.body.tags
+   const newevent = {
       date,
       name,
       desc,
-      events: events,
+      tags,
       tracks: []
-   })
-   return res.status(200)
+   }
+   await fb.set_doc("events", current_event, newevent)
+   return res.status(200).send({ message: "yay" })
 })
 
 // update user name
