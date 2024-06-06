@@ -8,7 +8,7 @@
                <input @input="set_progress_by_slider" type="range" min="0" max="1" step="0.01"
                   class="progress-slider" />
             </div>
-            <p class="duration">{{ get_song_duration() }}</p>
+            <p class="duration right">{{ get_song_duration() }}</p>
          </div>
          <div class="track-box">
             <div class="album">
@@ -631,10 +631,13 @@ onMounted(() => {
 }
 
 .progress-background {
-   margin: 0 10px;
 }
 
 .duration {
    font-size: 13px;
+   width: 50px;
+}
+.duration.right {
+   text-align: right;
 }
 </style>
