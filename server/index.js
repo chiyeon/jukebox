@@ -49,10 +49,12 @@ app.post("/api/eventcreate", users.authenticate_token_admin, (req, res) => {
    const date = Date.now()
    const name = req.body.name
    const desc = req.body.desc
+   const events = req.body.events
    fb.set_doc("events", current_event, {
       date,
       name,
       desc,
+      events: events,
       tracks: []
    })
    return res.status(200)
