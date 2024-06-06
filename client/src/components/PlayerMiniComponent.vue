@@ -19,9 +19,11 @@
                </div>
             </div>
             <div class="controls">
+               <button @click="toggle_shuffle">{{ shuffle ? "Shuffle" : "No Shuffle" }}</button>
                <button class="prev" @click="prev_song"><img width="32" height="32" src="https://img.icons8.com/pixels/32/skip-to-start.png" alt="skip-to-start"/></button>
                <button class="pause" @click="toggle_playback"><img width="32" height="32" :src="`https://img.icons8.com/pixels/32/${audio_ref && !audio_ref.paused ? 'pause' : 'play'}.png`" alt="play"/></button>
                <button class="next" @click="next_song"><img width="32" height="32" src="https://img.icons8.com/pixels/32/end.png" alt="end"/></button>
+               <button @click="next_repeat">{{ repeat_modes[repeat_mode] }}</button>
             </div>
             <div class="controls-right">
                <div class="volume-controls">
@@ -50,6 +52,17 @@ const store = useStore()
 const audio_ref = ref(null)
 const progress_ref = ref(null)
 
+const REPEAT_OFF = 0
+const REPEAT_SINGLE = 1
+const REPEAT_MULTI = 2
+const shuffle = ref(false)
+const repeat_mode = ref(REPEAT_OFF)
+const repeat_modes = [
+   "Repeat Off",
+   "Repeat 1",
+   "Repeat"
+]
+
 const queue = computed(() => store.state.queue) // user selected songs
 const fullqueue = ref([]) // we have props.queue which is passed in queue, and this queue which is 
 // props.queue + afterqueue
@@ -75,6 +88,57 @@ const volume_icons = [
 const props = defineProps([
    "queue"
 ])
+
+const shuffle_array = (array) => {
+   let arr = array.slice(0)
+   for (let i = 0; i < arr.length; i++) {
+      let t = Math.floor(Math.random() * (i + 1))
+      let temp = arr[i]
+      arr[i] = arr[t]
+      arr[t] = temp
+   }
+
+   return arr
+}
+
+// get all the songs in front of us and either shuffle them or set them back to their
+// order in tracks.
+const toggle_shuffle = () => {
+   shuffle.value = !shuffle.value
+   let current_track = fullqueue.value[queue_index.value]
+
+   if (!current_track) return
+
+   if (shuffle.value) {
+      // shuffle only the after queue
+
+      // tracks following us
+      let current_track_index = after_queue.value.findIndex(t => t.filename == current_track.filename)
+      // if we are in our queue still, shuffle the entire after queue
+      if (queue.value.length > queue_index.value) current_track_index = -1
+      let following_tracks = after_queue.value.slice(current_track_index + 1)
+      // remember keep what we have after listened to UNSHUFFLED
+      following_tracks = shuffle_array(following_tracks)
+      // insert it back in at current_track_index
+      let new_after_queue = [...after_queue.value.slice(0, current_track_index + 1), ...following_tracks]
+      fullqueue.value = queue.value.concat(new_after_queue)
+      store.dispatch("setAfterQueue", new_after_queue)
+   } else {
+      // lets set it back to the way it was before tracks
+      let current_track_index = after_queue.value.findIndex(t => t.filename == current_track.filename)
+      // there must be a better way to do this...
+      let current_track_index_in_tracks = tracks.value.findIndex(t => t.filename == current_track.filename)
+
+      // again if we are in queue stlil shuffle the entire queue
+      if (queue.value.length > queue_index.value) {
+         current_track_index = -1
+         current_track_index_in_tracks = 0
+      }
+      let new_after_queue = [...after_queue.value.slice(0, current_track_index + 1), ...tracks.value.slice(current_track_index_in_tracks + 1)]
+      fullqueue.value = queue.value.concat(new_after_queue)
+      store.dispatch("setAfterQueue", new_after_queue)
+   }
+}
 
 const get_as_time = (time) => {
    if (isNaN(time)) return "0:00"
@@ -207,9 +271,25 @@ watch(() => fullqueue.value[queue_index.value], (newval, oldval) => {
 watch(current_song.value, (newval, oldval) => {
    if (!newval) return
    update_audio_ref(newval)
-
-
 })
+
+// take our tracks 
+// find a "split" based on our current song
+// return AND SET the "afterqueue": songs after
+// if shuffle is on, shuffle the queue
+const split_tracks_into_after_queue = () => {
+   if (queue_index.value >= queue.value.length) return []
+   let track_index = tracks.value.findIndex(track => track.filename == queue.value[queue_index.value].filename)
+   if (track_index < 0) return []
+
+   let new_after_queue = tracks.value.slice(track_index + 1)
+
+   if (shuffle.value) new_after_queue = shuffle_array(new_after_queue)
+
+   store.dispatch("setAfterQueue", new_after_queue)
+   
+   return new_after_queue
+}
 
 watch(() => queue.value, (newval, oldval) => {
    // if queue is empty or being reset (we clicked on a new song to play)
@@ -218,13 +298,11 @@ watch(() => queue.value, (newval, oldval) => {
    if (newval.length == 1) {
       // again in this case, we reset the queue and are clicking on a new song to play
       queue_index.value = 0 // reset queue to 0
-      let track_index = tracks.value.findIndex(track => track.filename == queue.value[queue_index.value].filename)
-      if (track_index < 0) return;
-
-      store.dispatch("setAfterQueue", tracks.value.slice(track_index + 1))
+      
+      let new_after_queue = split_tracks_into_after_queue()
 
       // append after queue to queue
-      fullqueue.value = queue.value.concat(after_queue.value)
+      fullqueue.value = queue.value.concat(new_after_queue)
    } else {
       // if we aren't though, we need to insert new songs into the queue BEFORE afterqueue
       fullqueue.value = queue.value.concat(after_queue.value)
