@@ -5,41 +5,89 @@
             <p class="duration">{{ get_current_playback_time() }}</p>
             <div class="progress-background">
                <div class="progress" ref="progress_ref" :style="{ width: playback_progress_percent }"></div>
-               <input @input="set_progress_by_slider" type="range" min="0" max="1" step="0.01" class="progress-slider" />
+               <input @input="set_progress_by_slider" type="range" min="0" max="1" step="0.01"
+                  class="progress-slider" />
             </div>
             <p class="duration">{{ get_song_duration() }}</p>
          </div>
          <div class="track-box">
             <div class="album">
-               <img class="album-icon" :src="current_song && current_song.album ? current_song.album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" />
+
+               <div class="album-cover">
+                  <img v-if="current_song && current_song.album" :src="current_song.album" />
+                  <span class="material-symbols-rounded album-icon" v-else :style="{ color: ALBUM_COLOR }">
+                     album
+                  </span>
+               </div>
+               <!-- <img class="album-icon"
+                  :src="current_song && current_song.album ? current_song.album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" /> -->
                <div class="track-info">
                   <p v-if="current_song"><strong>{{ current_song.title }}</strong></p>
-                  <RouterLink v-if="current_song" :to="`/u/${current_song.artist}`">{{ current_song.artist_display_name }}</RouterLink>
+                  <RouterLink v-if="current_song" :to="`/u/${current_song.artist}`">{{ current_song.artist_display_name
+                     }}</RouterLink>
                   <p v-else>No track selected</p>
                </div>
             </div>
             <div class="controls">
-               <button @click="toggle_shuffle">{{ shuffle ? "Shuffle" : "No Shuffle" }}</button>
-               <button class="prev" @click="prev_song"><img width="32" height="32" src="https://img.icons8.com/pixels/32/skip-to-start.png" alt="skip-to-start"/></button>
-               <button class="pause" @click="toggle_playback"><img width="32" height="32" :src="`https://img.icons8.com/pixels/32/${audio_ref && !audio_ref.paused ? 'pause' : 'play'}.png`" alt="play"/></button>
-               <button class="next" @click="next_song"><img width="32" height="32" src="https://img.icons8.com/pixels/32/end.png" alt="end"/></button>
-               <button @click="next_repeat">{{ repeat_modes[repeat_mode] }}</button>
+               <button @click="toggle_shuffle">
+                  <span class="material-symbols-rounded control-icon" :style="{ color: CONTROL_COLOR }">
+                     {{ shuffle ? "shuffle_on" : "shuffle" }}
+                  </span>
+               </button>
+               <button class="prev" @click="prev_song">
+                  <!-- <img width="32" height="32"
+                     src="https://img.icons8.com/pixels/32/skip-to-start.png" alt="skip-to-start" /> -->
+                  <span class="material-symbols-rounded control-icon" :style="{ color: CONTROL_COLOR }">
+                     skip_previous
+                  </span>
+               </button>
+               <button class="pause" @click="toggle_playback">
+                  <!-- <img width="32" height="32"
+                     :src="`https://img.icons8.com/pixels/32/${audio_ref && !audio_ref.paused ? 'pause' : 'play'}.png`"
+                     alt="play" /> -->
+                  <span class="material-symbols-rounded control-icon" :style="{ color: CONTROL_COLOR }">
+                     {{ audio_ref && !audio_ref.paused ? 'pause_circle' : 'play_circle' }}
+                  </span>
+               </button>
+               <button class="next" @click="next_song">
+                  <!-- <img width="32" height="32"
+                     src="https://img.icons8.com/pixels/32/end.png" alt="end" /> -->
+                  <span class="material-symbols-rounded control-icon" :style="{ color: CONTROL_COLOR }">
+                     skip_next
+                  </span>
+               </button>
+               <button @click="next_repeat">
+                  <span class="material-symbols-rounded control-icon" :style="{ color: CONTROL_COLOR }">
+                     {{ repeat_modes[repeat_mode] }}
+                  </span>
+               </button>
             </div>
             <div class="controls-right">
                <div class="volume-controls">
-                  <img class="volume-icon" width="24" height="24" :src="get_volume_icon()" alt="volume" @click="toggle_mute" />
+                  <!-- <img class="volume-icon" width="24" height="24" :src="get_volume_icon()" alt="volume"
+                     @click="toggle_mute" /> -->
+                  <span class="material-symbols-rounded volume-icon" alt="volume" @click="toggle_mute"
+                     :style="{ color: VOLUME_COLOR, 'user-select': 'none' }">
+                     {{ get_volume_icon() }}
+                  </span>
                   <div class="volume-box">
                      <div class="volume-background">
-                        <div class="volume" ref="volume_ref" :style="{ width: volume_percent }"></div>
-                        <input @input="set_volume_by_slider" ref="volume_slider_ref" type="range" min="0" max="1" value="1" step="0.01" class="volume-slider" />
+                        <div class="volume" ref="volume_ref"
+                           :style="{ width: volume_percent, background: VOLUME_COLOR }">
+                        </div>
+                        <input @input="set_volume_by_slider" ref="volume_slider_ref" type="range" min="0" max="1"
+                           value="1" step="0.01" class="volume-slider" />
                      </div>
                   </div>
                </div>
+               <span class="material-symbols-rounded jam-icon" :style="{ color: JAM_COLOR, 'margin-left': '1em' }">
+                  communities
+               </span>
             </div>
          </div>
       </div>
 
-      <audio ref="audio_ref" ></audio>
+      <audio ref="audio_ref"></audio>
    </div>
 </template>
 
@@ -58,10 +106,14 @@ const REPEAT_MULTI = 2
 const shuffle = ref(false)
 const repeat_mode = ref(REPEAT_OFF)
 const repeat_modes = [
-   "Repeat Off",
-   "Repeat 1",
-   "Repeat"
+   "repeat",
+   "repeat_one_on",
+   "repeat_on"
 ]
+const CONTROL_COLOR = "#EC5800";
+const VOLUME_COLOR = "#9272ED";
+const JAM_COLOR = "#76B731";
+const ALBUM_COLOR = "#1B1B1B";
 
 const queue = computed(() => store.state.queue) // user selected songs
 const fullqueue = ref([]) // we have props.queue which is passed in queue, and this queue which is 
@@ -79,10 +131,10 @@ let is_mouse_down = false
 let last_volume = 0 // last volume before muted. if we aren't muted, its 0
 
 const volume_icons = [
-   "https://img.icons8.com/material-sharp/24/speaker.png",
-   "https://img.icons8.com/material-sharp/24/medium-volume.png",
-   "https://img.icons8.com/material-sharp/24/low-volume.png",
-   "https://img.icons8.com/material-sharp/24/mute.png"
+   "volume_up",
+   "volume_down",
+   "volume_mute",
+   "volume_off"
 ]
 
 const props = defineProps([
@@ -281,13 +333,13 @@ watch(() => fullqueue.value[queue_index.value], (newval, oldval) => {
       artist: newval.artist_display_name ? newval.artist_display_name : newval.artist,
       album: "jukebox",
       artwork: [
-         { 
+         {
             src: newval.album,
             sizes: "512x512",
             type: "image/webp"
          },
       ],
-    });
+   });
 })
 
 // update audio ref to play new songs when current song changes
@@ -310,7 +362,7 @@ const split_tracks_into_after_queue = () => {
    if (shuffle.value) new_after_queue = shuffle_array(new_after_queue)
 
    store.dispatch("setAfterQueue", new_after_queue)
-   
+
    return new_after_queue
 }
 
@@ -321,7 +373,7 @@ watch(() => queue.value, (newval, oldval) => {
    if (newval.length == 1) {
       // again in this case, we reset the queue and are clicking on a new song to play
       queue_index.value = 0 // reset queue to 0
-      
+
       let new_after_queue = split_tracks_into_after_queue()
 
       // append after queue to queue
@@ -371,6 +423,32 @@ onMounted(() => {
    }
 }
 
+/* size and align control icons */
+.control-icon {
+   text-align: center;
+   display: block;
+}
+
+.prev .control-icon,
+.pause .control-icon,
+.next .control-icon {
+   --size: 40px;
+   display: block;
+   font-size: var(--size);
+   width: var(--size);
+   height: var(--size);
+   text-align: center;
+   line-height: var(--size);
+}
+
+.jam-icon {
+   font-size: 32px;
+   width: 32px;
+   height: 32px;
+   text-align: center;
+   line-height: 32px;
+}
+
 .player-mini-box {
    position: fixed;
    bottom: 0;
@@ -404,8 +482,25 @@ onMounted(() => {
    flex: 0.35;
 }
 
-.album-icon {
+.album-cover {
    width: 64px;
+   height: 64px;
+   cursor: pointer;
+   overflow: hidden;
+}
+
+.album-cover img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+}
+
+.album-icon {
+   font-size: 64px;
+   width: 64px;
+   height: 64px;
+   text-align: center;
+   line-height: 64px;
 }
 
 .track-info {
@@ -432,7 +527,7 @@ onMounted(() => {
 }
 
 .controls button:hover {
-   opacity: 0.4;
+   opacity: 0.8;
 }
 
 .controls-right {
@@ -467,15 +562,15 @@ onMounted(() => {
    background-color: #e4e4e4;
    border-radius: 100px;
 
-   transition: height 300ms cubic-bezier(0,.74,.04,1);
+   transition: height 300ms cubic-bezier(0, .74, .04, 1);
 }
 
-.volume-icon {
+.volume-icon,
+.jam-icon {
    cursor: pointer;
 }
 
 .volume {
-   background-color: lightseagreen;
    height: 100%;
    border-radius: 100px;
 }
@@ -496,7 +591,7 @@ onMounted(() => {
    border-radius: 100px;
    background-color: #e4e4e4;
 
-   transition: height 300ms cubic-bezier(0,.74,.04,1);
+   transition: height 300ms cubic-bezier(0, .74, .04, 1);
 }
 
 .progress {
@@ -507,7 +602,7 @@ onMounted(() => {
 }
 
 .progress-box:hover .progress-background {
-   height: 8px; 
+   height: 8px;
 }
 
 .progress-background,
