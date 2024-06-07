@@ -443,7 +443,11 @@ app.listen(PORT, () => {
             // use IDs to get track data
             // inside each track, use artist USERNAME to get their DISPLAY name
             let track = await fb.get_doc("tracks", track_ids[j])
-            track.artist_display_name = (await fb.get_doc("users", track.artist)).display_name
+            try {
+               track.artist_display_name = (await fb.get_doc("users", track.artist)).display_name
+            } catch {
+               track.artist_display_name = track.artist
+            }
             event.tracks.push(track)
          }
          events[keys[i]] = event
