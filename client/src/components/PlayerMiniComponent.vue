@@ -80,6 +80,9 @@
                      </div>
                   </div>
                </div>
+               <span class="material-symbols-rounded queue-icon" :style="{ color: 'orange' }" @click="show_queue = !show_queue">
+                 queue_music
+               </span>
                <!--span class="material-symbols-rounded jam-icon" :style="{ color: JAM_COLOR, 'margin-left': '1em' }">
                   communities
                </span-->
@@ -87,15 +90,20 @@
          </div>
       </div>
 
+      <Queue v-if="show_queue" />
+
       <audio ref="audio_ref"></audio>
    </div>
 </template>
 
 <script setup>
+import Queue from "./QueueComponent.vue"
 import { defineProps, ref, watch, onMounted, computed } from 'vue';
 import { useStore } from "vuex"
 
 const store = useStore()
+
+const show_queue = ref(false)
 
 const audio_ref = ref(null)
 const progress_ref = ref(null)
@@ -172,8 +180,10 @@ const shuffle_array = (array) => {
 const toggle_shuffle = () => {
    shuffle.value = !shuffle.value
 
+   if (!current_song.value) return
+
    if (shuffle.value) {
-      after_queue.value = shuffle_array(get_following_tracks(current_song.value).map(track => QueueTrack(track, false)))
+      after_queue.value = shuffle_array(tracks.value.map(track => QueueTrack(track, false)))
    } else {
       after_queue.value = get_following_tracks(current_song.value).map(track => QueueTrack(track, false))
    }
@@ -336,12 +346,18 @@ const get_following_tracks = (track) => {
 watch(() => queue.value, (newval, oldval) => {
    if (!newval || newval.length == 0) return;
 
-   // if we clicked a new song (queue length = 1)
-   // play the 0th song
-   if (newval.length == 1) {
+   // first check if we are trying to play a song in our queue currently
+   if (oldval.includes(newval[0])) {
+      // this occurs if we skipped to a track in queue. just play top
+      set_current_song(newval[0])
+      store.dispatch("popTrack")
+   } else if (newval.length == 1) {
+      // this is when we click on a track in the listen page 
+      // to start a new playback session
       set_current_song(newval[0])
       // lets populate the afterqueue
-      after_queue.value = get_following_tracks(newval[0].track).map(track => QueueTrack(track, false))
+      if (!shuffle.value) after_queue.value = get_following_tracks(newval[0].track).map(track => QueueTrack(track, false))
+      else after_queue.value = shuffle_array(tracks.value.map(track => QueueTrack(track, false)))
       store.dispatch("popTrack")
    }
 })
@@ -605,5 +621,14 @@ onMounted(() => {
 }
 .duration.right {
    text-align: right;
+}
+
+.queue-icon {
+   margin-left: 8px;
+   cursor: pointer;
+}
+
+.queue-icon:hover {
+   opacity: 0.6;
 }
 </style>

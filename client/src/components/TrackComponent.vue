@@ -1,13 +1,16 @@
 <template>
     <div @click="play_track" :class="{'track': true, 'header': header}">
-      <img class="album" :src="track.album" />
+      <img v-if="!hide_album_covers" class="album" :src="track.album" />
       <div class="track-info">
          <p class="title">{{track.title}}</p>
          <RouterLink v-if="!header" @click.stop="prevent_parent_click" :to="`/u/${track.artist}`" class="artist">{{track.artist_display_name}}</RouterLink>
          <p class="artist" v-else>{{track.artist}}</p>
       </div>
-      <div :class="{ controls: true, norender: header }">
+      <div v-if="!hide_queue" :class="{ controls: true, norender: header }">
          <button @click.stop="add_to_queue">Add to Queue</button>
+      </div>
+      <div v-if="show_remove" class="controls">
+         <button @click.stop="remove_from_queue">Remove</button>
       </div>
       <div v-if="allowDelete">
          <button class="delete" @click.stop="delete_track(track.filename)">{{ show_delete ? "Yes, delete this track" : "Delete" }}</button>
@@ -17,7 +20,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from "vue"
+import { defineProps, ref, } from "vue"
 import { useStore } from "vuex"
 import { RouterLink } from "vue-router"
 
@@ -35,7 +38,14 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
-   allowDelete: Boolean
+   allowDelete: Boolean,
+   hide_queue: Boolean,
+   show_remove: {
+      type: Boolean,
+      default: false
+   },
+   hide_album_covers: Boolean,
+   queue_track: Object
 })
 
 const cancel_delete = () => {
@@ -73,8 +83,14 @@ const delete_track = async (track_id) => {
 
 const play_track = () => {
    if (props.header) return
-   if (props.track) {
-      store.dispatch("setQueue", [ { track: props.track, is_queue: false } ])
+   // for trakcs in the queue, instead of force setting
+   // the queue, try to tell the queue to go there
+   if (props.queue_track) {
+      store.dispatch("skipQueueTo", props.queue_track)
+   } else {
+      if (props.track) {
+         store.dispatch("setQueue", [ { track: props.track, is_queue: false, id: Math.random().toString(16).slice(2) } ])
+      }
    }
 }
 
@@ -82,6 +98,12 @@ const add_to_queue = () => {
    if (props.header) return
    if (props.track) {
       store.dispatch("addTrack", props.track)
+   }
+}
+
+const remove_from_queue = () => {
+   if (props.queue_track) {
+      store.dispatch("removeTrack", props.queue_track)
    }
 }
 
