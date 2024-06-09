@@ -101,14 +101,14 @@ const audio_ref = ref(null)
 const progress_ref = ref(null)
 
 const REPEAT_OFF = 0
-const REPEAT_SINGLE = 1
-const REPEAT_MULTI = 2
+const REPEAT_MULTI = 1
+const REPEAT_SINGLE = 2
 const shuffle = ref(false)
 const repeat_mode = ref(REPEAT_OFF)
 const repeat_modes = [
    "repeat",
+   "repeat_on",
    "repeat_one_on",
-   "repeat_on"
 ]
 const CONTROL_COLOR = "#EC5800";
 const VOLUME_COLOR = "#9272ED";
@@ -171,6 +171,12 @@ const shuffle_array = (array) => {
 // order in tracks.
 const toggle_shuffle = () => {
    shuffle.value = !shuffle.value
+
+   if (shuffle.value) {
+      after_queue.value = shuffle_array(get_following_tracks(current_song.value).map(track => QueueTrack(track, false)))
+   } else {
+      after_queue.value = get_following_tracks(current_song.value).map(track => QueueTrack(track, false))
+   }
 }
 
 const get_as_time = (time) => {
@@ -317,6 +323,15 @@ const get_volume_icon = () => {
    }
 }
 
+// given a track object, return a list of the tracks that follow it in order
+// takes a queue track or track, returns a list normal tracks 
+const get_following_tracks = (track) => {
+   let target = (track.track ? track.track : track)
+   let index = tracks.value.findIndex(t => t.filename == target.filename)
+   let following_tracks = tracks.value.slice(index + 1)
+   return following_tracks
+}
+
 // this only reacts to changes from outside (ie someone clicking a track or adding a track to queue)
 watch(() => queue.value, (newval, oldval) => {
    if (!newval || newval.length == 0) return;
@@ -326,8 +341,7 @@ watch(() => queue.value, (newval, oldval) => {
    if (newval.length == 1) {
       set_current_song(newval[0])
       // lets populate the afterqueue
-      let index_in_track = tracks.value.findIndex(t => t.filename == newval[0].track.filename)
-      after_queue.value = tracks.value.slice(index_in_track + 1).map(track => QueueTrack(track, false))
+      after_queue.value = get_following_tracks(newval[0].track).map(track => QueueTrack(track, false))
       store.dispatch("popTrack")
    }
 })
