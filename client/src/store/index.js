@@ -9,7 +9,10 @@ export default createStore({
    },
    mutations: {
       addTrack(state, track) {
-         state.queue = [...state.queue, track]
+         state.queue.push({ track: track, is_queue: true })
+      },
+      popTrack(state) {
+         state.queue.shift()
       },
       setQueue(state, queue) {
          state.queue = queue
@@ -39,6 +42,9 @@ export default createStore({
       },
       setTracks({ commit }, tracks) {
          commit("setTracks", tracks)
+      },
+      popTrack({ commit }) {
+         commit("popTrack")
       }
    },
    getters: {

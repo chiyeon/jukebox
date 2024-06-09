@@ -14,7 +14,7 @@
             <div class="album">
 
                <div class="album-cover">
-                  <img v-if="current_song && current_song.album" :src="current_song.album" />
+                  <img v-if="current_song && current_song.track.album" :src="current_song.track.album" />
                   <span class="material-symbols-rounded album-icon" v-else :style="{ color: ALBUM_COLOR }">
                      album
                   </span>
@@ -22,8 +22,8 @@
                <!-- <img class="album-icon"
                   :src="current_song && current_song.album ? current_song.album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" /> -->
                <div class="track-info">
-                  <p v-if="current_song"><strong>{{ current_song.title }}</strong></p>
-                  <RouterLink v-if="current_song" :to="`/u/${current_song.artist}`">{{ current_song.artist_display_name
+                  <p v-if="current_song"><strong>{{ current_song.track.title }}</strong></p>
+                  <RouterLink v-if="current_song" :to="`/u/${current_song.track.artist}`">{{ current_song.track.artist_display_name
                      }}</RouterLink>
                   <p v-else>No track selected</p>
                </div>
@@ -80,9 +80,9 @@
                      </div>
                   </div>
                </div>
-               <span class="material-symbols-rounded jam-icon" :style="{ color: JAM_COLOR, 'margin-left': '1em' }">
+               <!--span class="material-symbols-rounded jam-icon" :style="{ color: JAM_COLOR, 'margin-left': '1em' }">
                   communities
-               </span>
+               </span-->
             </div>
          </div>
       </div>
@@ -115,19 +115,21 @@ const VOLUME_COLOR = "#9272ED";
 const JAM_COLOR = "#76B731";
 const ALBUM_COLOR = "#1B1B1B";
 
+// afterqeues are built up of QueueTrack components, which hold teh track & a flag 
+// on whether or not it was part of the queue or afterqueue
+// queued tracks are considered ephemeral, being not recorded in history and
+// taking priority 
 const queue = computed(() => store.state.queue) // user selected songs
-const fullqueue = ref([]) // we have props.queue which is passed in queue, and this queue which is 
-// props.queue + afterqueue
-const queue_index = ref(0)
-const after_queue_index = ref(-1)
+const after_queue = ref([]) // tracks to play after user queue ends
+const aq_index = ref(0) // index of after queue
+const history = ref([]) // stack, LIFO
+
 const playback_progress_percent = ref("0%")
 const volume_percent = ref("100%")
 const current_song = ref(null)
 
 const tracks = computed(() => store.state.tracks) // all tracks user is "pointed at"
-const after_queue = computed(() => store.state.afterQueue) // tracks to play next after queue is over
 
-let is_mouse_down = false
 let last_volume = 0 // last volume before muted. if we aren't muted, its 0
 
 const volume_icons = [
@@ -140,6 +142,13 @@ const volume_icons = [
 const props = defineProps([
    "queue"
 ])
+
+const QueueTrack = (track, is_queue) => {
+   return {
+      track,
+      is_queue
+   }
+}
 
 const next_repeat = () => {
    repeat_mode.value++
@@ -162,39 +171,6 @@ const shuffle_array = (array) => {
 // order in tracks.
 const toggle_shuffle = () => {
    shuffle.value = !shuffle.value
-   let current_track = fullqueue.value[queue_index.value]
-
-   if (!current_track) return
-
-   if (shuffle.value) {
-      // shuffle only the after queue
-
-      // tracks following us
-      let current_track_index = after_queue.value.findIndex(t => t.filename == current_track.filename)
-      // if we are in our queue still, shuffle the entire after queue
-      if (queue.value.length > queue_index.value) current_track_index = -1
-      let following_tracks = after_queue.value.slice(current_track_index + 1)
-      // remember keep what we have after listened to UNSHUFFLED
-      following_tracks = shuffle_array(following_tracks)
-      // insert it back in at current_track_index
-      let new_after_queue = [...after_queue.value.slice(0, current_track_index + 1), ...following_tracks]
-      fullqueue.value = queue.value.concat(new_after_queue)
-      store.dispatch("setAfterQueue", new_after_queue)
-   } else {
-      // lets set it back to the way it was before tracks
-      let current_track_index = after_queue.value.findIndex(t => t.filename == current_track.filename)
-      // there must be a better way to do this...
-      let current_track_index_in_tracks = tracks.value.findIndex(t => t.filename == current_track.filename)
-
-      // again if we are in queue stlil shuffle the entire queue
-      if (queue.value.length > queue_index.value) {
-         current_track_index = -1
-         current_track_index_in_tracks = 0
-      }
-      let new_after_queue = [...after_queue.value.slice(0, current_track_index + 1), ...tracks.value.slice(current_track_index_in_tracks + 1)]
-      fullqueue.value = queue.value.concat(new_after_queue)
-      store.dispatch("setAfterQueue", new_after_queue)
-   }
 }
 
 const get_as_time = (time) => {
@@ -218,14 +194,29 @@ const get_song_duration = () => {
    return get_as_time(audio_ref.value.duration)
 }
 
+const set_current_song = (track) => {
+   current_song.value = track
+
+   if (track) {
+      audio_ref.value.src = track.track.url
+      audio_ref.value.currentTime = 0
+      audio_ref.value.play()
+   } else {
+      audio_ref.value.src = ""
+      audio_ref.value.currentTime = 0
+      audio_ref.value.pause()
+   }
+}
+
 const prev_song = () => {
    // rewind if more than 3 seconds over, otherwise previous track
-   if (audio_ref.value.currentTime > 3 || queue_index.value == 0) {
+   if (audio_ref.value.currentTime > 3 || history.value.length <= 0) {
       audio_ref.value.currentTime = 0
    } else {
-      // 2 cases: we are either playing in queue or in after queue
-      queue_index.value--
-      if (queue_index.value < 0) queue_index.value = 0
+      // put current track at head of after queue if not from queue
+      if (current_song.value && !current_song.value.is_queue) after_queue.value.unshift(current_song.value)
+      // pop previous track from history. history is inserted at tail
+      set_current_song(history.value.pop())
    }
 }
 
@@ -236,19 +227,30 @@ const next_song = () => {
       audio_ref.value.play()
       return
    } else {
-      // we are either repeat or end 
-      if (queue_index.value < fullqueue.value.length - 1) {
-         queue_index.value++
-      } else if (repeat_mode.value == REPEAT_MULTI) {
-         if (queue_index.value == 0) {
-            // repeat track
-            audio_ref.value.currentTime = 0
-            audio_ref.value.play()
-         } else {
-            queue_index.value = 0;
-         }
+      // push the previous song into history if not from queue
+      if (current_song.value && !current_song.value.is_queue) history.value.push(current_song.value)
+      // if queue is not empty, pop & play the first element
+      if (queue.value.length > 0) {
+         set_current_song(queue.value[0])
+         store.dispatch("popTrack")
       } else {
-         // reached end of queue, just stop playback
+         // otherwise try to move up in after queue
+         // if we reach the end, stop playback or cancel depending on repeat mode
+         if (after_queue.value.length == 0) {
+            if (repeat_mode.value == REPEAT_MULTI) {
+               // repeat entire listening history
+               after_queue.value = history.value
+               history.value = []
+
+               // play song
+               set_current_song(after_queue.value.shift())
+            } else {
+               set_current_song(null)
+            }
+         } else {
+            // DEFAULT CASE: just play the next song
+            set_current_song(after_queue.value.shift())
+         }
       }
    }
 }
@@ -315,73 +317,23 @@ const get_volume_icon = () => {
    }
 }
 
-const update_audio_ref = (track) => {
-   audio_ref.value.src = track.url
-   audio_ref.value.play()
-}
-
-// update our current song when queue or after queue cahnges
-watch(() => fullqueue.value[queue_index.value], (newval, oldval) => {
-   if (!newval) return
-
-   current_song.value = newval
-   // the watch for current song doesnt update from this. we'll have to do it manually
-   update_audio_ref(newval)
-
-   navigator.mediaSession.metadata = new MediaMetadata({
-      title: newval.title,
-      artist: newval.artist_display_name ? newval.artist_display_name : newval.artist,
-      album: "jukebox",
-      artwork: [
-         {
-            src: newval.album,
-            sizes: "512x512",
-            type: "image/webp"
-         },
-      ],
-   });
-})
-
-// update audio ref to play new songs when current song changes
-watch(current_song.value, (newval, oldval) => {
-   if (!newval) return
-   update_audio_ref(newval)
-})
-
-// take our tracks 
-// find a "split" based on our current song
-// return AND SET the "afterqueue": songs after
-// if shuffle is on, shuffle the queue
-const split_tracks_into_after_queue = () => {
-   if (queue_index.value >= queue.value.length) return []
-   let track_index = tracks.value.findIndex(track => track.filename == queue.value[queue_index.value].filename)
-   if (track_index < 0) return []
-
-   let new_after_queue = tracks.value.slice(track_index + 1)
-
-   if (shuffle.value) new_after_queue = shuffle_array(new_after_queue)
-
-   store.dispatch("setAfterQueue", new_after_queue)
-
-   return new_after_queue
-}
-
+// this only reacts to changes from outside (ie someone clicking a track or adding a track to queue)
 watch(() => queue.value, (newval, oldval) => {
-   // if queue is empty or being reset (we clicked on a new song to play)
-   // fill teh after queue with stuff below
    if (!newval || newval.length == 0) return;
+
+   // if we clicked a new song (queue length = 1)
+   // play the 0th song
    if (newval.length == 1) {
-      // again in this case, we reset the queue and are clicking on a new song to play
-      queue_index.value = 0 // reset queue to 0
-
-      let new_after_queue = split_tracks_into_after_queue()
-
-      // append after queue to queue
-      fullqueue.value = queue.value.concat(new_after_queue)
-   } else {
-      // if we aren't though, we need to insert new songs into the queue BEFORE afterqueue
-      fullqueue.value = queue.value.concat(after_queue.value)
+      set_current_song(newval[0])
+      // lets populate the afterqueue
+      let index_in_track = tracks.value.findIndex(t => t.filename == newval[0].track.filename)
+      after_queue.value = tracks.value.slice(index_in_track + 1).map(track => QueueTrack(track, false))
+      store.dispatch("popTrack")
    }
+})
+
+watch(() => after_queue.value, (newval, oldval) => {
+   store.dispatch("setAfterQueue", after_queue.value)
 })
 
 const update_progress = () => {

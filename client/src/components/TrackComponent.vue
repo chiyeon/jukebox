@@ -74,7 +74,7 @@ const delete_track = async (track_id) => {
 const play_track = () => {
    if (props.header) return
    if (props.track) {
-      store.dispatch("setQueue", [ props.track ])
+      store.dispatch("setQueue", [ { track: props.track, is_queue: false } ])
    }
 }
 

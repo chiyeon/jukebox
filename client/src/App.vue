@@ -8,13 +8,13 @@
     <p
       v-for="track in queue"
       :key="track.url"
-    >{{ track.artist_display_name }} - {{ track.title }}</p>
+    >{{ track.track.artist_display_name }} - {{ track.track.title }}</p>
     <hr />
     <h2>Up next</h2>
     <p
       v-for="track in afterQueue"
       :key="track.url"
-    >{{ track.artist_display_name }} - {{ track.title }}</p>
+    >{{ track.track.artist_display_name }} - {{ track.track.title }}</p>
   </div>
 </template>
 
