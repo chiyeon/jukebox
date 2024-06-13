@@ -639,4 +639,8 @@ onMounted(() => {
 .queue-icon:hover {
    opacity: 0.6;
 }
+
+.material-symbols-rounded {
+   user-select: none;
+}
 </style>

@@ -4,7 +4,10 @@
       <Header />
       <RouterView />
     </div>
-    <Queue v-if="open_queue" />
+
+    <Transition>
+      <Queue v-if="open_queue" />
+    </Transition>
   </div>
   <PlayerMini :queue="queue" @toggle_queue="toggle_queue" />
 </template>
@@ -30,11 +33,11 @@ const toggle_queue = () => {
 
 <style scoped>
 .horizontal-contents {
-   display: flex;
-   flex-direction: row;
-   width: 100%;
-   height: 100%;
-   overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
 }
 
 .page-contents {
@@ -44,6 +47,18 @@ const toggle_queue = () => {
 }
 
 main {
-   padding-bottom: 200px;
+  padding-bottom: 200px;
+}
+
+.v-enter-active,
+.v-leave-active {
+   transition: width 500ms ease, opacity 500ms ease;
+   overflow-x: hidden;
+}
+
+.v-enter-from,
+.v-leave-to {
+   width: 0;
+   opacity: 0;
 }
 </style>
