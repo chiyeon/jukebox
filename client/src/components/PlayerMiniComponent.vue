@@ -217,6 +217,20 @@ const set_current_song = (track) => {
       audio_ref.value.src = track.track.url
       audio_ref.value.currentTime = 0
       audio_ref.value.play()
+
+      // update media player stuff
+      navigator.mediaSession.metadata = new MediaMetadata({
+         title: track.track.title,
+         artist: track.track.artist_display_name ? track.track.artist_display_name : track.track.artist,
+         album: "jukebox",
+         artwork: [
+            {
+               src: track.track.album,
+               sizes: "512x512",
+               type: "image/webp"
+            },
+         ],
+      });
    } else {
       audio_ref.value.src = ""
       audio_ref.value.currentTime = 0
