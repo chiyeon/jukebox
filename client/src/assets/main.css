@@ -5,6 +5,26 @@
    height: 100vh;
 }
 
-body, #app {
+html, body, #app {
    overflow-y: hidden;
+}
+
+@media (max-width: 550px) {
+   #app .queue-box {
+      position: fixed;
+      right: 0;
+      width: 300px;
+   }
+   #app .queue-box .up-next {
+      padding-bottom: 300px;
+   }
+
+   .player-mini-box {
+      position: fixed;
+      bottom: 0;
+   }
+
+   #app main {
+      padding-bottom: 400px;
+   }
 }
