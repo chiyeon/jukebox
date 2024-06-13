@@ -1,0 +1,49 @@
+@font-face {
+   font-family: 'Satoshi';
+   src: url('./fonts/Satoshi-Regular.ttf') format('truetype');
+   font-weight: 400;
+   font-display: swap;
+   font-style: normal;
+}
+
+@font-face {
+   font-family: 'Satoshi';
+   src: url('./fonts/Satoshi-Bold.ttf') format('truetype');
+   font-weight: 700;
+   font-display: swap;
+   font-style: normal;
+}
+
+@font-face {
+   font-family: 'Satoshi';
+   src: url('./fonts/Satoshi-Black.ttf') format('truetype');
+   font-weight: 900;
+   font-display: swap;
+   font-style: normal;
+}
+
+body {
+   max-width: 860px;
+   margin: auto;
+   padding: 0 10px;
+   padding-bottom: 300px; /* for the mini player */
+}
+
+h1 {
+   font-weight: 900;
+}
+
+h1, h2, h3, p, a, li, button, input, label, textarea {
+   font-family: "Satoshi";
+}
+
+a {
+   color: black;
+   text-decoration: none;
+}
+
+a:hover {
+   text-decoration: underline;
+}
+
+

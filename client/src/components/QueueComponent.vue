@@ -41,19 +41,14 @@ const after_queue = computed(() => store.state.afterQueue)
 </script>
 
 <style scoped>
-
 .queue-box {
-   max-height: 60vh;
-   width: 300px;
+   height: 100%;
+   width: 400px;
    overflow-y: auto;
-   padding: 20px;
-
-   position: fixed;
-   right: 0;
-   top: 0;
 
    background-color: white;
-   border: 1px solid black;
+   border-left: 1px solid black;
+   padding-left: 20px;
 }
 
 </style>

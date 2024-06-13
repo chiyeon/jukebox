@@ -80,7 +80,7 @@
                      </div>
                   </div>
                </div>
-               <span class="material-symbols-rounded queue-icon" :style="{ color: 'orange' }" @click="show_queue = !show_queue">
+               <span class="material-symbols-rounded queue-icon" :style="{ color: 'orange' }" @click="emit('toggle_queue')">
                  queue_music
                </span>
                <!--span class="material-symbols-rounded jam-icon" :style="{ color: JAM_COLOR, 'margin-left': '1em' }">
@@ -90,20 +90,18 @@
          </div>
       </div>
 
-      <Queue v-if="show_queue" />
-
       <audio ref="audio_ref"></audio>
    </div>
 </template>
 
 <script setup>
-import Queue from "./QueueComponent.vue"
-import { defineProps, ref, watch, onMounted, computed } from 'vue';
+import { defineProps, defineEmits, ref, watch, onMounted, computed } from 'vue';
 import { useStore } from "vuex"
 
 const store = useStore()
-
-const show_queue = ref(false)
+const emit = defineEmits([
+   "toggle_queue"
+])
 
 const audio_ref = ref(null)
 const progress_ref = ref(null)
@@ -129,7 +127,6 @@ const ALBUM_COLOR = "#1B1B1B";
 // taking priority 
 const queue = computed(() => store.state.queue) // user selected songs
 const after_queue = ref([]) // tracks to play after user queue ends
-const aq_index = ref(0) // index of after queue
 const history = ref([]) // stack, LIFO
 
 const playback_progress_percent = ref("0%")
@@ -446,9 +443,6 @@ onMounted(() => {
 }
 
 .player-mini-box {
-   position: fixed;
-   bottom: 0;
-   left: 0;
    width: 100%;
 
    background-color: white;
