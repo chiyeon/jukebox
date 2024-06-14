@@ -62,4 +62,10 @@ main {
    width: 0;
    opacity: 0;
 }
+
+@media (max-width: 550px) {
+.horizontal-contents .page-contents {
+   padding-right: 0px;
+}
+}
 </style>

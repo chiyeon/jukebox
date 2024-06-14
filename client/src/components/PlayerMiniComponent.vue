@@ -513,6 +513,9 @@ onMounted(() => {
   .album {
     align-self: flex-start;
   }
+  .player-mini-box {
+      left: 0;
+   }
 }
 
 /* size and align control icons */
