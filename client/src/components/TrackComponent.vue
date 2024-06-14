@@ -3,8 +3,17 @@
       <img v-if="!hide_album_covers" class="album" :src="track.album" />
       <div class="track-info">
          <p class="title">{{track.title}}</p>
-         <RouterLink v-if="!header" @click.stop="prevent_parent_click" :to="`/u/${track.artist}`" class="artist">{{track.artist_display_name}}</RouterLink>
-         <p class="artist" v-else>{{track.artist}}</p>
+         <template
+            v-for="(artist, index) in track.artist_display_names"
+            :key="index"
+         >
+            <RouterLink
+               @click.stop="prevent_parent_click"
+               :to="`/u/${track.artists[index]}`"
+               class="artist"
+            >{{ artist }}</RouterLink>
+            <p v-if="((index == track.artist_display_names.length - 1) ? '' : ', ') " class="artist-comma">, </p>
+         </template>
       </div>
       <div v-if="!hide_queue" :class="{ controls: true, norender: header }">
          <button @click.stop="add_to_queue">Add to Queue</button>
@@ -89,7 +98,7 @@ const play_track = () => {
       store.dispatch("skipQueueTo", props.queue_track)
    } else {
       if (props.track) {
-         store.dispatch("setQueue", [ { track: props.track, is_queue: false, id: Math.random().toString(16).slice(2) } ])
+         store.dispatch("setQueueToTrack", props.track)
       }
    }
 }
@@ -141,6 +150,10 @@ const prevent_parent_click = (e) => {
 .artist {
    flex: 0.2;
    min-width: 100px;
+}
+
+.artist-comma {
+   display: inline;
 }
 
 .track-info {

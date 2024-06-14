@@ -160,6 +160,12 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          const artist = user_data.username // important: user USERNAME! this is used to recall a display name later
          const title = req.body.title
          const lyrics = req.body.lyrics ? req.body.lyrics : ""
+         let pulled_artists = JSON.parse(req.body.artists)
+         if (req.body.artists && pulled_artists.length > 0) {
+            if (pulled_artists.length > 8) return res.status(400).send({ message: "Surpassed artist limit" })
+
+            artists = [ artist, ...pulled_artists ]
+         }
 
          if (artist == undefined || title == undefined || artist.length == 0 || title.length == 0) {
             return res.status(400).send({ message: "Invalid artist/title" })
@@ -210,6 +216,7 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          // save entry into database
          const newentry = {
             artist,
+            artists,
             title,
             lyrics,
             filename,
@@ -403,9 +410,9 @@ app.post("/api/tracks", async (req, res) => {
       return res.status(400).send({ message: "Invalid username" })
    }
 
-   let tracks = await fb.get_docs_by_query("tracks", [ "artist", "==", req.body.username ])
+   let tracks = await fb.get_docs_by_query("tracks", [ "artists", "array-contains", req.body.username ])
    for (let i = 0; i < tracks.length; i++) {
-      tracks[i].artist_display_name = (await fb.get_doc("users", tracks[i].artist)).display_name
+      tracks[i].artist_display_names = await get_display_names(tracks[i])
    }
 
    tracks.reverse()
@@ -429,6 +436,17 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
    res.status(200).send({ events: open_events })
 })
 
+const get_display_names = async (track) => {
+   let display_names = []
+
+   for (let i = 0; i < track.artists.length; i++) {
+      let user = await fb.get_doc("users", track.artists[i])
+      display_names.push(user ? user.display_name : track.artists[i])
+   }
+
+   return display_names
+}
+
 app.listen(PORT, () => {
    // listen for updates in collections
    fb.setup_collection_listener("events", async (e) => {
@@ -443,11 +461,7 @@ app.listen(PORT, () => {
             // use IDs to get track data
             // inside each track, use artist USERNAME to get their DISPLAY name
             let track = await fb.get_doc("tracks", track_ids[j])
-            try {
-               track.artist_display_name = (await fb.get_doc("users", track.artist)).display_name
-            } catch {
-               track.artist_display_name = track.artist
-            }
+            track.artist_display_names = await get_display_names(track)
             event.tracks.push(track)
          }
          events[keys[i]] = event
@@ -459,3 +473,64 @@ app.listen(PORT, () => {
 
    print("started on port " + PORT)
 })
+
+const get_artist = (alias) => {
+   const aliases = {
+      "twomi": "twomi",
+      "@black": "twomi",
+      "waymond": "waymond",
+      "tony": "twomi",
+      "bruh": "bruh",
+      "brandon": "bruh",
+      "fred bear": "bruh",
+      "chiyeon": "chi",
+      "benji": "chi",
+      "gab": "gab"
+   }
+
+   let g = aliases[alias]
+   if (!g) g = "WIP"
+
+   return g
+}
+
+const transfer = async () => {
+   print("Starting transfer")
+
+   let events = []
+
+   events.forEach(event => {
+      log("Creating event " + event.name)
+
+      let current_event = `${Date.now()}_${event.name}`
+      let new_event = {
+         date: new Date(event.date.split(" - ")[0]),
+         name: event.name,
+         desc: event.description,
+         tags: event.tags,
+         tracks: [],
+         open: false
+      }
+
+      event.tracks.forEach(async track => {
+         let new_track = {
+            artist: get_artist(track.artist),
+            title: track.title,
+            lyrics: "",
+            album: files.get_gcloud_link("default.webp", files.albums_bucket_name),
+            plays: 0,
+            winner: track.winner,
+            event: current_event,
+            release_date: event.date
+         }
+
+         // load file somehow
+         // do filename
+         //
+         new_event.tracks.push(name_Trak)
+         fb.set_doc("tracks", filename, new_track)
+      })
+
+      fb.set_doc("events", current_event, new_event)
+   })
+}

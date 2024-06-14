@@ -12,6 +12,11 @@ export default createStore({
          // probability of collision is NOT 0, but its close enough c:
          state.queue.push({ track: track, is_queue: true, id: Math.random().toString(16).slice(2) })
       },
+      setQueueToTrack(state, track) {
+         state.queue = [
+            { track: track, is_queue: false, id: Math.random().toString(16).slice(2) } 
+         ]
+      },
       removeTrack(state, track) {
          let idx = state.queue.indexOf(track)
          if (idx >= 0) state.queue.splice(idx, 1)  
@@ -39,6 +44,9 @@ export default createStore({
    actions: {
       addTrack({ commit }, track) {
          commit("addTrack", track)
+      },
+      setQueueToTrack({ commit }, track) {
+         commit("setQueueToTrack", track)
       },
       removeTrack({ commit }, track) {
          commit("removeTrack", track)

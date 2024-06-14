@@ -14,6 +14,27 @@
          <label for="title">Title</label>
          <input ref="title_ref" type="text" placeholder="The_NewStuff" required>
 
+         <label for="artists">Artists<p class="tag">(optional)</p></label>
+         <input type="text" class="artist" value="You" disabled>
+         <p class="tag" v-if="artists.length != 0" style="margin-bottom: 10px">Enter the artist's USERNAME, not display name.</p>
+         <span 
+            class="artist-entry"
+            v-for="(artist, index) in artists"
+            :key="index"
+         >
+            <input 
+               class="artist"
+               type="text"
+               v-model="artists[index]"
+               placeholder="a very cool person"
+            />
+            <p class="new-artist" @click="remove_artist(index)">x</p>
+         </span>
+         <span class="new-artist-box" @click="add_artist" v-if="artists.length < 8">
+            <p class="new-artist">+</p>
+            <p>Add Artist</p>
+         </span>
+
          <label for="lyrics">lyrics<p class="tag">(optional)</p></label>
          <textarea ref="lyrics_ref" placeholder="there's a light over the ocean
 ..."></textarea>
@@ -37,9 +58,14 @@
 
 <script setup>
 
-import { ref, onBeforeMount } from "vue"
+import { ref, onBeforeMount, computed } from "vue"
 import { compress_image } from "../utils/image.js"
+import { useStore } from "vuex"
 import router from "../router"
+
+const store = useStore()
+
+const user = computed(() => store.state.user)
 
 const event_ref = ref(null)
 const title_ref = ref(null)
@@ -50,6 +76,16 @@ const album_ref = ref(null)
 const open_events = ref([])
 const uploading = ref(false)
 const show_page = ref(false)
+const artists = ref([])
+
+const add_artist = () => {
+   if (artists.value.length >= 8) return alert("Maximum number of artists reached!")
+   artists.value.push("")
+}
+
+const remove_artist = (index) => {
+   artists.value.splice(index, 1)
+}
 
 onBeforeMount(async () => {
    // check if there are any open events
@@ -133,6 +169,7 @@ const upload = async (e) => {
    formdata.append("title", title)
    if (lyrics_ref.value.value) formdata.append("lyrics", lyrics_ref.value.value)
    formdata.append("event", event_ref.value.value)
+   if (artists.value.length != 0) formdata.append("artists", JSON.stringify(artists.value))
 
    console.log("Submitting files")
    try {
@@ -227,5 +264,49 @@ input[type="file"] {
    color: white;
    font-size: 24px;
    font-weight: bold;
+}
+
+.new-artist-box {
+   display: flex;
+   flex-direction: row;
+   gap: 10px;
+   align-items: center;
+   margin-top: 4px;
+   margin-bottom: 20px;
+
+   cursor: pointer;
+}
+
+.new-artist-box:hover {
+   opacity: 0.6;
+}
+
+.new-artist-box p {
+   margin: 0;
+}
+
+.new-artist {
+   margin: 0;
+   width: 24px;
+   aspect-ratio: 1.0;
+
+   border: none;
+   background-color: #f5f5f5;
+   vertical-align: center;
+   line-height: 0;
+   border-radius: 100px;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+input.artist {
+   margin-bottom: 4px;
+}
+
+.artist-entry {
+   display: flex;
+   flex-direction: row;
 }
 </style>

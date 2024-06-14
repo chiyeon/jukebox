@@ -44,6 +44,7 @@ const toggle_queue = () => {
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  padding-right: 20px; /* for the scrollbar */
 }
 
 main {
