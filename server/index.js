@@ -164,6 +164,11 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          if (req.body.artists && pulled_artists.length > 0) {
             if (pulled_artists.length > 8) return res.status(400).send({ message: "Surpassed artist limit" })
 
+            pulled_artists.forEach(a => {
+               if (users.validate_displayname(a) != 0)
+                  return res.status(400).send({ message: a + " is an invalid name" })
+            })
+
             artists = [ artist, ...pulled_artists ]
          }
 
