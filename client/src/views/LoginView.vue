@@ -39,6 +39,7 @@
         </form>
       </div>
   </div>
+   <div class="loading" v-if="loading"><p>Loading</p></div>
 </template>
 
 <script setup>
@@ -60,6 +61,7 @@ const icon_ref = ref(null)
 const email_ref = ref(null)
 
 const form_type = ref(FORM_LOGIN)
+const loading = ref(false)
 
 const handle_submit = async (e) => {
     e.preventDefault()
@@ -67,6 +69,8 @@ const handle_submit = async (e) => {
     if (username_ref.value.value == "" || password_ref.value.value == "") {
         return alert("Must include username and password")
     }
+
+   loading.value = true
 
    let formdata = new FormData()
    formdata.append("username", username_ref.value.value)
@@ -90,6 +94,7 @@ const handle_submit = async (e) => {
 
     let json = await res.json()
 
+   loading.value = false
     if (res.status == 200) {
         console.log(`${form_type.value ? "Registered" : "Logged in"} successfully`)
         store.dispatch("setUser", json.user) 
@@ -177,4 +182,25 @@ form button {
   padding: 12px 0;
   margin-top: 8px;
 }
+
+.loading {
+   position: fixed;
+   z-index: 5;
+   left: 0;
+   top: 0;
+   width: 100vw;
+   height: 100vh;
+   background-color: #30303090;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.loading p {
+   font-size: 32px;
+   font-weight: bold;
+   color: white;
+}
+
 </style>

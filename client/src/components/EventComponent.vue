@@ -6,7 +6,7 @@
       <div class="tags-box">
         <p class="tag" v-for="tag in event.tags" :key="tag">{{ tag }}</p>
       </div>
-      <p class="date">{{ new Date(event.date).toLocaleDateString() }}</p>
+      <p class="date">{{ get_event_date() }}</p>
       <p class="description">{{ event.desc }}</p>
     </template>
     <div class="tracks">
@@ -28,12 +28,24 @@
 import Track from "./TrackComponent.vue";
 import { defineProps } from "vue";
 
+const props = defineProps(["event", "allowDelete"]);
+
 const track_header = {
   artist: "Artist",
   title: "Title",
 };
 
-defineProps(["event", "allowDelete"]);
+const get_event_date = () => {
+   if (!props.event.date) return "No date"
+   if (props.event.date.length == 1) {
+      return new Date(props.event.date[0]._seconds * 1000).toLocaleDateString()
+   } else {
+      return `${new Date(props.event.date[0]._seconds * 1000).toLocaleDateString()
+} - ${new Date(props.event.date[1]._seconds * 1000).toLocaleDateString()
+}`
+   }
+}
+
 </script>
 
 <style scoped>
