@@ -2,7 +2,7 @@
     <div @click="play_track" :class="{'track': true, 'header': header}">
       <img v-if="!hide_album_covers" class="album" :src="track.album" />
       <div class="track-info">
-         <p class="title">{{track.title}}</p>
+         <p class="title"><span v-if="track.winner" class="material-symbols-rounded trophy">trophy</span>{{track.title}}</p>
          <template
             v-for="(artist, index) in track.artist_display_names"
             :key="index"
@@ -162,6 +162,12 @@ const prevent_parent_click = (e) => {
 
 .title {
    font-weight: bold;
+   display: flex;
+   align-items: center;
+}
+
+.title .trophy {
+   color: #e2b13c;
 }
 
 button {

@@ -39,9 +39,7 @@
                   :src="current_song && current_song.album ? current_song.album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" /> -->
           <div class="track-info">
             <template v-if="current_song && current_song.track">
-              <p>
-                <strong>{{ current_song.track.title }}</strong>
-              </p>
+            <p class="title"><span v-if="current_song.track.winner" class="material-symbols-rounded trophy">trophy</span>{{current_song.track.title}}</p>
                   <template
                      v-for="(artist, index) in current_song.track.artist_display_names"
                      :key="index"
@@ -730,5 +728,15 @@ onMounted(() => {
 
 .material-symbols-rounded {
   user-select: none;
+}
+
+.title {
+   font-weight: bold;
+   display: flex;
+   align-items: center;
+}
+
+.title .trophy {
+   color: #e2b13c;
 }
 </style>
