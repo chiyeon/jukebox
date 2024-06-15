@@ -38,12 +38,14 @@ const toggle_queue = () => {
   width: 100%;
   height: 100%;
   overflow-y: hidden;
+   overflow-x: hidden;
 }
 
 .page-contents {
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 20px; /* for the scrollbar */
 }
 
