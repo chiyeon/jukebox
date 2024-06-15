@@ -234,9 +234,9 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          }
 
          // save track to db
-         fb.set_doc("tracks", filename, newentry)
+         await fb.set_doc("tracks", filename, newentry)
          // save track to current event
-         fb.update_doc("events", current_event, {
+         await fb.update_doc("events", current_event, {
             tracks: fb.FieldValue.arrayUnion(filename)
          })
 
@@ -443,10 +443,9 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
 
 const get_display_names = async (track) => {
    let display_names = []
-
    for (let i = 0; i < track.artists.length; i++) {
       let user = await fb.get_doc("users", track.artists[i])
-      display_names.push(user ? user.display_name : track.artists[i])
+      display_names.push(user > 0 ? user[0].display_name : track.artists[i])
    }
 
    return display_names

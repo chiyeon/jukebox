@@ -49,6 +49,10 @@ const after_queue = computed(() => store.state.afterQueue)
    background-color: white;
    border-left: 1px solid black;
    padding-left: 20px;
+
+   white-space: nowrap;
+   overflow-x: hidden;
+
 }
 
 </style>

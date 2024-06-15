@@ -16,13 +16,14 @@
          </template>
       </div>
       <div v-if="!hide_queue" :class="{ controls: true, norender: header }">
-         <button @click.stop="add_to_queue">Add to Queue</button>
+         <button @click.stop="add_to_queue"><span class="material-symbols-rounded add-to-queue">add_to_queue</span></button>
       </div>
       <div v-if="show_remove" class="controls">
          <button @click.stop="remove_from_queue">Remove</button>
       </div>
       <div v-if="allowDelete">
-         <button class="delete" @click.stop="delete_track(track.filename)">{{ show_delete ? "Yes, delete this track" : "Delete" }}</button>
+         <button class="delete" @click.stop="delete_track(track.filename)" v-if="!show_delete"><span class="material-symbols-rounded">delete</span></button>
+         <button class="delete" @click.stop="delete_track(track.filename)" v-else>Yes, delete track</button>
          <button v-if="show_delete" @click.stop="cancel_delete">Cancel</button>
       </div>
     </div>
@@ -122,7 +123,7 @@ const prevent_parent_click = (e) => {
 
 <style scoped>
 .track {
-   padding: 10px 0;
+   padding: 10px;
    border-radius: 2px;
 
    border-bottom: 1px solid gray;
@@ -192,6 +193,8 @@ button:hover {
 
 .album {
    height: 48px;
-   padding-left: 10px;
+}
+
+.add-to-queue {
 }
 </style>
