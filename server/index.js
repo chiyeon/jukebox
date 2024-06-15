@@ -477,3 +477,7 @@ app.listen(PORT, () => {
 
    print("started on port " + PORT)
 })
+
+const set = async () => {
+   let keys = Object.keys(await fb.get_collection("events"))
+}

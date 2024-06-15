@@ -2,11 +2,11 @@
   <div class="event">
     <template v-if="event.name">
       <hr />
+      <p class="date">{{ get_event_date() }}</p>
       <h2>{{ event.name }}</h2>
       <div class="tags-box">
         <p class="tag" v-for="tag in event.tags" :key="tag">{{ tag }}</p>
       </div>
-      <p class="date">{{ get_event_date() }}</p>
       <p class="description">{{ event.desc }}</p>
     </template>
     <div class="tracks">
@@ -59,7 +59,7 @@ h2 {
 
 .date {
   font-style: italic;
-  margin-top: 2px;
+  margin: 0 2px;
 }
 
 .tracks {
@@ -77,7 +77,7 @@ h2 {
 .tag {
    margin: 0;
    background-color: #e0e0e0;
-   padding: 4px 8px;
+   padding: 4px 6px;
    border-radius: 100px;
 }
 </style>
