@@ -21,39 +21,17 @@
         <p class="duration right">{{ get_song_duration() }}</p>
       </div>
       <div class="track-box">
-        <div class="album">
-          <div class="album-cover">
-            <img
-              v-if="current_song && current_song.track.album"
-              :src="current_song.track.album"
-            />
+         <Track v-if="current_song" :track="current_song.track" :minimal="true" :hide_queue="true" />
+         <div v-else class="not-playing-preview">
             <span
               class="material-symbols-rounded album-icon"
-              v-else
-              :style="{ color: ALBUM_COLOR }"
             >
               album
             </span>
-          </div>
-          <!-- <img class="album-icon"
-                  :src="current_song && current_song.album ? current_song.album : 'https://storage.googleapis.com/jukebox-albums/default.webp'" /> -->
-          <div class="track-info">
-            <template v-if="current_song && current_song.track">
-            <p class="title"><span v-if="current_song.track.winner" class="material-symbols-rounded trophy">trophy</span>{{current_song.track.title}}</p>
-                  <template
-                     v-for="(artist, index) in current_song.track.artist_display_names"
-                     :key="index"
-                  >
-                  <RouterLink
-                     :to="`/u/${current_song.track.artists[index]}`"
-                     class="artist"
-                  >{{ artist }}</RouterLink>
-                  <p v-if="((index == current_song.track.artist_display_names.length - 1) ? '' : ', ') " class="artist-comma">, </p>
-               </template>
-            </template>
-            <p v-else>No track selected</p>
-          </div>
-        </div>
+            <p>
+               No track selected   
+            </p>
+         </div>
         <div class="controls">
           <button @click="toggle_shuffle">
             <span
@@ -158,6 +136,7 @@
 <script setup>
 import { defineProps, defineEmits, ref, watch, onMounted, computed } from "vue";
 import { useStore } from "vuex";
+import Track from "./TrackComponent.vue"
 
 const store = useStore();
 const emit = defineEmits(["toggle_queue"]);
@@ -490,7 +469,8 @@ onMounted(() => {
     flex-direction: column !important;
   }
 
-  .album {
+  .track,
+  .not-playing-preview {
     align-self: flex-start;
   }
   .player-mini-box {
@@ -572,6 +552,7 @@ onMounted(() => {
   height: 64px;
   text-align: center;
   line-height: 64px;
+  color: black;
 }
 
 .artist-comma {
@@ -592,7 +573,6 @@ onMounted(() => {
   flex-direction: row;
   gap: 10px;
   justify-content: center;
-  flex: 0.3;
 }
 
 .controls button {
@@ -606,7 +586,7 @@ onMounted(() => {
 }
 
 .controls-right {
-  flex: 0.35;
+  flex: 1;
 
   display: flex;
   justify-content: flex-end;
@@ -737,5 +717,18 @@ onMounted(() => {
 
 .title .trophy {
    color: #e2b13c;
+}
+
+.not-playing-preview {
+   display: flex;
+   flex-direction: row;
+   gap: 10px;
+   align-items: center;
+
+   flex: 1;
+}
+
+.not-playing-preview p {
+   margin: 0;
 }
 </style>

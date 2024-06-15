@@ -1,8 +1,8 @@
 <template>
-    <div @click="play_track" :class="{'track': true, 'header': header}">
+    <div @click="play_track" :class="{'track': true, 'header': header, 'minimal': minimal}">
       <img v-if="!hide_album_covers" class="album" :src="track.album" />
       <div class="track-info">
-         <p class="title"><span v-if="track.winner" class="material-symbols-rounded trophy">trophy</span>{{track.title}}</p>
+         <p class="title">{{track.title}}<span v-if="track.winner" class="material-symbols-rounded trophy">trophy</span></p>
          <template
             v-for="(artist, index) in track.artist_display_names"
             :key="index"
@@ -55,7 +55,8 @@ const props = defineProps({
       default: false
    },
    hide_album_covers: Boolean,
-   queue_track: Object
+   queue_track: Object,
+   minimal: Boolean,
 })
 
 const cancel_delete = () => {
@@ -76,7 +77,7 @@ const delete_track = async (track_id) => {
       headers: {
          "Content-Type": "application/json" 
       },
-      body: JSON.stringify({ track_id: props.track.filename })
+      body: JSON.stringify({ track_id: props.track.uuid })
    })
 
    if (res.ok) {
@@ -92,6 +93,7 @@ const delete_track = async (track_id) => {
 }
 
 const play_track = () => {
+   if (props.minimal) return
    if (props.header) return
    // for trakcs in the queue, instead of force setting
    // the queue, try to tell the queue to go there
@@ -135,7 +137,7 @@ const prevent_parent_click = (e) => {
    user-select: none;
 }
 
-.track:not(.header):hover {
+.track:not(.header, .minimal):hover {
    background-color: #f1f1f1;
    cursor: pointer;
 }
@@ -168,7 +170,12 @@ const prevent_parent_click = (e) => {
 }
 
 .title .trophy {
-   color: #e2b13c;
+   color: #FFC000;
+   background-color: #F08000;
+   padding: 0px 8px;
+   font-size: 22px;
+   border-radius: 100px;
+   margin-left: 4px;
 }
 
 button {
@@ -193,6 +200,16 @@ button:hover {
 
 .album {
    height: 48px;
+}
+
+.minimal .album {
+   height: 64px;
+}
+
+.minimal {
+   border-bottom: none;
+   flex: 1;
+   padding: 0;
 }
 
 .add-to-queue {
