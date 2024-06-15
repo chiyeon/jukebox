@@ -42,34 +42,16 @@
               <p>
                 <strong>{{ current_song.track.title }}</strong>
               </p>
-              <!--template v-if="current_song.track.artist_display_names">
-                <RouterLink
-                  v-for="(artist, index) in current_song.track
-                    .artist_display_names"
-                  :key="index"
-                  @click.stop="prevent_parent_click"
-                  :to="`/u/${current_song.track.artists[index]}`"
-                  class="artist"
-                  >{{
-                    artist +
-                    (index == current_song.track.artist_display_names.length - 1 ? "" : ", ")
-                  }}</RouterLink
-                >
-              </template>
-              <template v-else>
-                <RouterLink
-                  v-for="(artist, index) in current_song.track
-                    .artists"
-                  :key="index"
-                  @click.stop="prevent_parent_click"
-                  :to="`/u/${current_song.track.artists[index]}`"
-                  class="artist"
-                  >{{
-                    artist +
-                    (index == current_song.track.artists.length - 1 ? "" : ", ")
-                  }}</RouterLink
-                >
-              </template-->
+                  <template
+                     v-for="(artist, index) in current_song.track.artist_display_names"
+                     :key="index"
+                  >
+                  <RouterLink
+                     :to="`/u/${current_song.track.artists[index]}`"
+                     class="artist"
+                  >{{ artist }}</RouterLink>
+                  <p v-if="((index == current_song.track.artist_display_names.length - 1) ? '' : ', ') " class="artist-comma">, </p>
+               </template>
             </template>
             <p v-else>No track selected</p>
           </div>
@@ -473,7 +455,7 @@ watch(
 );
 
 const update_progress = () => {
-  playback_progress_percent.value =
+  if (audio_ref.value) playback_progress_percent.value =
     (audio_ref.value.currentTime / audio_ref.value.duration) * 100 + "%";
 };
 
@@ -593,6 +575,10 @@ onMounted(() => {
   height: 64px;
   text-align: center;
   line-height: 64px;
+}
+
+.artist-comma {
+   display: inline;
 }
 
 .track-info {
