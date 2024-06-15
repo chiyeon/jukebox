@@ -235,7 +235,7 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             plays: 0,
             winner: false,
             event: current_event,
-            release_date: Date.now(),
+            release_date: [ new Date() ],
             uuid
          }
 
@@ -426,7 +426,8 @@ app.post("/api/tracks", async (req, res) => {
       tracks[i].artist_display_names = await get_display_names(tracks[i])
    }
 
-   tracks.reverse()
+   tracks.sort((a, b) => get_timestamp_as_date(b.release_date) - get_timestamp_as_date(a.release_date))
+
    res.status(200).send({ message: "Found user tracks", tracks: tracks })
 })
 
@@ -487,10 +488,6 @@ app.listen(PORT, () => {
       events_list = Array.from(Object.values(events))
       events_list.sort((a, b) => get_timestamp_as_date(b.date) - get_timestamp_as_date(a.date))
    })
-
-   for (let i = 0; i < 10; i++) {
-      console.log(crypto.randomUUID())
-   }
 
    print("started on port " + PORT)
 })
