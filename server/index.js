@@ -59,7 +59,7 @@ app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) =>
    const desc = req.body.desc
    const tags = req.body.tags
    const newevent = {
-      date,
+      date: [ date ],
       name,
       desc,
       tags,
@@ -479,6 +479,8 @@ app.listen(PORT, () => {
    print("started on port " + PORT)
 })
 
+const data = require("./data.json")
+
 const get_artist = (alias) => {
    const aliases = {
       "twomi": "twomi",
@@ -490,36 +492,78 @@ const get_artist = (alias) => {
       "fred bear": "bruh",
       "chiyeon": "chi",
       "benji": "chi",
-      "gab": "gab"
+      "gab": "gab",
+      "beatrice": "bruh",
+      "TMFBEAT": [ "bruh", "chi", "gab", "twomi", "waymond" ],
+      "waymond & chiyeon": [ "waymond", "chi" ],
+      "gab x waymond": [ "gab", "waymond" ],
+      "benji x @black": [ "chi", "twomi" ],
+      "@black x gab": [ "gab", "twomi" ],
+      "waymond x brandon": [ "bruh", "waymond" ],
+      "brandon x benji": [ "bruh", "chi" ],
    }
 
    let g = aliases[alias]
-   if (!g) g = "WIP"
+   if (!g) g = [ "WIP" ]
+
+   if (typeof g == "string") {
+      g = [ g ]
+   }
 
    return g
+}
+
+const get_file = (path) => {
+   let filename = path.split("/")
+   filename = filename[filename.length - 1]
+
+   let this_path = "./tracks/" + filename
+   const data = fs.readFileSync(this_path)
+
+   return {
+      originalname: filename,
+      buffer: data
+   }
 }
 
 const transfer = async () => {
    print("Starting transfer")
 
-   let events = []
+   let events = data
 
-   events.forEach(event => {
-      log("Creating event " + event.name)
+   for (let i = 0; i < events.length; i++) {
+      let event = events[i]
+      print("Creating event " + event.title)
 
-      let current_event = `${Date.now()}_${event.name}`
+      let date
+      if (event.date.includes("-")) {
+         let split = event.date.split(" - ")
+
+         date = [
+            new Date(split[0]),
+            new Date(split[1])
+         ]
+      } else {
+         date = [ new Date(event.date) ]
+      }
+
+      let current_event = `${Date.now()}_${event.title.replace(/ /g, "_")}`
+      print("Event is " + current_event)
       let new_event = {
-         date: new Date(event.date.split(" - ")[0]),
-         name: event.name,
-         desc: event.description,
-         tags: event.tags,
+         date: date, 
+         name: event.title,
+         desc: event.description ? event.description : "",
+         tags: [ event.time ],
          tracks: [],
          open: false
       }
 
-      event.tracks.forEach(async track => {
+      for (let i = 0; i < event.tracks.length; i++) {
+         let track = event.tracks[i]
+         let artists = get_artist(track.artist)
          let new_track = {
-            artist: get_artist(track.artist),
+            artist: artists[0],
+            artists: artists,
             title: track.title,
             lyrics: "",
             album: files.get_gcloud_link("default.webp", files.albums_bucket_name),
@@ -529,13 +573,17 @@ const transfer = async () => {
             release_date: event.date
          }
 
-         // load file somehow
-         // do filename
-         //
-         new_event.tracks.push(name_Trak)
-         fb.set_doc("tracks", filename, new_track)
-      })
+         let file = get_file(track.link)
 
-      fb.set_doc("events", current_event, new_event)
-   })
+         let filename = await files.upload_file(file, files.tracks_bucket)
+         let url = files.get_gcloud_link(filename, files.tracks_bucket_name)
+         new_track.filename = filename
+         new_track.url = url
+         new_event.tracks.push(filename)
+         await fb.set_doc("tracks", filename, new_track)
+      }
+      await fb.set_doc("events", current_event, new_event)
+   }
 }
+
+transfer()
