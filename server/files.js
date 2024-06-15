@@ -1,6 +1,7 @@
 const multer = require("multer")
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
+const crypto = require("crypto")
 
 const { Storage } = require("@google-cloud/storage")
 const gstorage = new Storage({
@@ -21,7 +22,7 @@ const MAX_FILENAME_LENGTH = 50
 const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-()[\].&]+$/
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
-   const filename = `${Date.now()}_${file.originalname.replace(/\#/g, "").split(" ").join("_")}`
+   const filename = crypto.randomUUID() + ".mp3"
    const filecloud = bucket.file(filename)
 
    await filecloud.save(file.buffer, {

@@ -55,7 +55,7 @@ main {
 
 .v-enter-active,
 .v-leave-active {
-   transition: width 500ms ease, opacity 500ms ease;
+   transition: width 500ms ease, opacity 500ms ease, padding-left 500ms ease;
    overflow-x: hidden;
 }
 
@@ -63,6 +63,7 @@ main {
 .v-leave-to {
    width: 0;
    opacity: 0;
+   padding-left: 0;
 }
 
 @media (max-width: 550px) {

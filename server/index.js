@@ -8,6 +8,7 @@ const fb = require("./firebase.js")
 const path = require("path")
 require("dotenv").config()
 const cookieparser = require("cookie-parser")
+const crypto = require("crypto")
 // const cors = require("cors")
 
 const app = express()
@@ -53,8 +54,8 @@ app.get("/admin", (req, res) => {
 // })
 
 app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) => {
-   current_event = `${Date.now()}_${req.body.id}`
-   const date = Date.now()
+   const uuid = crypto.randomUUID()
+   const date = new Date()
    const name = req.body.name
    const desc = req.body.desc
    const tags = req.body.tags
@@ -63,10 +64,11 @@ app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) =>
       name,
       desc,
       tags,
+      uuid,
       tracks: [],
       open: true
    }
-   await fb.set_doc("events", current_event, newevent)
+   await fb.set_doc("events", uuid, newevent)
    return res.status(200).send({ message: "yay" })
 })
 
@@ -218,6 +220,8 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          if (albumfile) album = files.get_gcloud_link(await files.upload_file(albumfile, files.albums_bucket), files.albums_bucket_name)
          else album = files.get_gcloud_link("default.webp", files.albums_bucket_name)
 
+         const uuid = crypto.randomUUID()
+
          // save entry into database
          const newentry = {
             artist,
@@ -225,19 +229,21 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             title,
             lyrics,
             filename,
+            originalfilename: trackfile.originalname,
             url,
             album,
             plays: 0,
             winner: false,
             event: current_event,
-            release_date: Date.now()
+            release_date: Date.now(),
+            uuid
          }
 
          // save track to db
-         await fb.set_doc("tracks", filename, newentry)
+         await fb.set_doc("tracks", uuid, newentry)
          // save track to current event
          await fb.update_doc("events", current_event, {
-            tracks: fb.FieldValue.arrayUnion(filename)
+            tracks: fb.FieldValue.arrayUnion(uuid)
          })
 
          res.status(200).send({ message: "Successfully uploaded" })
@@ -442,6 +448,7 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
 })
 
 const get_display_names = async (track) => {
+   return track.artists
    let display_names = []
    for (let i = 0; i < track.artists.length; i++) {
       let user = await fb.get_doc("users", track.artists[i])
@@ -449,6 +456,12 @@ const get_display_names = async (track) => {
    }
 
    return display_names
+}
+
+// returns a firebase timestamp as a single date
+// gets the latest date if a range
+const get_timestamp_as_date = (timestamp) => {
+   return new Date(timestamp[timestamp.length - 1]._seconds * 1000)
 }
 
 app.listen(PORT, () => {
@@ -472,12 +485,12 @@ app.listen(PORT, () => {
       }
 
       events_list = Array.from(Object.values(events))
-      events_list.reverse()
+      events_list.sort((a, b) => get_timestamp_as_date(b.date) - get_timestamp_as_date(a.date))
    })
+
+   for (let i = 0; i < 10; i++) {
+      console.log(crypto.randomUUID())
+   }
 
    print("started on port " + PORT)
 })
-
-const set = async () => {
-   let keys = Object.keys(await fb.get_collection("events"))
-}

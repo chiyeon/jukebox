@@ -31,7 +31,6 @@ const mode = ref("events")
 
 const submit_new_event = async () => {
    let newevent = {
-      id: event_title_ref.value.value.replace(/[!@#$%^&*()\[\]\-=_+\\|/{} ]/g, "_").toLowerCase(),
       name: event_title_ref.value.value,
       desc: event_description_ref.value.value,
       tags: event_tags_ref.value.value ? event_tags_ref.value.value.split(",") : [],

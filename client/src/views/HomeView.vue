@@ -1,7 +1,10 @@
 <template>
   <main>
     <div class="tracks">
+      <p v-if="!events">Loading tracks</p>
+      <p v-else-if="events.length == 0">No tracks found</p>
       <Event
+        v-else
         v-for="event in events"
         :key="event.date"
         :event="event"
@@ -16,7 +19,7 @@ import { onBeforeMount, ref } from "vue"
 import { useStore } from "vuex"
 
 const store = useStore()
-const events = ref([])
+const events = ref(null)
 
 // take events & extract just the tracks, putting in store
 const update_tracks = () => {
