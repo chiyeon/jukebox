@@ -532,7 +532,6 @@ onMounted(() => {
 }
 
 .player-mini {
-  max-width: 800px;
   margin: auto;
   padding: 20px;
   padding-top: 20;
