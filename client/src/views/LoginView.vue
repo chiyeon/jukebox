@@ -96,11 +96,11 @@ const handle_submit = async (e) => {
 
    loading.value = false
     if (res.status == 200) {
-        console.log(`${form_type.value ? "Registered" : "Logged in"} successfully`)
+        alert(`${form_type.value ? "Registered" : "Logged in"} successfully`)
         store.dispatch("setUser", json.user) 
         router.push("/")
     } else {
-        console.log(`Unable to ${form_type.value ? "register" : "login"}: ${json.message}`)
+        alert(`Unable to ${form_type.value ? "register" : "login"}: ${json.message}`)
     }
 }
 

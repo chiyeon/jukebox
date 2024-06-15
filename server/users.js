@@ -53,7 +53,7 @@ const validate_bio = (bio) => {
 const validate_password = (password) => {
    if (!password || typeof password != "string") return "Invalid password"
    if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) return `Password must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`
-   if (!PASSWORD_REGEX_VALIDATION.test(password)) return "Password contains invalid characters (Must be A-z 0-9 !@#$%^&*_-)"
+   //if (!PASSWORD_REGEX_VALIDATION.test(password)) return "Password contains invalid characters (Must be A-z 0-9 !@#$%^&*_-)"
    return 0
 }
 
