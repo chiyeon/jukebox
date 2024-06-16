@@ -511,8 +511,10 @@ onMounted(() => {
 <style scoped>
 @media (max-width: 600px) {
   .player-mini-box {
-    padding: 10px;
-    margin-bottom: 20px;
+    padding: 10px 30px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
   }
 }
 
