@@ -297,6 +297,9 @@ button:hover {
   flex: 1;
   padding: 0;
   align-self: flex-start;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .add-to-queue {

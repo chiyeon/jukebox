@@ -19,7 +19,7 @@ html, body, #app {
       padding-bottom: 300px;
    }
 
-   #app main {
+   #app .page-contents {
       padding-bottom: 400px;
    }
 }

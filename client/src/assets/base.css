@@ -49,7 +49,7 @@ a:hover {
    text-decoration: underline;
 }
 
-@media (max-width: var(--mobile-page-width)) {
+@media (max-width: 600px) {
    html body {
       padding: 0 10px;
    }

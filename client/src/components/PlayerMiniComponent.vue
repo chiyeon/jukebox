@@ -146,16 +146,16 @@
           <span class="material-symbols-rounded album-icon"> album </span>
           <p>No track selected</p>
         </div>
-       <button class="pause" @click="toggle_playback">
-         <span
-           class="material-symbols-rounded control-icon"
-           :style="{ color: CONTROL_COLOR }"
-         >
-           {{
-             audio_ref && !audio_ref.paused ? "pause_circle" : "play_circle"
-           }}
-         </span>
-       </button>
+        <button class="pause" @click="toggle_playback">
+          <span
+            class="material-symbols-rounded control-icon"
+            :style="{ color: CONTROL_COLOR }"
+          >
+            {{
+              audio_ref && !audio_ref.paused ? "pause_circle" : "play_circle"
+            }}
+          </span>
+        </button>
       </div>
     </div>
 
@@ -492,19 +492,23 @@ onMounted(() => {
     update_progress();
   });
 
-  navigator.mediaSession.setActionHandler("play", () => audio_ref.value.play());
-  navigator.mediaSession.setActionHandler("pause", () =>
-    audio_ref.value.pause(),
-  );
-  navigator.mediaSession.setActionHandler("seekto", (details) => {
-    if (details.fastSeek && "fastSeek" in audio_ref.value) {
-       audio_ref.value.fastSeek(details.seekTime)
-    } else {
-       audio_ref.value.currentTime = details.seekTime
-    }
+  audio_ref.value.addEventListener("playing", () => {
+    navigator.mediaSession.setActionHandler("play", () =>
+      audio_ref.value.play(),
+    );
+    navigator.mediaSession.setActionHandler("pause", () =>
+      audio_ref.value.pause(),
+    );
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      if (details.fastSeek && "fastSeek" in audio_ref.value) {
+        audio_ref.value.fastSeek(details.seekTime);
+      } else {
+        audio_ref.value.currentTime = details.seekTime;
+      }
+    });
+    navigator.mediaSession.setActionHandler("previoustrack", () => prev_song());
+    navigator.mediaSession.setActionHandler("nexttrack", () => next_song());
   });
-  navigator.mediaSession.setActionHandler("previoustrack", () => prev_song());
-  navigator.mediaSession.setActionHandler("nexttrack", () => next_song());
 });
 </script>
 
