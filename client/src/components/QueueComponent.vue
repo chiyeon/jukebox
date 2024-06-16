@@ -18,8 +18,8 @@
          <p v-if="after_queue.length == 0">No songs up next</p>
          <template v-else>
             <Track
-               v-for="track in after_queue"
-               :key="track.track.filename"
+               v-for="(track, index) in after_queue"
+               :key="index"
                :track="track.track"
                :hide_queue="true"
                :hide_album_covers="true"

@@ -28,7 +28,7 @@
     </div>
     <div v-if="!hide_queue" :class="{ controls: true, norender: header }">
       <button @click.stop="add_to_queue">
-        <span class="material-symbols-rounded add-to-queue">add_to_queue</span>
+        <span class="material-symbols-rounded add-to-queue">playlist_add</span>
       </button>
     </div>
     <div v-if="show_remove" class="controls">
@@ -298,5 +298,6 @@ button:hover {
 }
 
 .add-to-queue {
+   color: black;
 }
 </style>

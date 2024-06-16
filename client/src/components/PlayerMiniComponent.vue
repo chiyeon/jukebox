@@ -21,17 +21,16 @@
         <p class="duration right">{{ get_song_duration() }}</p>
       </div>
       <div class="track-box">
-         <Track v-if="current_song" :track="current_song.track" :minimal="true" :hide_queue="true" />
-         <div v-else class="not-playing-preview">
-            <span
-              class="material-symbols-rounded album-icon"
-            >
-              album
-            </span>
-            <p>
-               No track selected   
-            </p>
-         </div>
+        <Track
+          v-if="current_song"
+          :track="current_song.track"
+          :minimal="true"
+          :hide_queue="true"
+        />
+        <div v-else class="not-playing-preview">
+          <span class="material-symbols-rounded album-icon"> album </span>
+          <p>No track selected</p>
+        </div>
         <div class="controls">
           <button @click="toggle_shuffle">
             <span
@@ -136,7 +135,7 @@
 <script setup>
 import { defineProps, defineEmits, ref, watch, onMounted, computed } from "vue";
 import { useStore } from "vuex";
-import Track from "./TrackComponent.vue"
+import Track from "./TrackComponent.vue";
 
 const store = useStore();
 const emit = defineEmits(["toggle_queue"]);
@@ -398,24 +397,31 @@ watch(
     if (!newval || newval.length == 0) return;
 
     // first check if we are trying to play a song in our queue currently
-    if (oldval.includes(newval[0])) {
+    // also make sure its actually PART of the queue
+    if (newval[0].is_queue && oldval.includes(newval[0])) {
       // this occurs if we skipped to a track in queue. just play top
       set_current_song(newval[0]);
       store.dispatch("popTrack");
     } else if (newval.length == 1) {
+      store.dispatch("setQueue", oldval)
       // this is when we click on a track in the listen page
       // to start a new playback session
       set_current_song(newval[0]);
-      // lets populate the afterqueue
-      if (!shuffle.value)
-        after_queue.value = get_following_tracks(newval[0].track).map((track) =>
-          QueueTrack(track, false),
-        );
-      else
-        after_queue.value = shuffle_array(
-          tracks.value.map((track) => QueueTrack(track, false)),
-        );
-      store.dispatch("popTrack");
+      // lets populate the afterqueue IF ITS NOT PART OF TEH QUEUE
+      // when its part of the queue, we're just trying to skip!
+     if (!shuffle.value)
+       after_queue.value = get_following_tracks(newval[0].track).map(
+         (track) => QueueTrack(track, false),
+       );
+     else
+       if (after_queue.value.length == 0) {
+         after_queue.value = shuffle_array(
+            tracks.value.map((track) => QueueTrack(track, false)),
+         );
+      } else {
+         // user is skipping, just goto that track   
+         after_queue.value = after_queue.value.slice(after_queue.value.findIndex(t => t.track.uuid == newval[0].track.uuid) + 1)
+      }
     }
   },
 );
@@ -428,8 +434,9 @@ watch(
 );
 
 const update_progress = () => {
-  if (audio_ref.value) playback_progress_percent.value =
-    (audio_ref.value.currentTime / audio_ref.value.duration) * 100 + "%";
+  if (audio_ref.value)
+    playback_progress_percent.value =
+      (audio_ref.value.currentTime / audio_ref.value.duration) * 100 + "%";
 };
 
 onMounted(() => {
@@ -470,8 +477,8 @@ onMounted(() => {
     align-self: flex-start;
   }
   .player-mini-box {
-      left: 0;
-   }
+    left: 0;
+  }
 }
 
 /* size and align control icons */
@@ -552,7 +559,7 @@ onMounted(() => {
 }
 
 .artist-comma {
-   display: inline;
+  display: inline;
 }
 
 .track-info {
@@ -706,25 +713,25 @@ onMounted(() => {
 }
 
 .title {
-   font-weight: bold;
-   display: flex;
-   align-items: center;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
 }
 
 .title .trophy {
-   color: #e2b13c;
+  color: #e2b13c;
 }
 
 .not-playing-preview {
-   display: flex;
-   flex-direction: row;
-   gap: 10px;
-   align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
 
-   flex: 1;
+  flex: 1;
 }
 
 .not-playing-preview p {
-   margin: 0;
+  margin: 0;
 }
 </style>
