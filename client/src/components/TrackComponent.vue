@@ -1,7 +1,7 @@
 <template>
   <div
     @click="play_track"
-    :class="{ track: true, header: header, minimal: minimal }"
+    :class="{ track: true, header: header, minimal: minimal, mobile_expanded: mobile_expanded }"
   >
     <img v-if="!hide_album_covers" class="album" :src="track.album" />
     <div class="track-info">
@@ -103,6 +103,7 @@ const props = defineProps({
   hide_album_covers: Boolean, // used for when we are in queue. don't render album covers
   queue_track: Object, // if we are a queue track, have this
   minimal: Boolean, // removes some functionality (click etc)
+  mobile_expanded: Boolean,
 });
 
 const cancel_delete = () => {
@@ -304,5 +305,29 @@ button:hover {
 
 .add-to-queue {
    color: black;
+}
+
+.mobile_expanded {
+   flex-direction: column;
+   width: 100%;
+}
+
+.track.mobile_expanded img {
+   width: 100%;
+   aspect-ratio: 1.0;
+   height: auto;
+}
+
+.mobile_expanded .track-info {
+   align-self: flex-start;
+   padding-bottom: 20px;
+}
+
+.mobile_expanded .track-info .title {
+   font-size: 24px;
+}
+
+.mobile_expanded .track-info .artist {
+   font-size: 17px;
 }
 </style>

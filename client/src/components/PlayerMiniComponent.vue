@@ -116,46 +116,141 @@
       </div>
     </div>
     <div v-else>
-      <div class="progress-box">
-        <p class="duration">{{ get_current_playback_time() }}</p>
-        <div class="progress-background">
-          <div
-            class="progress"
-            ref="progress_ref"
-            :style="{ width: playback_progress_percent }"
-          ></div>
-          <input
-            @input="set_progress_by_slider"
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            class="progress-slider"
+      <div
+        v-if="!show_expanded_mobile_player"
+        @click="show_expanded_mobile_player = true"
+      >
+        <div class="progress-box">
+          <p class="duration">{{ get_current_playback_time() }}</p>
+          <div class="progress-background">
+            <div
+              class="progress"
+              ref="progress_ref"
+              :style="{ width: playback_progress_percent }"
+            ></div>
+            <input
+              @input="set_progress_by_slider"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              class="progress-slider"
+            />
+          </div>
+          <p class="duration right">{{ get_song_duration() }}</p>
+        </div>
+        <div class="controls">
+          <Track
+            v-if="current_song"
+            :track="current_song.track"
+            :minimal="true"
+            :hide_queue="true"
           />
+          <div v-else class="not-playing-preview">
+            <span class="material-symbols-rounded album-icon"> album </span>
+            <p>No track selected</p>
+          </div>
+          <button class="pause" @click="toggle_playback">
+            <span
+              class="material-symbols-rounded control-icon"
+              :style="{ color: CONTROL_COLOR }"
+            >
+              {{
+                audio_ref && !audio_ref.paused ? "pause_circle" : "play_circle"
+              }}
+            </span>
+          </button>
         </div>
-        <p class="duration right">{{ get_song_duration() }}</p>
       </div>
-      <div class="controls">
-        <Track
-          v-if="current_song"
-          :track="current_song.track"
-          :minimal="true"
-          :hide_queue="true"
-        />
-        <div v-else class="not-playing-preview">
-          <span class="material-symbols-rounded album-icon"> album </span>
-          <p>No track selected</p>
+      <div v-else class="mobile-expanded-box">
+            <span @click="show_expanded_mobile_player=false" class="material-symbols-rounded close">close</span>
+        <div class="track-box">
+          <Track
+            v-if="current_song"
+            :track="current_song.track"
+            :minimal="true"
+            :hide_queue="true"
+            :mobile_expanded="true"
+          />
+          <div v-else class="not-playing-preview">
+            <span class="material-symbols-rounded album-icon"> album </span>
+            <p>No track selected</p>
+          </div>
+        <div class="progress-box">
+          <p class="duration">{{ get_current_playback_time() }}</p>
+          <div class="progress-background">
+            <div
+              class="progress"
+              ref="progress_ref"
+              :style="{ width: playback_progress_percent }"
+            ></div>
+            <input
+              @input="set_progress_by_slider"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              class="progress-slider"
+            />
+          </div>
+          <p class="duration right">{{ get_song_duration() }}</p>
         </div>
-        <button class="pause" @click="toggle_playback">
-          <span
-            class="material-symbols-rounded control-icon"
-            :style="{ color: CONTROL_COLOR }"
-          >
-            {{
-              audio_ref && !audio_ref.paused ? "pause_circle" : "play_circle"
-            }}
-          </span>
-        </button>
+          <div class="controls">
+            <button @click="toggle_shuffle" class="shuffle">
+              <span
+                class="material-symbols-rounded control-icon"
+                :style="{ color: CONTROL_COLOR }"
+              >
+                {{ shuffle ? "shuffle_on" : "shuffle" }}
+              </span>
+            </button>
+            <button class="prev" @click="prev_song">
+              <span
+                class="material-symbols-rounded control-icon"
+                :style="{ color: CONTROL_COLOR }"
+              >
+                skip_previous
+              </span>
+            </button>
+            <button class="pause" @click="toggle_playback">
+              <span
+                class="material-symbols-rounded control-icon"
+                :style="{ color: CONTROL_COLOR }"
+              >
+                {{
+                  audio_ref && !audio_ref.paused
+                    ? "pause_circle"
+                    : "play_circle"
+                }}
+              </span>
+            </button>
+            <button class="next" @click="next_song">
+              <span
+                class="material-symbols-rounded control-icon"
+                :style="{ color: CONTROL_COLOR }"
+              >
+                skip_next
+              </span>
+            </button>
+            <button @click="next_repeat" class="repeat">
+              <span
+                class="material-symbols-rounded control-icon"
+                :style="{ color: CONTROL_COLOR }"
+              >
+                {{ repeat_modes[repeat_mode] }}
+              </span>
+            </button>
+          </div>
+          <div class="controls-right">
+            <span
+              class="material-symbols-rounded queue-icon"
+              :style="{ color: 'orange' }"
+              @click="emit('toggle_queue')"
+            >
+              queue_music
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -207,6 +302,7 @@ const props = defineProps(["queue"]);
 
 const mobile_page_width = 600;
 const is_mobile = ref(false);
+const show_expanded_mobile_player = ref(false);
 
 const QueueTrack = (track, is_queue) => {
   return {
@@ -597,10 +693,6 @@ onMounted(() => {
 
 .album-icon {
   font-size: 64px;
-  width: 64px;
-  height: 64px;
-  text-align: center;
-  line-height: 64px;
   color: black;
 }
 
@@ -779,5 +871,58 @@ onMounted(() => {
 
 .not-playing-preview p {
   margin: 0;
+}
+
+.mobile-expanded-box {
+   height: 90vh;
+}
+
+.mobile-expanded-box .track-box {
+   flex-direction: column;
+}
+
+.mobile-expanded-box .track-box .not-playing-preview {
+   flex-direction: column;
+}
+
+.mobile-expanded-box .track-box .not-playing-preview .album-icon {
+   font-size: 100vw;
+}
+.mobile-expanded-box .track-box .track img {
+   height: 100vw;
+}
+
+.mobile-expanded-box .close {
+   font-size: 32px;
+   cursor: pointer;
+   z-index: 10;
+   position: relative;
+   right: 0;
+   text-align: right;
+   width: 100%;
+   margin-bottom: 30px;
+}
+
+.mobile-expanded-box .controls {
+   gap: 30px;
+}
+
+.mobile-expanded-box .controls .prev span,
+.mobile-expanded-box .controls .pause span,
+.mobile-expanded-box .controls .next span {
+   font-size: 52px;
+}
+
+.mobile-expanded-box .controls .shuffle span,
+.mobile-expanded-box .controls .repeat span {
+   font-size: 28px;
+}
+
+.mobile-expanded-box .controls-right {
+   margin-top: 20px;
+}
+
+.mobile-expanded-box .controls-right span {
+   font-size: 32px;
 }
 </style>
