@@ -27,10 +27,12 @@ let populated_events = false // we should only start updating tracks when events
 app.use(express.json())
 app.use(cookieparser())
 
+/*
 app.use(express.static(path.join(__dirname, "dist")))
-app.get("/", (req, res) => {
+app.get("*", (req, res) => {
    res.sendFile(path.join(__dirname, "/dist/index.html"))
 })
+*/
 
 app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) => {
    const uuid = crypto.randomUUID()
