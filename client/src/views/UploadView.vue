@@ -51,9 +51,8 @@
    <div v-else>
       <p>No events are open</p>
    </div>
-   <div class="upload-cover" v-if="uploading">
-      <p>Uploading</p>
-   </div>
+
+   <LoadingScreen message="Uploading" v-if="uploading" />
 </template>
 
 <script setup>
@@ -62,6 +61,7 @@ import { ref, onBeforeMount, computed } from "vue"
 import { compress_image } from "../utils/image.js"
 import { useStore } from "vuex"
 import router from "../router"
+import LoadingScreen from "../components/LoadingComponent.vue"
 
 const store = useStore()
 
@@ -243,27 +243,6 @@ input[type="file"] {
    float: right;
    font-size: 12px;
    color: gray;
-}
-
-.upload-cover {
-   position: fixed;
-   width: 100%;
-   height: 100%;
-   background-color: #30303080;
-   top: 0;
-   left: 0;
-
-   display: flex;
-   justify-content: center;
-   align-items: center;
-
-   z-index: 2;
-}
-
-.upload-cover p {
-   color: white;
-   font-size: 24px;
-   font-weight: bold;
 }
 
 .new-artist-box {

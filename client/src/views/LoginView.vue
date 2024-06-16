@@ -39,7 +39,7 @@
         </form>
       </div>
   </div>
-   <div class="loading" v-if="loading"><p>Loading</p></div>
+   <LoadingScreen message="Loading" v-if="loading" />
 </template>
 
 <script setup>
@@ -47,6 +47,7 @@ import { ref } from "vue"
 import { useStore } from "vuex"
 import router from "../router"
 import { compress_image } from "../utils/image.js"
+import LoadingScreen from "../components/LoadingComponent.vue"
 
 const store = useStore()
 const FORM_LOGIN = 0

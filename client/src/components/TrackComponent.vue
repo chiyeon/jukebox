@@ -11,10 +11,7 @@
           >trophy</span
         >
       </p>
-      <template
-        v-for="(artist, index) in track.artists"
-        :key="index"
-      >
+      <template v-for="(artist, index) in track.artists" :key="index">
         <RouterLink
           @click.stop="prevent_parent_click"
           :to="`/u/${track.artists[index]}`"
@@ -65,22 +62,28 @@
       >
         Yes, remove me from track
       </button>
-      <button v-if="show_remove_self" @click.stop="cancel_remove">Cancel</button>
+      <button v-if="show_remove_self" @click.stop="cancel_remove">
+        Cancel
+      </button>
     </div>
-
   </div>
+
+  <LoadingScreen v-if="loading" />
 </template>
 
 <script setup>
 import { defineProps, ref } from "vue";
 import { useStore } from "vuex";
 import { RouterLink } from "vue-router";
+import LoadingScreen from "./LoadingComponent.vue";
 
 const validated_delete = ref(false);
 const show_delete = ref(false);
 
-const validated_remove = ref(false)
-const show_remove_self = ref(false)
+const validated_remove = ref(false);
+const show_remove_self = ref(false);
+
+const loading = ref(false);
 
 const store = useStore();
 const props = defineProps({
@@ -108,9 +111,9 @@ const cancel_delete = () => {
 };
 
 const cancel_remove = () => {
-   show_remove_self.value = false
-   validated_remove.value = false
-}
+  show_remove_self.value = false;
+  validated_remove.value = false;
+};
 
 const delete_track = async (track_id) => {
   if (!validated_delete.value) {
@@ -118,6 +121,8 @@ const delete_track = async (track_id) => {
     validated_delete.value = true;
     return;
   }
+
+  loading.value = true;
 
   let res = await fetch("/api/deletetrack", {
     method: "post",
@@ -136,34 +141,42 @@ const delete_track = async (track_id) => {
     alert("Error: " + err);
   }
 
+  loading.value = false;
+
   show_delete.value = false;
   validated_delete.value = false;
-}
+};
 
 const remove_self_from_track = async (track_id) => {
-   if (!validated_remove.value) {
-      show_remove_self.value = true;
-      validated_remove.value = true
-      return
-   }
+  if (!validated_remove.value) {
+    show_remove_self.value = true;
+    validated_remove.value = true;
+    return;
+  }
 
-   let res = await fetch("/api/removefromtrack", {
-      method: "post",
-      credentials: "include",
-       headers: {
-         "Content-Type": "application/json",
-       },
-       body: JSON.stringify({ track_id: props.track.uuid }),
-     });
+  loading.value = true;
 
-      if (res.ok) {
-         alert("Removed your name from the track")
-         window.location.reload();
-      } else {
-         let err = (await res.json()).message
-         alert("Error: " + err)
-      }
-}
+  let res = await fetch("/api/removefromtrack", {
+    method: "post",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ track_id: props.track.uuid }),
+  });
+
+  if (res.ok) {
+    alert("Removed your name from the track");
+    window.location.reload();
+  } else {
+    let err = (await res.json()).message;
+    alert("Error: " + err);
+  }
+  loading.value = false;
+
+  show_remove_self.value = false;
+  validated_remove.value = false;
+};
 
 const play_track = () => {
   if (props.minimal) return;
