@@ -1,6 +1,6 @@
 <template>
   <div class="player-mini-box">
-    <div class="player-mini">
+    <div class="player-mini" v-if="!is_mobile">
       <div class="progress-box">
         <p class="duration">{{ get_current_playback_time() }}</p>
         <div class="progress-background">
@@ -115,6 +115,49 @@
         </div>
       </div>
     </div>
+    <div v-else>
+      <div class="progress-box">
+        <p class="duration">{{ get_current_playback_time() }}</p>
+        <div class="progress-background">
+          <div
+            class="progress"
+            ref="progress_ref"
+            :style="{ width: playback_progress_percent }"
+          ></div>
+          <input
+            @input="set_progress_by_slider"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            class="progress-slider"
+          />
+        </div>
+        <p class="duration right">{{ get_song_duration() }}</p>
+      </div>
+      <div class="controls">
+        <Track
+          v-if="current_song"
+          :track="current_song.track"
+          :minimal="true"
+          :hide_queue="true"
+        />
+        <div v-else class="not-playing-preview">
+          <span class="material-symbols-rounded album-icon"> album </span>
+          <p>No track selected</p>
+        </div>
+       <button class="pause" @click="toggle_playback">
+         <span
+           class="material-symbols-rounded control-icon"
+           :style="{ color: CONTROL_COLOR }"
+         >
+           {{
+             audio_ref && !audio_ref.paused ? "pause_circle" : "play_circle"
+           }}
+         </span>
+       </button>
+      </div>
+    </div>
 
     <audio ref="audio_ref"></audio>
   </div>
@@ -161,6 +204,9 @@ let last_volume = 0; // last volume before muted. if we aren't muted, its 0
 const volume_icons = ["volume_up", "volume_down", "volume_mute", "volume_off"];
 
 const props = defineProps(["queue"]);
+
+const mobile_page_width = 600;
+const is_mobile = ref(false);
 
 const QueueTrack = (track, is_queue) => {
   return {
@@ -391,24 +437,27 @@ watch(
       set_current_song(newval[0]);
       store.dispatch("popTrack");
     } else if (newval.length == 1) {
-      store.dispatch("setQueue", oldval)
+      store.dispatch("setQueue", oldval);
       // this is when we click on a track in the listen page
       // to start a new playback session
       set_current_song(newval[0]);
       // lets populate the afterqueue IF ITS NOT PART OF TEH QUEUE
       // when its part of the queue, we're just trying to skip!
-     if (!shuffle.value)
-       after_queue.value = get_following_tracks(newval[0].track).map(
-         (track) => QueueTrack(track, false),
-       );
-     else
-       if (after_queue.value.length == 0) {
-         after_queue.value = shuffle_array(
-            tracks.value.map((track) => QueueTrack(track, false)),
-         );
+      if (!shuffle.value)
+        after_queue.value = get_following_tracks(newval[0].track).map((track) =>
+          QueueTrack(track, false),
+        );
+      else if (after_queue.value.length == 0) {
+        after_queue.value = shuffle_array(
+          tracks.value.map((track) => QueueTrack(track, false)),
+        );
       } else {
-         // user is skipping, just goto that track   
-         after_queue.value = after_queue.value.slice(after_queue.value.findIndex(t => t.track.uuid == newval[0].track.uuid) + 1)
+        // user is skipping, just goto that track
+        after_queue.value = after_queue.value.slice(
+          after_queue.value.findIndex(
+            (t) => t.track.uuid == newval[0].track.uuid,
+          ) + 1,
+        );
       }
     }
   },
@@ -428,6 +477,11 @@ const update_progress = () => {
 };
 
 onMounted(() => {
+  is_mobile.value = window.innerWidth < mobile_page_width;
+  window.addEventListener("resize", () => {
+    is_mobile.value = window.innerWidth <= mobile_page_width;
+  });
+
   audio_ref.value.addEventListener("ended", () => {
     next_song();
   });
@@ -442,8 +496,12 @@ onMounted(() => {
   navigator.mediaSession.setActionHandler("pause", () =>
     audio_ref.value.pause(),
   );
-  navigator.mediaSession.setActionHandler("seekto", ({ seekTime }) => {
-    audio_ref.value.currentTime = seekTime;
+  navigator.mediaSession.setActionHandler("seekto", (details) => {
+    if (details.fastSeek && "fastSeek" in audio_ref.value) {
+       audio_ref.value.fastSeek(details.seekTime)
+    } else {
+       audio_ref.value.currentTime = details.seekTime
+    }
   });
   navigator.mediaSession.setActionHandler("previoustrack", () => prev_song());
   navigator.mediaSession.setActionHandler("nexttrack", () => next_song());
@@ -451,21 +509,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@media (max-width: 550px) {
-  .volume-controls {
-    display: none !important;
-  }
-
-  .track-box {
-    flex-direction: column !important;
-  }
-
-  .track,
-  .not-playing-preview {
-    align-self: flex-start;
-  }
+@media (max-width: 600px) {
   .player-mini-box {
-    left: 0;
+    padding: 10px;
+    margin-bottom: 20px;
   }
 }
 
@@ -500,6 +547,7 @@ onMounted(() => {
 
   background-color: white;
   border-top: 1px solid black;
+  box-sizing: border-box;
 }
 
 .player-mini {
@@ -722,5 +770,4 @@ onMounted(() => {
 .not-playing-preview p {
   margin: 0;
 }
-
 </style>

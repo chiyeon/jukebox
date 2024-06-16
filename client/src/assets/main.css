@@ -9,7 +9,7 @@ html, body, #app {
    overflow-y: hidden;
 }
 
-@media (max-width: 550px) {
+@media (max-width: 600px) {
    #app .queue-box {
       position: fixed;
       right: 0;
@@ -17,11 +17,6 @@ html, body, #app {
    }
    #app .queue-box .up-next {
       padding-bottom: 300px;
-   }
-
-   .player-mini-box {
-      position: fixed;
-      bottom: 0;
    }
 
    #app main {

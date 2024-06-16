@@ -66,7 +66,7 @@ main {
    padding-left: 0;
 }
 
-@media (max-width: 550px) {
+@media (max-width: 600px) {
 .horizontal-contents .page-contents {
    padding-right: 0px;
 }
