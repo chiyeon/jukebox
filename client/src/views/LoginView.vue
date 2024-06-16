@@ -124,6 +124,8 @@ const switch_to = (type) => {
     
     margin: auto;
     margin-top: 100px;
+
+   padding-bottom: 300px;
 }
 
 .tabs {

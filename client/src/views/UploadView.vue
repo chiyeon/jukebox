@@ -199,6 +199,8 @@ const upload = async (e) => {
    margin: auto;
    margin-top: 100px;
    background-color: #e4e4e4;
+
+   margin-bottom: 300px;
 }
 
 .header {

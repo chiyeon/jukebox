@@ -214,6 +214,10 @@ h2 {
 .date {
 }
 
+.user-profile {
+   padding-bottom: 300px;
+}
+
 .username {
    margin: 0;
    font-style: italic;
