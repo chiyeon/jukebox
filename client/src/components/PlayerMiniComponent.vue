@@ -874,7 +874,8 @@ onMounted(() => {
 }
 
 .mobile-expanded-box {
-   height: 90vh;
+   height: 87vh;
+   height: 98dvh;
 }
 
 .mobile-expanded-box .track-box {
@@ -900,22 +901,23 @@ onMounted(() => {
    right: 0;
    text-align: right;
    width: 100%;
-   margin-bottom: 30px;
+   margin-bottom: 20px;
 }
 
+/*
 .mobile-expanded-box .controls {
-   gap: 30px;
+   gap: 20px;
 }
 
 .mobile-expanded-box .controls .prev span,
 .mobile-expanded-box .controls .pause span,
 .mobile-expanded-box .controls .next span {
-   font-size: 52px;
+   font-size: 48px;
 }
 
 .mobile-expanded-box .controls .shuffle span,
 .mobile-expanded-box .controls .repeat span {
-   font-size: 28px;
+   font-size: 24px;
 }
 
 .mobile-expanded-box .controls-right {
@@ -925,4 +927,5 @@ onMounted(() => {
 .mobile-expanded-box .controls-right span {
    font-size: 32px;
 }
+*/
 </style>
