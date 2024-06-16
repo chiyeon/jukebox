@@ -516,6 +516,10 @@ onMounted(() => {
     bottom: 0;
     left: 0;
   }
+
+  .player-mini-box .progress-box {
+    margin-bottom: 10px;
+  }
 }
 
 /* size and align control icons */
