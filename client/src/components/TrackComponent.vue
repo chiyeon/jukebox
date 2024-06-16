@@ -240,8 +240,9 @@ const prevent_parent_click = (e) => {};
   min-width: 100px;
 }
 
-.artist-comma {
+.track .track-info .artist-comma {
   display: inline;
+  margin-left: -0.25em;
 }
 
 .track-info {
