@@ -17,17 +17,29 @@
 
          <button @click="submit_new_event">Submit</button>
       </div>
+
+      <hr />
+      <h2>Events</h2>
+      <AdminEvent
+         v-for="event in events"
+         :key="event.uuid"
+         class="event"
+         :event="event"
+      />
    </div>
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, onBeforeMount } from "vue"
+import AdminEvent from "./AdminComponents/AdminEvent.vue"
 
 const event_title_ref = ref(null)
 const event_description_ref = ref(null)
 const event_tags_ref = ref(null)
 
 const mode = ref("events")
+
+const events = ref([])
 
 const submit_new_event = async () => {
    let newevent = {
@@ -50,15 +62,33 @@ const submit_new_event = async () => {
    }
    alert("Failed to upload")
 }
+
+onBeforeMount(async () => {
+   let res = await fetch("/api/events", {
+      method: "get",
+      credentials: "include"
+   })
+
+   if (res.ok) {
+      events.value = (await res.json()).events
+   }
+})
 </script>
 
 <style scoped>
 .form {
    display: flex;
    flex-direction: column;
+   max-width: 400px;
+   margin: auto;
 }
 
 input, textarea {
    margin-bottom: 10px;
 }
+
+hr {
+   margin-top: 40px;
+}
+
 </style>

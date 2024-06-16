@@ -51,6 +51,33 @@ app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) =>
    return res.status(200).send({ message: "yay" })
 })
 
+app.post("/api/eventdelete", users.authenticate_token_admin, async (req, res) => {
+   const uuid = req.body.uuid
+   let event = await fb.get_doc("events", uuid)
+   if (!event) return res.status(400).send({ message: "Invalid event UUID" })
+
+   // delete tracks inside event
+   for (let i = 0; i < event.tracks.length; i++) {
+      let track = await fb.get_doc("tracks", event.tracks[i])
+      if (!track) continue
+
+      await delete_track(track)
+   }
+
+   await fb.delete_doc("events", uuid)
+
+   return res.status(200).send()
+})
+
+app.post("/api/eventupdate", users.authenticate_token_admin, async (req, res) => {
+   const uuid = req.body.uuid
+   const changes = req.body.changes
+
+   await fb.update_doc("events", uuid, changes)
+
+   return res.status(200).send()
+})
+
 // update user name
 app.post("/api/update_displayname", users.authenticate_token, async (req, res) => {
    const newname = req.body.display_name
