@@ -39,7 +39,7 @@
       <hr />
       <!--p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p-->
 
-      <Event v-if="event && event.tracks.length != 0" :event="event" :allowDelete="user && selfuser && user.username == selfuser.username" />
+      <Event v-if="event && event.tracks.length != 0" :event="event" :allowDelete="user && selfuser && user.username == selfuser.username" :user="user" />
       <p v-else-if="event && event.tracks.length == 0">No published tracks</p>
       <p v-else>Loading tracks</p>
    </div>

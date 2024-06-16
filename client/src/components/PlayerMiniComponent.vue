@@ -249,11 +249,7 @@ const set_current_song = (track) => {
     // update media player stuff
     navigator.mediaSession.metadata = new MediaMetadata({
       title: track.track.title,
-      artist:
-        track.track.artist_display_names &&
-        track.track.artist_display_names.length != 0
-          ? track.track.artist_display_names.join(", ")
-          : track.track.artists.join(", "),
+      artist: track.track.artists.join(", "),
       album: "jukebox",
       artwork: [
         {

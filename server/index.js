@@ -2,7 +2,6 @@ const users = require("./users.js")
 const files = require("./files.js")
 const fs = require("fs")
 const express = require("express")
-const ejs = require("ejs")
 const { print } = require("./utils.js")
 const fb = require("./firebase.js")
 const path = require("path")
@@ -15,19 +14,16 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const cookie_settings = {
    httpOnly: true,
-   secure: false, // prod change to true
+   secure: true, // prod change to true
    sameSite: "Strict",
    maxAge: users.TOKEN_EXPIRATION_TIME,
 }
 
-//let current_event = "1717641140844_the_month_of_june__spoon_"
+let tracks = {}
 let events = {}
 let events_list = []
+let populated_events = false // we should only start updating tracks when events are initially populated
 
-// app.use(cors({
-//    origin: "http://localhost:5173",
-//    credentials: true,
-// }))
 app.use(express.json())
 app.use(cookieparser())
 
@@ -35,23 +31,6 @@ app.use(express.static(path.join(__dirname, "dist")))
 app.get("/", (req, res) => {
    res.sendFile(path.join(__dirname, "/dist/index.html"))
 })
-
-/*
-app.set("view engine", "ejs")
-app.use(express.static(__dirname + "/public"))
-app.set("views", path.join(__dirname, "views"))
-app.get("/admin", (req, res) => {
-   res.render("home", { events: [] })
-})
-*/
-
-// app.get("/upload", users.authenticate_token, (req, res) => {
-//    res.render("upload")
-// })
-
-// app.get("/login", (req, res) => {
-//    res.render("login")
-// })
 
 app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) => {
    const uuid = crypto.randomUUID()
@@ -162,7 +141,8 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          const artist = user_data.username // important: user USERNAME! this is used to recall a display name later
          const title = req.body.title
          const lyrics = req.body.lyrics ? req.body.lyrics : ""
-         let pulled_artists = JSON.parse(req.body.artists)
+         let pulled_artists = req.body.artists ? JSON.parse(req.body.artists) : []
+         let artists = [ artist ]
          if (req.body.artists && pulled_artists.length > 0) {
             if (pulled_artists.length > 8) return res.status(400).send({ message: "Surpassed artist limit" })
 
@@ -254,6 +234,21 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
       }
    })
 
+const delete_track = async (trackdata) => {
+   let albumfile = trackdata.album.split("/")
+   albumfile = albumfile[albumfile.length - 1]
+   if (albumfile != "default.webp") await files.delete_file(albumfile, files.albums_bucket)
+   
+   let trackfile = trackdata.filename
+   await files.delete_file(trackfile, files.tracks_bucket)
+
+   // then delete data from track & events db
+   await fb.delete_doc("tracks", trackdata.uuid) 
+   await fb.update_doc("events", trackdata.event, {
+      tracks: fb.FieldValue.arrayRemove(trackdata.uuid)
+   })
+}
+
 app.post("/api/deletetrack", users.authenticate_token, async (req, res) => {
    const track_id = req.body.track_id
    if (!track_id) return res.status(400).send({ message: "Invalid track" })
@@ -266,20 +261,24 @@ app.post("/api/deletetrack", users.authenticate_token, async (req, res) => {
    // delete the track :c
 
    // start with deleting track and album ONLY IF NOT DEFAULT !!!
-   let albumfile = trackdata.album.split("/")
-   albumfile = albumfile[albumfile.length - 1]
-   if (albumfile != "default.webp") await files.delete_file(albumfile, files.albums_bucket)
-   
-   let trackfile = trackdata.filename
-   await files.delete_file(trackfile, files.tracks_bucket)
+   await delete_track(trackdata)
+   return res.status(200).send({ message: "Deleted track" })
+})
 
-   // then delete data from track & events db
-   await fb.delete_doc("tracks", track_id) 
-   await fb.update_doc("events", trackdata.event, {
-      tracks: fb.FieldValue.arrayRemove(track_id)
+app.post("/api/removefromtrack", users.authenticate_token, async (req, res) => {
+   const track_id = req.body.track_id
+   if (!track_id) return res.status(400).send({ message: "Invalid track" })
+
+   const trackdata = await fb.get_doc("tracks", track_id)
+   if (!trackdata) return res.status(400).send({ message: "Invalid track" })
+   if (trackdata.artist == req.username) return res.status(400).send({message: "You own this track" })
+   if (!trackdata.artists.includes(req.username)) return res.status(400).send({ message: "You are not part of this track" })
+
+   await fb.update_doc("tracks", track_id, {
+      artists: fb.FieldValue.arrayRemove(req.username)
    })
 
-   return res.status(200).send({ message: "Deleted track" })
+   return res.status(200).send({ message: "Removed you from track" })
 })
 
 app.post("/api/login", files.upload.none(), async (req, res) => {
@@ -465,29 +464,82 @@ const get_timestamp_as_date = (timestamp) => {
    return new Date(timestamp[timestamp.length - 1]._seconds * 1000)
 }
 
-app.listen(PORT, () => {
-   // listen for updates in collections
-   fb.setup_collection_listener("events", async (e) => {
-      let keys = Object.keys(e)
-      for (let i = 0; i < keys.length; i++) {
-         let event = e[keys[i]]
-         let track_ids = event.tracks
-         event.tracks = []
+const init_events = async () => {
+   events = await fb.get_collection("events")
+   tracks = await fb.get_collection("tracks")
 
-         for (let j = 0; j < track_ids.length; j++) {
-            // events store tracks as a list of ids
-            // use IDs to get track data
-            // inside each track, use artist USERNAME to get their DISPLAY name
-            let track = await fb.get_doc("tracks", track_ids[j])
-            track.artist_display_names = await get_display_names(track)
-            event.tracks.push(track)
-         }
-         events[keys[i]] = event
+   // set display names
+   for (let key in events) {
+      events[key].tracks = get_tracks_as_objects(events[key].tracks)
+   }
+
+   events_list = Array.from(Object.values(events))
+   events_list.sort((a, b) => get_timestamp_as_date(b.date) - get_timestamp_as_date(a.date))
+}
+
+// given a tracks array of UUIDs, return an array of their corresponding data objects
+const get_tracks_as_objects = (uuids) => {
+   let out = []
+   for (let i = 0; i < uuids.length; i++) {
+      out.push(tracks[uuids[i]])
+   }
+   return out
+}
+
+// run whenever an event is created/updated. simply set the tracks,
+// then replace it in our events & repopulate events list
+const update_events = async (new_events) => {
+   for (let key in new_events) {
+      new_events[key].tracks = get_tracks_as_objects(new_events[key].tracks)   
+
+      // remove old & add to list
+      if (events.hasOwnProperty(key)) {
+         // updating an existing event: remove it!
+         events_list = events_list.filter(e => e.uuid != key)
       }
 
-      events_list = Array.from(Object.values(events))
-      events_list.sort((a, b) => get_timestamp_as_date(b.date) - get_timestamp_as_date(a.date))
-   })
+      events_list.push(new_events[key])
+
+      events[key] = new_events[key]
+   }
+
+   events_list.sort((a, b) => get_timestamp_as_date(b.date) - get_timestamp_as_date(a.date))
+}
+
+const update_tracks = async (new_tracks) => {
+   // add first
+   for (let uuid in new_tracks) {
+      tracks[uuid] = new_tracks[uuid]
+   }
+
+   for (let uuid in new_tracks) {
+      // do this check early to cutoff
+      let event = new_tracks[uuid].event
+      if (!events.hasOwnProperty(event)) continue
+      let i = events_list.findIndex(e => e.uuid == events[event].uuid)
+      if (i < 0) continue
+      // update our events list
+      events[event].tracks 
+      for (let j = 0; j < events[event].tracks.length; j++) {
+         if (events[event].tracks[j].uuid == uuid) {
+            events[event].tracks[j] = new_tracks[uuid]
+         }
+      }
+      events_list[i] = events[event]
+   }
+
+   // theoretically events_list is still sorted here
+}
+
+app.listen(PORT, async () => {
+   await init_events()
+
+   fb.setup_collection_listener("events", update_events)
+   fb.setup_collection_listener("tracks", update_tracks)
+
+   // listen for updates in collections
+   //fb.setup_collection_listener("events", update_events_list)
+   //fb.setup_collection_listener("tracks", update_event_from_tracks)
 
    print("started on port " + PORT)
 })

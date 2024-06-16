@@ -15,7 +15,8 @@
         v-for="track in event.tracks"
         :key="track.url"
         :track="track"
-        :allowDelete="allowDelete"
+        :allowDelete="allowDelete && track.artist == user.username"
+        :allow_remove_self="allowDelete && track.artists.includes(user.username)"
       />
          <p v-if="event.tracks.length == 0"><i>No tracks found</i></p>
     </div>
@@ -28,7 +29,7 @@
 import Track from "./TrackComponent.vue";
 import { defineProps } from "vue";
 
-const props = defineProps(["event", "allowDelete"]);
+const props = defineProps(["event", "allowDelete", "user"]);
 
 const track_header = {
   artist: "Artist",

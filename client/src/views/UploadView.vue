@@ -16,7 +16,7 @@
 
          <label for="artists">Artists<p class="tag">(optional)</p></label>
          <input type="text" class="artist" value="You" disabled>
-         <p class="tag" v-if="artists.length != 0" style="margin-bottom: 10px">Enter the artist's USERNAME, not display name.</p>
+         <p class="tag" v-if="artists.length != 0" style="margin-top: 6px; margin-bottom: 4px;">Enter the artist's USERNAME, not display name.</p>
          <span 
             class="artist-entry"
             v-for="(artist, index) in artists"
@@ -28,10 +28,10 @@
                v-model="artists[index]"
                placeholder="a very cool person"
             />
-            <p class="new-artist" @click="remove_artist(index)">x</p>
+            <span class="material-symbols-rounded remove-artist" @click="remove_artist(index)">cancel</span>
          </span>
          <span class="new-artist-box" @click="add_artist" v-if="artists.length < 8">
-            <p class="new-artist">+</p>
+            <span class="material-symbols-rounded">person_add</span>
             <p>Add Artist</p>
          </span>
 
@@ -269,7 +269,7 @@ input[type="file"] {
 .new-artist-box {
    display: flex;
    flex-direction: row;
-   gap: 10px;
+   gap: 4px;
    align-items: center;
    margin-top: 4px;
    margin-bottom: 20px;
@@ -283,30 +283,27 @@ input[type="file"] {
 
 .new-artist-box p {
    margin: 0;
-}
-
-.new-artist {
-   margin: 0;
-   width: 24px;
-   aspect-ratio: 1.0;
-
-   border: none;
-   background-color: #f5f5f5;
-   vertical-align: center;
-   line-height: 0;
-   border-radius: 100px;
-
-   display: flex;
-   justify-content: center;
-   align-items: center;
+   font-size: 14px;
 }
 
 input.artist {
-   margin-bottom: 4px;
+   margin: 0;
+   flex: 1;
 }
 
 .artist-entry {
    display: flex;
    flex-direction: row;
+   align-items: center;
+   margin-bottom: 4px;
+}
+
+.remove-artist {
+   color: darkred; 
+   cursor: pointer;
+}
+
+.remove-artist:hover {
+   opacity: 0.6;
 }
 </style>
