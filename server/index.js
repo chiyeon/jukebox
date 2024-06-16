@@ -27,11 +27,6 @@ let populated_events = false // we should only start updating tracks when events
 app.use(express.json())
 app.use(cookieparser())
 
-app.use(express.static(path.join(__dirname, "dist")))
-app.get("*", (req, res) => {
-   res.sendFile(path.join(__dirname, "/dist/index.html"))
-})
-
 app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) => {
    const uuid = crypto.randomUUID()
    const date = new Date()
@@ -557,6 +552,11 @@ const update_tracks = async (new_tracks) => {
 
    // theoretically events_list is still sorted here
 }
+
+app.use(express.static(path.join(__dirname, "dist")))
+app.get("*", (req, res) => {
+   res.sendFile(path.join(__dirname, "/dist/index.html"))
+})
 
 app.listen(PORT, async () => {
    await init_events()
