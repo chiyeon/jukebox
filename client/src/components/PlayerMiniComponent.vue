@@ -41,8 +41,6 @@
             </span>
           </button>
           <button class="prev" @click="prev_song">
-            <!-- <img width="32" height="32"
-                     src="https://img.icons8.com/pixels/32/skip-to-start.png" alt="skip-to-start" /> -->
             <span
               class="material-symbols-rounded control-icon"
               :style="{ color: CONTROL_COLOR }"
@@ -51,9 +49,6 @@
             </span>
           </button>
           <button class="pause" @click="toggle_playback">
-            <!-- <img width="32" height="32"
-                     :src="`https://img.icons8.com/pixels/32/${audio_ref && !audio_ref.paused ? 'pause' : 'play'}.png`"
-                     alt="play" /> -->
             <span
               class="material-symbols-rounded control-icon"
               :style="{ color: CONTROL_COLOR }"
@@ -64,8 +59,6 @@
             </span>
           </button>
           <button class="next" @click="next_song">
-            <!-- <img width="32" height="32"
-                     src="https://img.icons8.com/pixels/32/end.png" alt="end" /> -->
             <span
               class="material-symbols-rounded control-icon"
               :style="{ color: CONTROL_COLOR }"
@@ -84,8 +77,6 @@
         </div>
         <div class="controls-right">
           <div class="volume-controls">
-            <!-- <img class="volume-icon" width="24" height="24" :src="get_volume_icon()" alt="volume"
-                     @click="toggle_mute" /> -->
             <span
               class="material-symbols-rounded volume-icon"
               alt="volume"
@@ -121,9 +112,6 @@
           >
             queue_music
           </span>
-          <!--span class="material-symbols-rounded jam-icon" :style="{ color: JAM_COLOR, 'margin-left': '1em' }">
-                  communities
-               </span-->
         </div>
       </div>
     </div>
@@ -734,4 +722,5 @@ onMounted(() => {
 .not-playing-preview p {
   margin: 0;
 }
+
 </style>

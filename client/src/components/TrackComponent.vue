@@ -295,6 +295,7 @@ button:hover {
   border-bottom: none;
   flex: 1;
   padding: 0;
+  align-self: flex-start;
 }
 
 .add-to-queue {
