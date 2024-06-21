@@ -564,10 +564,6 @@ app.listen(PORT, async () => {
    fb.setup_collection_listener("events", update_events)
    fb.setup_collection_listener("tracks", update_tracks)
 
-   // listen for updates in collections
-   //fb.setup_collection_listener("events", update_events_list)
-   //fb.setup_collection_listener("tracks", update_event_from_tracks)
-
    print("started on port " + PORT)
 })
 

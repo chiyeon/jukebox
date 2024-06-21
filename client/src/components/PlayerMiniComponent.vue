@@ -1,6 +1,12 @@
 <template>
   <div class="player-mini-box">
     <div class="player-mini" v-if="!is_mobile">
+      <ProgressSlider 
+         color="coral"
+         :progress="audio_ref ? audio_ref.currentTime / audio_ref.duration : 0"
+         :disabled="audio_ref && audio_ref.src == undefined"
+         @setProgress="(p) => audio_ref.src && (audio_ref.currentTime = p * audio_ref.duration)"
+      />
       <div class="progress-box">
         <p class="duration">{{ get_current_playback_time() }}</p>
         <div class="progress-background">
@@ -259,6 +265,7 @@
 </template>
 
 <script setup>
+import ProgressSlider from "./ProgressSlider.vue"
 import { defineProps, defineEmits, ref, watch, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import Track from "./TrackComponent.vue";
