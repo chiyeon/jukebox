@@ -1,5 +1,7 @@
 <template>
   <div :class="{ 'progress-box': true, disabled: disabled }">
+    <span v-if="left_icon" class="material-symbols-rounded" :style="{ color: left_icon.color }">{{ left_icon.icon }}</span>
+    <p v-if="left_label" class="label">{{ left_label }}</p>
     <div class="progress-background">
       <div
         class="progress"
@@ -16,13 +18,15 @@
         class="progress-slider"
       />
     </div>
+    <p v-if="right_label" class="label right">{{ right_label }}</p>
+    <span v-if="right_icon" class="material-symbols-rounded right" :style="{ color: right_icon.color }">{{ right_icon.icon }}</span>
   </div>
 </template>
 
 <script setup>
 import { ref, defineProps, defineEmits, computed, watch } from "vue";
 
-const props = defineProps([ "color", "progress", "disabled" ])
+const props = defineProps([ "color", "progress", "disabled", "left_label", "right_label", "left_icon", "right_icon", "allow_drag" ])
 // setProgress - whenever the user lets go of the mouse after dragging. change progress to that value
 // returns a value between 0 and 1
 const emit = defineEmits([ "setProgress" ])
@@ -42,8 +46,9 @@ watch(() => props.progress, (newval, oldval) => {
 })
 
 const drag_slider = (e) => {
-  dragging = true
   progress.value = e.currentTarget.value
+  if (props.allow_drag) { emit("setProgress", e.currentTarget.value) }
+  else { dragging = true }
 }
 
 const set_progress = () => {
@@ -69,13 +74,21 @@ const set_progress = () => {
   width: 0%;
 }
 
+.progress-box {
+  width: 100%;
+  height: 12px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+}
+
 .progress-background:hover,
 .progress-box:hover .progress-background {
   height: 8px;
 }
 
-.progress-background,
-.volume-background {
+.progress-background {
   position: relative;
 }
 
@@ -96,5 +109,17 @@ const set_progress = () => {
   cursor: pointer;
 
   background-color: #e4e4e4;
+}
+
+.label {
+  font-size: 13px;
+  width: 50px;
+}
+.label.right {
+  text-align: right;
+}
+
+.disabled {
+  pointer-events: none;
 }
 </style>

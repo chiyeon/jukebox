@@ -17,7 +17,7 @@ import { RouterView } from "vue-router";
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import Header from "./components/HeaderComponent.vue";
-import PlayerMini from "./components/PlayerMiniComponent.vue";
+import PlayerMini from "./components/MediaPlayer/PlayerMiniComponent.vue";
 import Queue from "./components/QueueComponent.vue";
 
 const store = useStore();
