@@ -1,72 +1,50 @@
 <template>
-  <div
-    @click="play_track"
-    :class="{ track: true, minimal: type == 'player', mobile_expanded: type == 'playermobile', queue: is_queue_element() }"
-  >
+  <div @click="play_track"
+    :class="{ track: true, minimal: type == 'player', mobile_expanded: type == 'playermobile', queue: is_queue_element() }">
     <img v-if="!is_queue_element()" class="album" :src="track.album" />
     <div class="track-info">
       <p class="title">
         {{ track.title
-        }}<span v-if="track.winner" class="material-symbols-rounded trophy"
-          >trophy</span
-        >
+        }}<span v-if="track.winner" class="material-symbols-rounded trophy">trophy</span>
       </p>
       <template v-for="(artist, index) in track.artists" :key="index">
-        <RouterLink
-          @click.stop="prevent_parent_click"
-          :to="`/u/${track.artists[index]}`"
-          class="artist"
-          >{{ artist }}</RouterLink
-        >
-        <p
-          v-if="index == track.artists.length - 1 ? '' : ', '"
-          class="artist-comma"
-        >
+        <RouterLink @click.stop="prevent_parent_click" :to="`/u/${track.artists[index]}`" class="artist">{{ artist }}
+        </RouterLink>
+        <p v-if="index == track.artists.length - 1 ? '' : ', '" class="artist-comma">
           ,
         </p>
       </template>
     </div>
 
-    <div v-if="type == 'allowedit'">
-      <button
-        class="delete"
-        @click.stop="delete_track(track.filename)"
-        v-if="!show_delete"
-      >
-        <span class="material-symbols-rounded">delete</span>
-      </button>
-      <button class="delete" @click.stop="delete_track(track.filename)" v-else>
-        Yes, delete track
-      </button>
-      <button v-if="show_delete" @click.stop="cancel_delete">Cancel</button>
-    </div>
-    <div v-else-if="type == 'allowremove'">
-      <button
-        class="delete"
-        @click.stop="remove_self_from_track()"
-        v-if="!show_remove_self"
-      >
-        <span class="material-symbols-rounded">person_remove</span>
-      </button>
-      <button
-        class="delete"
-        @click.stop="remove_self_from_track()"
-        v-else
-      >
-        Yes, remove me from track
-      </button>
-      <button v-if="show_remove_self" @click.stop="cancel_remove">
-        Cancel
-      </button>
-    </div>
+    <div class="controls">
+      <template v-if="type == 'allowedit'">
+        <button class="button-block delete" title="Delete track" @click.stop="delete_track(track.filename)" v-if="!show_delete">
+          <span class="material-symbols-rounded">delete</span>
+        </button>
+        <button @click.stop="delete_track(track.filename)" title="Confirm Delete" class="button-block delete" v-else>
+          <span class="material-symbols-rounded">delete_forever</span>
+        </button>
+        <button v-if="show_delete" @click.stop="cancel_delete" title="Cancel Delete" class="button-block cancel">
+          <span class="material-symbols-rounded">cancel</span>
+        </button>
+      </template>
+      <template v-else-if="type == 'allowremove'">
+        <button class="button-block delete" title="Remove self from Track" @click.stop="remove_self_from_track()" v-if="!show_remove_self">
+          <span class="material-symbols-rounded">person_remove</span>
+        </button>
+        <button class="button-block delete" title="Confirm Removal" @click.stop="remove_self_from_track()" v-else>
+          <span class="material-symbols-rounded">person_remove</span>
+        </button>
+        <button v-if="show_remove_self" title="Cancel Removal" @click.stop="cancel_remove" class="button-block cancel">
+          <span class="material-symbols-rounded">cancel</span>
+        </button>
+      </template>
 
-    <div v-if="!is_hiding_queue_button()" class="controls">
-      <button @click.stop="add_to_queue">
+      <button v-if="!is_hiding_queue_button()" @click.stop="add_to_queue" class="button-block">
         <span class="material-symbols-rounded add-to-queue">playlist_add</span>
       </button>
-    </div>
-    <div v-if="type == 'queue'" class="controls">
-      <button @click.stop="remove_from_queue">
+
+      <button v-if="type == 'queue'"@click.stop="remove_from_queue" class="button-block queue">
         <span class="material-symbols-rounded add-to-queue">close</span>
       </button>
     </div>
@@ -193,7 +171,7 @@ const remove_self_from_track = async () => {
 
 const play_track = () => {
   if (props.type && props.type.includes("player")) return
-  
+
   if (props.type == "queue") {
     eventbus.emit("skipQueueTo", props.index)
   } else if (props.type == "afterqueue") {
@@ -214,12 +192,15 @@ const remove_from_queue = () => {
   store.dispatch("removeTrack", props.index);
 };
 
-const prevent_parent_click = (e) => {};
+const prevent_parent_click = (e) => { };
 </script>
 
 <style scoped>
 .track {
-  padding: 10px;
+  --track-height: 72px;
+
+  padding: 0 8px;
+  height: var(--track-height);
   border-radius: 2px;
 
   border-bottom: 1px solid gray;
@@ -294,7 +275,7 @@ button:hover {
 }
 
 .album {
-  height: 48px;
+  height: 56px;
 }
 
 .minimal .album {
@@ -319,30 +300,82 @@ button:hover {
 }
 
 .add-to-queue {
-   color: black;
+  color: black;
 }
 
 .mobile_expanded {
-   flex-direction: column;
-   width: 100%;
+  flex-direction: column;
+  width: 100%;
 }
 
 .track.mobile_expanded img {
-   width: 100%;
-   aspect-ratio: 1.0;
-   height: auto;
+  width: 100%;
+  aspect-ratio: 1.0;
+  height: auto;
 }
 
 .mobile_expanded .track-info {
-   align-self: flex-start;
-   padding-bottom: 20px;
+  align-self: flex-start;
+  padding-bottom: 20px;
 }
 
 .mobile_expanded .track-info .title {
-   font-size: 24px;
+  font-size: 24px;
 }
 
 .mobile_expanded .track-info .artist {
-   font-size: 17px;
+  font-size: 17px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+}
+
+.controls > .button-block:first-child {
+  border-radius: 10px 0 0 10px;
+}
+
+.controls > .button-block:last-child {
+  border-radius: 0 10px 10px 0;
+}
+
+.controls > .button-block:first-child:last-child {
+  border-radius: 10px;
+}
+
+.button-block {
+  width: 42px;
+  aspect-ratio: 1.0;
+  background-color: rgb(183, 183, 183);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-block span {
+  color: white;
+}
+
+.delete-box {
+  display: flex;
+  flex-direction: row;
+}
+
+.button-block.delete {
+  background-color: darkred;
+}
+
+.delete span {
+  color: white;
+}
+
+.button-block.cancel {
+  background-color: rgb(60, 148, 163);
+}
+
+.cancel span {
+  color: white;
 }
 </style>
