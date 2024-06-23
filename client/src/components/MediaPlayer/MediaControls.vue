@@ -95,8 +95,13 @@ const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"];
   font-size: var(--size);
 }
 
-.mobile .control-icon {
+.mobile .pause .control-icon {
   --size: 56px;
+}
+
+.mobile .next .control-icon,
+.mobile .prev .control-icon {
+  --size: 48px;
 }
 
 .mobile .shuffle .control-icon,
