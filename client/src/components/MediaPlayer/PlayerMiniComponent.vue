@@ -13,7 +13,7 @@
       <div class="track-box">
         <Track
           v-if="current_song"
-          :track="current_song.track"
+          :track="current_song"
           :minimal="true"
           :hide_queue="true"
         />
@@ -58,8 +58,9 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, watch, onMounted, computed } from "vue";
+import { defineProps, defineEmits, ref, watch, onMounted, computed, onUnmounted } from "vue";
 import { useStore } from "vuex";
+import eventbus from "../../eventbus"
 import ProgressSlider from "./ProgressSlider.vue"
 import MediaControls from "./MediaControls.vue"
 import Track from "../TrackComponent.vue";
@@ -91,13 +92,6 @@ const audio_progress = ref(0)
 const volume_progress = ref(1)
 let last_volume = 0; // last volume before muted. if we aren't muted, its 0
 
-const QueueTrack = (track, is_queue) => {
-  return {
-    track,
-    is_queue,
-  };
-};
-
 const next_repeat = () => {
   repeat_mode.value++;
   if (repeat_mode.value >= 3) repeat_mode.value = 0;
@@ -123,13 +117,9 @@ const toggle_shuffle = () => {
   if (!current_song.value) return;
 
   if (shuffle.value) {
-    after_queue.value = shuffle_array(
-      tracks.value.map((track) => QueueTrack(track, false)),
-    );
+    after_queue.value = shuffle_array(tracks.value);
   } else {
-    after_queue.value = get_following_tracks(current_song.value).map((track) =>
-      QueueTrack(track, false),
-    );
+    after_queue.value = get_following_tracks(current_song.value)
   }
 };
 
@@ -158,18 +148,18 @@ const set_current_song = (track) => {
   current_song.value = track;
 
   if (track) {
-    audio_ref.value.src = track.track.url;
+    audio_ref.value.src = track.url;
     audio_ref.value.currentTime = 0;
     audio_ref.value.play();
 
     // update media player stuff
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: track.track.title,
-      artist: track.track.artists.join(", "),
+      title: track.title,
+      artist: track.artists.join(", "),
       album: "jukebox",
       artwork: [
         {
-          src: track.track.album,
+          src: track.album,
           sizes: "512x512",
           type: "image/webp",
         },
@@ -179,6 +169,7 @@ const set_current_song = (track) => {
     audio_ref.value.src = "";
     audio_ref.value.currentTime = 0;
     audio_ref.value.pause();
+    audio_progress.value = 0
   }
 };
 
@@ -278,6 +269,7 @@ const get_following_tracks = (track) => {
 };
 
 // this only reacts to changes from outside (ie someone clicking a track or adding a track to queue)
+/*
 watch(
   () => queue.value,
   (newval, oldval) => {
@@ -315,6 +307,7 @@ watch(
     }
   },
 );
+*/
 
 watch(
   () => after_queue.value,
@@ -323,7 +316,41 @@ watch(
   },
 );
 
+// when user clicks a new song (mostly anywhere)
+// just play & populate
+const handle_play_song = (track) => {
+  set_current_song(track)
+
+  // populate next tracks
+  if (!shuffle.value)
+    after_queue.value = get_following_tracks(track)
+  else if (after_queue.value.length == 0) {
+    after_queue.value = shuffle_array(
+      tracks.value
+    );
+  } else {
+    // user is skipping, just goto that track
+    after_queue.value = after_queue.value.slice(
+      after_queue.value.findIndex(
+        (t) => t.uuid == track.uuid,
+      ) + 1,
+    );
+  }
+}
+
+// when user clicks a song FROM the queue IN the queue (they are skipping to it)
+const handle_skip_queue_to = (track) => {
+  set_current_song(track)
+
+  store.dispatch("skipQueueTo", track)
+}
+
 onMounted(() => {
+  // on playing a new song
+  eventbus.on("playSong", handle_play_song)
+  // on skipping to a song in the after queue or queue
+  eventbus.on("skipQueueTo", handle_skip_queue_to)
+
   audio_ref.value.addEventListener("ended", () => {
     next_song();
   });
@@ -348,8 +375,13 @@ onMounted(() => {
     });
     navigator.mediaSession.setActionHandler("previoustrack", () => prev_song());
     navigator.mediaSession.setActionHandler("nexttrack", () => next_song());
-  });
-});
+  })
+})
+
+onUnmounted(() => {
+  eventbus.off("playSong", handle_play_song)
+  eventbus.off("skipQueueTo", handle_skip_queue_to)
+})
 </script>
 
 <style scoped>
@@ -429,10 +461,11 @@ onMounted(() => {
 }
 
 .volume-controls {
-  width: 100px;
+  width: 90px;
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 4px;
 }
 
 .volume-icon,

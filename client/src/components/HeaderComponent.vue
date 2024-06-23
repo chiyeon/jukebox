@@ -1,6 +1,6 @@
 <template>
    <div class="header">
-      <h1>jukebox</h1>
+      <h1>ThatMyFavorite</h1>
       <div class="nav">
          <RouterLink to="/">Listen</RouterLink>
          <div class="space"></div>

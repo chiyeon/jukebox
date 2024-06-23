@@ -10,12 +10,7 @@ export default createStore({
    mutations: {
       addTrack(state, track) {
          // probability of collision is NOT 0, but its close enough c:
-         state.queue.push({ track: track, is_queue: true, id: Math.random().toString(16).slice(2) })
-      },
-      setQueueToTrack(state, track) {
-         state.queue = [
-            { track: track, is_queue: false, id: Math.random().toString(16).slice(2) } 
-         ]
+         state.queue.push(track)
       },
       removeTrack(state, track) {
          let idx = state.queue.indexOf(track)
@@ -23,7 +18,7 @@ export default createStore({
       },
       skipQueueTo(state, track) {
          let idx = state.queue.indexOf(track)
-         if (idx >= 0) state.queue = state.queue.slice(idx)
+         if (idx >= 0) state.queue = state.queue.slice(idx + 1)
       },
       popTrack(state) {
          state.queue.shift()
@@ -44,9 +39,6 @@ export default createStore({
    actions: {
       addTrack({ commit }, track) {
          commit("addTrack", track)
-      },
-      setQueueToTrack({ commit }, track) {
-         commit("setQueueToTrack", track)
       },
       removeTrack({ commit }, track) {
          commit("removeTrack", track)

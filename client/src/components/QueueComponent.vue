@@ -5,7 +5,7 @@
          <Track
             v-for="track in queue"
             :key="queue.indexOf(track)"
-            :track="track.track"
+            :track="track"
             :hide_queue="true"
             :show_remove="true"
             :queue_track="track"
@@ -20,7 +20,7 @@
             <Track
                v-for="(track, index) in after_queue"
                :key="index"
-               :track="track.track"
+               :track="track"
                :hide_queue="true"
                :hide_album_covers="true"
             />

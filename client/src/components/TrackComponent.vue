@@ -76,6 +76,7 @@ import { defineProps, ref } from "vue";
 import { useStore } from "vuex";
 import { RouterLink } from "vue-router";
 import LoadingScreen from "./LoadingComponent.vue";
+import eventbus from "../eventbus"
 
 const validated_delete = ref(false);
 const show_delete = ref(false);
@@ -185,10 +186,11 @@ const play_track = () => {
   // for trakcs in the queue, instead of force setting
   // the queue, try to tell the queue to go there
   if (props.queue_track) {
-    store.dispatch("skipQueueTo", props.queue_track);
+    eventbus.emit("skipQueueTo", props.track);
   } else {
     if (props.track) {
-      store.dispatch("setQueueToTrack", props.track);
+      eventbus.emit("playSong", props.track)
+      // store.dispatch("setQueueToTrack", props.track);
     }
   }
 };
