@@ -267,6 +267,13 @@ const handle_skip_afterqueue_to = (index) => {
   store.dispatch("skipAfterQueueTo", index)
 }
 
+watch(store.state.queue, (newval) => {
+  if (!current_song.value && newval.length >= 1) {
+    set_current_song(newval[0])
+    store.dispatch("popTrack")
+  }
+})
+
 onMounted(() => {
   // on playing a new song
   eventbus.on("playSong", handle_play_song)
