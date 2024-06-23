@@ -1,15 +1,16 @@
 <template>
    <div class="queue-box">
       <div v-if="queue.length != 0" class="queue">
-         <h2>Queue</h2>
+         <span class="queue-title">
+            <h2>Queue</h2>
+            <p class="button" @click="store.dispatch('setQueue', [])">Clear queue</p>
+         </span>
          <Track
-            v-for="track in queue"
-            :key="queue.indexOf(track)"
+            v-for="(track, index) in queue"
+            :key="index"
             :track="track"
-            :hide_queue="true"
-            :show_remove="true"
-            :queue_track="track"
-            :hide_album_covers="true"
+            :index="index"
+            type="queue"
          />
       </div>
 
@@ -21,8 +22,8 @@
                v-for="(track, index) in after_queue"
                :key="index"
                :track="track"
-               :hide_queue="true"
-               :hide_album_covers="true"
+               :index="index"
+               type="afterqueue"
             />
          </template>
       </div>
@@ -43,16 +44,35 @@ const after_queue = computed(() => store.state.afterQueue)
 <style scoped>
 .queue-box {
    height: 100%;
-   width: 400px;
+   width: 500px;
    overflow-y: auto;
 
    background-color: white;
    border-left: 1px solid black;
-   padding-left: 20px;
+   padding: 0 20px;
+}
 
-   white-space: nowrap;
-   overflow-x: hidden;
+.queue-title {
+   display: flex;
+   flex-direction: row;
+   align-items: flex-end;
 
+   margin: 20px 0;
+}
+
+.queue-title > * {
+   margin: 0;
+   flex: 1;
+}
+
+.button {
+   text-align: right;
+   cursor: pointer;
+   user-select: none;
+}
+
+.button:hover {
+   opacity: 0.7;
 }
 
 </style>

@@ -16,9 +16,17 @@ export default createStore({
          let idx = state.queue.indexOf(track)
          if (idx >= 0) state.queue.splice(idx, 1)  
       },
-      skipQueueTo(state, track) {
-         let idx = state.queue.indexOf(track)
-         if (idx >= 0) state.queue = state.queue.slice(idx + 1)
+      skipQueueTo(state, index) {
+         state.queue = state.queue.slice(index + 1)
+      },
+      skipAfterQueueTo(state, index) {
+         state.afterQueue = state.afterQueue.slice(index + 1)
+      },
+      addTrackToAfterQueueHead(state, track) {
+         state.afterQueue.unshift(track)
+      },
+      shiftAfterQueue(state) {
+         return state.afterQueue.shift()
       },
       popTrack(state) {
          state.queue.shift()
@@ -43,8 +51,18 @@ export default createStore({
       removeTrack({ commit }, track) {
          commit("removeTrack", track)
       },
-      skipQueueTo({ commit }, track) {
-         commit("skipQueueTo", track)
+      skipQueueTo({ commit }, index) {
+         commit("skipQueueTo", index)
+      },
+      skipAfterQueueTo({ commit }, index) {
+         commit("skipAfterQueueTo", index)
+      },
+      shiftAfterQueue({ commit }) {
+         let track = commit("shiftAfterQueue")
+         return track
+      },
+      addTrackToAfterQueueHead({ commit }, track) {
+         commit("addTrackToAfterQueueHead", track)
       },
       setQueue({ commit }, queue) {
          commit("setQueue", queue)

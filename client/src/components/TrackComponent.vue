@@ -1,9 +1,9 @@
 <template>
   <div
     @click="play_track"
-    :class="{ track: true, header: header, minimal: minimal, mobile_expanded: mobile_expanded }"
+    :class="{ track: true, minimal: type == 'player', mobile_expanded: type == 'playermobile', queue: is_queue_element() }"
   >
-    <img v-if="!hide_album_covers" class="album" :src="track.album" />
+    <img v-if="!is_queue_element()" class="album" :src="track.album" />
     <div class="track-info">
       <p class="title">
         {{ track.title
@@ -26,15 +26,15 @@
         </p>
       </template>
     </div>
-    <div v-if="!hide_queue" :class="{ controls: true, norender: header }">
+    <div v-if="!is_hiding_queue_button()" class="controls">
       <button @click.stop="add_to_queue">
         <span class="material-symbols-rounded add-to-queue">playlist_add</span>
       </button>
     </div>
-    <div v-if="show_remove" class="controls">
+    <div v-if="type == 'allowedit'" class="controls">
       <button @click.stop="remove_from_queue">Remove</button>
     </div>
-    <div v-if="allowDelete">
+    <div v-if="type == 'allowedit'">
       <button
         class="delete"
         @click.stop="delete_track(track.filename)"
@@ -47,17 +47,17 @@
       </button>
       <button v-if="show_delete" @click.stop="cancel_delete">Cancel</button>
     </div>
-    <div v-else-if="allow_remove_self">
+    <div v-else-if="type == 'allowremove'">
       <button
         class="delete"
-        @click.stop="remove_self_from_track(track.filename)"
+        @click.stop="remove_self_from_track()"
         v-if="!show_remove_self"
       >
         <span class="material-symbols-rounded">person_remove</span>
       </button>
       <button
         class="delete"
-        @click.stop="remove_self_from_track(track.filename)"
+        @click.stop="remove_self_from_track()"
         v-else
       >
         Yes, remove me from track
@@ -93,19 +93,26 @@ const props = defineProps({
     title: String,
     url: String,
   },
-  header: {
-    type: Boolean,
-    default: false,
-  },
-  allowDelete: Boolean, // only if we are the MAIN artist
-  allow_remove_self: Boolean, // let us take our name off a track
-  hide_queue: Boolean, // show or hide the queue icon
-  show_remove: Boolean, // show the remove from queue button
-  hide_album_covers: Boolean, // used for when we are in queue. don't render album covers
-  queue_track: Object, // if we are a queue track, have this
-  minimal: Boolean, // removes some functionality (click etc)
-  mobile_expanded: Boolean,
+  type: String,
+  index: Number,
 });
+// what is props.type?
+// none - default. normal track used in listen page
+// queue - queue segment of queue tracks. songs that user has queued up. skips the queue to that point. hides icon.
+// afterqueue - up next segment of queue tracks. songs that are generated next. skips up next to that point. hides icon.
+// player - display normal, just don't allow it to be pressed
+// playermobile - display for mobile, don't allow it to be pressed
+// allowedit - allows editing/deleting. for user profiles
+// allowremove - lesser version of allowedit. for user profiles
+
+// we should hide the album
+const is_queue_element = () => {
+  return ["afterqueue", "queue"].includes(props.type)
+}
+
+const is_hiding_queue_button = () => {
+  return ["queue", "player", "playermobile"].includes(props.type)
+}
 
 const cancel_delete = () => {
   show_delete.value = false;
@@ -117,7 +124,7 @@ const cancel_remove = () => {
   validated_remove.value = false;
 };
 
-const delete_track = async (track_id) => {
+const delete_track = async () => {
   if (!validated_delete.value) {
     show_delete.value = true;
     validated_delete.value = true;
@@ -149,7 +156,7 @@ const delete_track = async (track_id) => {
   validated_delete.value = false;
 };
 
-const remove_self_from_track = async (track_id) => {
+const remove_self_from_track = async () => {
   if (!validated_remove.value) {
     show_remove_self.value = true;
     validated_remove.value = true;
@@ -181,17 +188,14 @@ const remove_self_from_track = async (track_id) => {
 };
 
 const play_track = () => {
-  if (props.minimal) return;
-  if (props.header) return;
-  // for trakcs in the queue, instead of force setting
-  // the queue, try to tell the queue to go there
-  if (props.queue_track) {
-    eventbus.emit("skipQueueTo", props.track);
+  if (props.type && props.type.includes("player")) return
+  
+  if (props.type == "queue") {
+    eventbus.emit("skipQueueTo", props.index)
+  } else if (props.type == "afterqueue") {
+    eventbus.emit("skipAfterQueueTo", props.index)
   } else {
-    if (props.track) {
-      eventbus.emit("playSong", props.track)
-      // store.dispatch("setQueueToTrack", props.track);
-    }
+    eventbus.emit("playSong", props.track)
   }
 };
 
@@ -203,7 +207,7 @@ const add_to_queue = () => {
 };
 
 const remove_from_queue = () => {
-  if (props.queue_track) {
+  if (self.type == "queue") {
     store.dispatch("removeTrack", props.queue_track);
   }
 };
@@ -300,9 +304,16 @@ button:hover {
   flex: 1;
   padding: 0;
   align-self: flex-start;
+}
+
+.queue .title {
   overflow-x: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.queue .track-info {
+  max-width: 85%;
 }
 
 .add-to-queue {

@@ -15,8 +15,7 @@
         v-for="track in event.tracks"
         :key="track.url"
         :track="track"
-        :allowDelete="allowDelete && track.artist == user.username"
-        :allow_remove_self="allowDelete && track.artists.includes(user.username)"
+        :type="get_type(track)"
       />
          <p v-if="event.tracks.length == 0"><i>No tracks found</i></p>
     </div>
@@ -31,10 +30,13 @@ import { defineProps } from "vue";
 
 const props = defineProps(["event", "allowDelete", "user"]);
 
-const track_header = {
-  artist: "Artist",
-  title: "Title",
-};
+const get_type = (track) => {
+  if (props.allowDelete) {
+    if (track.artist == props.user.username) { return "allowedit" }
+    else if (track.artists.includes(props.user.username)) { return "allowremove" }
+    else { return undefined }
+  }
+}
 
 const get_event_date = () => {
    if (!props.event.date) return "No date"

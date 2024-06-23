@@ -14,8 +14,7 @@
         <Track
           v-if="current_song"
           :track="current_song"
-          :minimal="true"
-          :hide_queue="true"
+          type="player"
         />
         <div v-else class="not-playing-preview">
           <span class="material-symbols-rounded album-icon"> album </span>
@@ -83,7 +82,7 @@ const volume_icons = ["volume_up", "volume_down", "volume_mute", "volume_off"];
 // queued tracks are considered ephemeral, being not recorded in history and
 // taking priority
 const queue = computed(() => store.state.queue); // user selected songs
-const after_queue = ref([]); // tracks to play after user queue ends
+const after_queue = computed(() => store.state.afterQueue); // tracks to play after user queue ends
 const history = ref([]); // stack, LIFO
 const current_song = ref(null);
 const tracks = computed(() => store.state.tracks); // all tracks user is "pointed at"
@@ -117,9 +116,9 @@ const toggle_shuffle = () => {
   if (!current_song.value) return;
 
   if (shuffle.value) {
-    after_queue.value = shuffle_array(tracks.value);
+    store.dispatch("setAfterQueue", shuffle_array(tracks.value))
   } else {
-    after_queue.value = get_following_tracks(current_song.value)
+    store.dispatch("setAfterQueue", get_following_tracks(current_song.value))
   }
 };
 
@@ -180,7 +179,7 @@ const prev_song = () => {
   } else {
     // put current track at head of after queue if not from queue
     if (current_song.value && !current_song.value.is_queue)
-      after_queue.value.unshift(current_song.value);
+      store.dispatch("addTrackToAfterQueueHead", current_song.value)
     // pop previous track from history. history is inserted at tail
     set_current_song(history.value.pop());
   }
@@ -206,17 +205,17 @@ const next_song = () => {
       if (after_queue.value.length == 0) {
         if (repeat_mode.value == REPEAT_MULTI) {
           // repeat entire listening history
-          after_queue.value = history.value;
-          history.value = [];
-
-          // play song
-          set_current_song(after_queue.value.shift());
+          let track = history.value.shift()
+          store.dispatch("setAfterQueue", history.value)
+          history.value = []
+          set_current_song(track)
         } else {
           set_current_song(null);
         }
       } else {
         // DEFAULT CASE: just play the next song
-        set_current_song(after_queue.value.shift());
+        set_current_song(after_queue.value[0])
+        store.dispatch("shiftAfterQueue")
       }
     }
   }
@@ -268,81 +267,31 @@ const get_following_tracks = (track) => {
   return following_tracks;
 };
 
-// this only reacts to changes from outside (ie someone clicking a track or adding a track to queue)
-/*
-watch(
-  () => queue.value,
-  (newval, oldval) => {
-    if (!newval || newval.length == 0) return;
-
-    // first check if we are trying to play a song in our queue currently
-    // also make sure its actually PART of the queue
-    if (newval[0].is_queue && oldval.includes(newval[0])) {
-      // this occurs if we skipped to a track in queue. just play top
-      set_current_song(newval[0]);
-      store.dispatch("popTrack");
-    } else if (newval.length == 1) {
-      store.dispatch("setQueue", oldval);
-      // this is when we click on a track in the listen page
-      // to start a new playback session
-      set_current_song(newval[0]);
-      // lets populate the afterqueue IF ITS NOT PART OF TEH QUEUE
-      // when its part of the queue, we're just trying to skip!
-      if (!shuffle.value)
-        after_queue.value = get_following_tracks(newval[0].track).map((track) =>
-          QueueTrack(track, false),
-        );
-      else if (after_queue.value.length == 0) {
-        after_queue.value = shuffle_array(
-          tracks.value.map((track) => QueueTrack(track, false)),
-        );
-      } else {
-        // user is skipping, just goto that track
-        after_queue.value = after_queue.value.slice(
-          after_queue.value.findIndex(
-            (t) => t.track.uuid == newval[0].track.uuid,
-          ) + 1,
-        );
-      }
-    }
-  },
-);
-*/
-
-watch(
-  () => after_queue.value,
-  (newval, oldval) => {
-    store.dispatch("setAfterQueue", after_queue.value);
-  },
-);
-
 // when user clicks a new song (mostly anywhere)
-// just play & populate
+// play and ALWAYS REPOPULATE!
 const handle_play_song = (track) => {
   set_current_song(track)
 
   // populate next tracks
   if (!shuffle.value)
-    after_queue.value = get_following_tracks(track)
-  else if (after_queue.value.length == 0) {
-    after_queue.value = shuffle_array(
-      tracks.value
-    );
-  } else {
-    // user is skipping, just goto that track
-    after_queue.value = after_queue.value.slice(
-      after_queue.value.findIndex(
-        (t) => t.uuid == track.uuid,
-      ) + 1,
-    );
+    store.dispatch("setAfterQueue", get_following_tracks(track))
+  else {
+    store.dispatch("setAfterQueue", shuffle_array(tracks.value))
   }
 }
 
 // when user clicks a song FROM the queue IN the queue (they are skipping to it)
-const handle_skip_queue_to = (track) => {
-  set_current_song(track)
+const handle_skip_queue_to = (index) => {
+  set_current_song(queue.value[index])
 
-  store.dispatch("skipQueueTo", track)
+  store.dispatch("skipQueueTo", index)
+}
+
+// when user clicks a song FROM the after queue (up next) IN the queue (they are skipping to it)
+const handle_skip_afterqueue_to = (index) => {
+  set_current_song(after_queue.value[index])
+
+  store.dispatch("skipAfterQueueTo", index)
 }
 
 onMounted(() => {
@@ -350,6 +299,7 @@ onMounted(() => {
   eventbus.on("playSong", handle_play_song)
   // on skipping to a song in the after queue or queue
   eventbus.on("skipQueueTo", handle_skip_queue_to)
+  eventbus.on("skipAfterQueueTo", handle_skip_afterqueue_to)
 
   audio_ref.value.addEventListener("ended", () => {
     next_song();
@@ -381,6 +331,7 @@ onMounted(() => {
 onUnmounted(() => {
   eventbus.off("playSong", handle_play_song)
   eventbus.off("skipQueueTo", handle_skip_queue_to)
+  eventbus.off("skipAfterQueueTo", handle_skip_afterqueue_to)
 })
 </script>
 
