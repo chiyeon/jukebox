@@ -123,7 +123,8 @@ const show_mini_player = ref(true)
 /* mini player start */
 .player {
     width: 100%;
-    position: fixed;
+    position: sticky;
+    position: -webkit-sticky;
     bottom: 0;
     left: 0;
     padding: 10px 10px;
