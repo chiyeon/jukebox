@@ -129,6 +129,10 @@ const show_mini_player = ref(true)
     flex-direction: column;
 }
 
+.player.mini {
+    overflow-y: hidden;
+}
+
 .pause .control-icon {
     --size: 48px;
 }

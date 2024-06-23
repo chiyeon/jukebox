@@ -99,7 +99,7 @@ const handle_submit = async (e) => {
     if (res.status == 200) {
         alert(`${form_type.value ? "Registered" : "Logged in"} successfully`)
         store.dispatch("setUser", json.user) 
-        router.push("/")
+        router.push({ path: "/" })
     } else {
         alert(`Unable to ${form_type.value ? "register" : "login"}: ${json.message}`)
     }
