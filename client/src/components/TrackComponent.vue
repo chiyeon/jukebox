@@ -26,14 +26,7 @@
         </p>
       </template>
     </div>
-    <div v-if="!is_hiding_queue_button()" class="controls">
-      <button @click.stop="add_to_queue">
-        <span class="material-symbols-rounded add-to-queue">playlist_add</span>
-      </button>
-    </div>
-    <div v-if="type == 'allowedit'" class="controls">
-      <button @click.stop="remove_from_queue">Remove</button>
-    </div>
+
     <div v-if="type == 'allowedit'">
       <button
         class="delete"
@@ -64,6 +57,17 @@
       </button>
       <button v-if="show_remove_self" @click.stop="cancel_remove">
         Cancel
+      </button>
+    </div>
+
+    <div v-if="!is_hiding_queue_button()" class="controls">
+      <button @click.stop="add_to_queue">
+        <span class="material-symbols-rounded add-to-queue">playlist_add</span>
+      </button>
+    </div>
+    <div v-if="type == 'queue'" class="controls">
+      <button @click.stop="remove_from_queue">
+        <span class="material-symbols-rounded add-to-queue">close</span>
       </button>
     </div>
   </div>
@@ -200,16 +204,14 @@ const play_track = () => {
 };
 
 const add_to_queue = () => {
-  if (props.header) return;
   if (props.track) {
     store.dispatch("addTrack", props.track);
   }
 };
 
 const remove_from_queue = () => {
-  if (self.type == "queue") {
-    store.dispatch("removeTrack", props.queue_track);
-  }
+  console.log("hmm")
+  store.dispatch("removeTrack", props.index);
 };
 
 const prevent_parent_click = (e) => {};
