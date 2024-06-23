@@ -64,6 +64,7 @@ const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"];
   background: none;
   border: none;
   cursor: pointer;
+  padding: 0;
 }
 
 .controls button:hover {
@@ -95,12 +96,12 @@ const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"];
 }
 
 .mobile .control-icon {
-  --size: 48px;
+  --size: 56px;
 }
 
 .mobile .shuffle .control-icon,
 .mobile .repeat .control-icon {
-  --size: 20px;
+  --size: 24px;
 }
 
 </style>
