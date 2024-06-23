@@ -1,29 +1,48 @@
 <template>
-  <div class="player-mini-box">
-    <PlayerDesktop
-      :current_song="current_song"
-      :audio_ref="audio_ref"
-      :controls="{
-        repeat_mode: repeat_mode,
-        shuffle: shuffle,
-        audio_progress: audio_progress,
-        volume_progress: volume_progress
-      }"
-      :current_playback_time="get_current_playback_time()"
-      :song_duration="get_song_duration()"
+  <PlayerDesktop
+    v-if="!mobile_player"
+    :current_song="current_song"
+    :audio_ref="audio_ref"
+    :controls="{
+      repeat_mode: repeat_mode,
+      shuffle: shuffle,
+      audio_progress: audio_progress,
+      volume_progress: volume_progress
+    }"
+    :current_playback_time="get_current_playback_time()"
+    :song_duration="get_song_duration()"
 
-      @setAudioProgress="set_audio_progress"
-      @setVolumeProgress="set_volume_progress"
-      @toggleMute="toggle_mute"
-      @togglePlayback="toggle_playback"
-      @cycleRepeatMode="next_repeat"
-      @toggleShuffle="toggle_shuffle"
-      @nextTrack="next_song"
-      @prevTrack="prev_song"
-      @toggleQueue="emit('toggle_queue')"
-    />
-    <audio ref="audio_ref"></audio>
-  </div>
+    @setAudioProgress="set_audio_progress"
+    @setVolumeProgress="set_volume_progress"
+    @toggleMute="toggle_mute"
+    @togglePlayback="toggle_playback"
+    @cycleRepeatMode="next_repeat"
+    @toggleShuffle="toggle_shuffle"
+    @nextTrack="next_song"
+    @prevTrack="prev_song"
+    @toggleQueue="emit('toggle_queue')"
+  />
+  <PlayerMobile
+    v-else
+    :current_song="current_song"
+    :audio_ref="audio_ref"
+    :controls="{
+      repeat_mode: repeat_mode,
+      shuffle: shuffle,
+      audio_progress: audio_progress,
+    }"
+    :current_playback_time="get_current_playback_time()"
+    :song_duration="get_song_duration()"
+
+    @setAudioProgress="set_audio_progress"
+    @togglePlayback="toggle_playback"
+    @cycleRepeatMode="next_repeat"
+    @toggleShuffle="toggle_shuffle"
+    @nextTrack="next_song"
+    @prevTrack="prev_song"
+    @toggleQueue="emit('toggle_queue')"
+  />
+  <audio ref="audio_ref"></audio>
 </template>
 
 <script setup>
@@ -31,6 +50,7 @@ import { defineProps, defineEmits, ref, watch, onMounted, computed, onUnmounted 
 import { useStore } from "vuex";
 import eventbus from "../../eventbus"
 import PlayerDesktop from "./PlayerDesktop.vue"
+import PlayerMobile from "./PlayerMobile.vue";
 
 const store = useStore();
 const emit = defineEmits(["toggle_queue"]);
@@ -38,11 +58,13 @@ const props = defineProps(["queue"]);
 
 const audio_ref = ref(null)
 
-const REPEAT_OFF = 0;
-const REPEAT_MULTI = 1;
-const REPEAT_SINGLE = 2;
-const shuffle = ref(false);
-const repeat_mode = ref(REPEAT_OFF);
+const REPEAT_OFF = 0
+const REPEAT_MULTI = 1
+const REPEAT_SINGLE = 2
+const shuffle = ref(false)
+const repeat_mode = ref(REPEAT_OFF)
+const mobile_size = 600
+const mobile_player = ref(window.innerWidth < mobile_size)
 
 // afterqeues are built up of QueueTrack components, which hold teh track & a flag
 // on whether or not it was part of the queue or afterqueue
@@ -305,6 +327,10 @@ onMounted(() => {
     });
     navigator.mediaSession.setActionHandler("previoustrack", () => prev_song());
     navigator.mediaSession.setActionHandler("nexttrack", () => next_song());
+  })
+
+  window.addEventListener("resize", () => {
+    mobile_player.value = window.innerWidth <= mobile_size
   })
 })
 

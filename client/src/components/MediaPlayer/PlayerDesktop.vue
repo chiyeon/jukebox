@@ -1,4 +1,5 @@
 <template>
+  <div class="player-mini-box">
     <div class="player-mini">
       <ProgressSlider 
         :style="{ marginBottom: '20px' }"
@@ -51,6 +52,7 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>
