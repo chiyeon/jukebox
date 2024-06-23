@@ -10,7 +10,7 @@
       ></div>
       <input
         @input="drag_slider"
-        @mouseup="set_progress"
+        @change="set_progress"
         type="range"
         min="0"
         max="1"
