@@ -1,87 +1,91 @@
 <template>
-    <div class="player mini" v-if="show_mini_player" @click="show_mini_player = false">
-        <ProgressSlider 
-            color="coral"
-            :progress="controls.audio_progress"
-            :disabled="audio_ref && audio_ref.src == ''"
-            @setProgress="(p) => emit('setAudioProgress', p)"
-            @click.stop="undefined"
-        />
-        <div class="progress-labels">
-            <p class="left">{{ current_playback_time }}</p>
-            <p class="right">{{ song_duration }}</p>
-        </div>
-        <div class="track-box">
-            <Track
-                v-if="current_song"
-                :track="current_song"
-                type="player"
+    <Transition name="mini">
+        <div class="player mini" v-if="show_mini_player" @click="show_mini_player = false">
+            <ProgressSlider 
+                color="coral"
+                :progress="controls.audio_progress"
+                :disabled="audio_ref && audio_ref.src == ''"
+                @setProgress="(p) => emit('setAudioProgress', p)"
+                @click.stop="undefined"
             />
-            <div v-else class="not-playing-preview">
-                <span class="material-symbols-rounded album-icon"> album </span>
-                <p>No track selected</p>
+            <div class="progress-labels">
+                <p class="left">{{ current_playback_time }}</p>
+                <p class="right">{{ song_duration }}</p>
             </div>
-            <button class="queue-button" @click.stop="emit('toggleQueue')">
-                <span class="material-symbols-rounded">queue_music</span>
-            </button>
-            <button class="pause" @click.stop="emit('togglePlayback')">
-                <span
-                class="material-symbols-rounded control-icon"
-                >
-                {{
-                    audio_ref && audio_ref.paused
-                    ? "play_circle"
-                    : "pause_circle"
-                }}
-                </span>
-            </button>
+            <div class="track-box">
+                <Track
+                    v-if="current_song"
+                    :track="current_song"
+                    type="player"
+                />
+                <div v-else class="not-playing-preview">
+                    <span class="material-symbols-rounded album-icon"> album </span>
+                    <p>No track selected</p>
+                </div>
+                <button class="queue-button" @click.stop="emit('toggleQueue')">
+                    <span class="material-symbols-rounded">queue_music</span>
+                </button>
+                <button class="pause" @click.stop="emit('togglePlayback')">
+                    <span
+                    class="material-symbols-rounded control-icon"
+                    >
+                    {{
+                        audio_ref && audio_ref.paused
+                        ? "play_circle"
+                        : "pause_circle"
+                    }}
+                    </span>
+                </button>
+            </div>
         </div>
-    </div>
+    </Transition>
     
-    <div class="player big" v-else>
-        <button class="close">
-            <span @click="show_mini_player=true" class="material-symbols-rounded">keyboard_arrow_down</span>
-        </button>
-        <div class="track-box">
-            <Track
-                v-if="current_song"
-                :track="current_song"
-                type="playermobile"
+    <Transition name="big">
+        <div class="player big" v-if="!show_mini_player">
+            <button class="close">
+                <span @click="show_mini_player=true" class="material-symbols-rounded">keyboard_arrow_down</span>
+            </button>
+            <div class="track-box">
+                <Track
+                    v-if="current_song"
+                    :track="current_song"
+                    type="playermobile"
+                />
+                <div v-else class="not-playing-preview mobile_expanded">
+                    <span class="material-symbols-rounded album-icon"> album </span>
+                    <p>No track selected</p>
+                </div>
+            </div>
+            <ProgressSlider 
+                color="coral"
+                :progress="controls.audio_progress"
+                :disabled="audio_ref && audio_ref.src == ''"
+                @setProgress="(p) => emit('setAudioProgress', p)"
+                @click.stop="undefined"
             />
-            <div v-else class="not-playing-preview mobile_expanded">
-                <span class="material-symbols-rounded album-icon"> album </span>
-                <p>No track selected</p>
+            <div class="progress-labels">
+                <p class="left">{{ current_playback_time }}</p>
+                <p class="right">{{ song_duration }}</p>
+            </div>
+            <MediaControls
+            :paused="audio_ref && audio_ref.paused"
+            :repeat_mode="controls.repeat_mode"
+            :shuffle="controls.shuffle"
+            :mobile="true"
+
+            @togglePlayback="emit('togglePlayback')"
+            @cycleRepeatMode="emit('cycleRepeatMode')"
+            @toggleShuffle="emit('toggleShuffle')"
+            @nextTrack="emit('nextTrack')"
+            @prevTrack="emit('prevTrack')"
+            />
+            <div class="other-controls">
+                <button class="queue-button" @click.stop="emit('toggleQueue')">
+                    <span class="material-symbols-rounded album-icon">queue_music</span>
+                </button>
             </div>
         </div>
-        <ProgressSlider 
-            color="coral"
-            :progress="controls.audio_progress"
-            :disabled="audio_ref && audio_ref.src == ''"
-            @setProgress="(p) => emit('setAudioProgress', p)"
-            @click.stop="undefined"
-        />
-        <div class="progress-labels">
-            <p class="left">{{ current_playback_time }}</p>
-            <p class="right">{{ song_duration }}</p>
-        </div>
-        <MediaControls
-          :paused="audio_ref && audio_ref.paused"
-          :repeat_mode="controls.repeat_mode"
-          :shuffle="controls.shuffle"
-          :mobile="true"
-
-          @togglePlayback="emit('togglePlayback')"
-          @cycleRepeatMode="emit('cycleRepeatMode')"
-          @toggleShuffle="emit('toggleShuffle')"
-          @nextTrack="emit('nextTrack')"
-          @prevTrack="emit('prevTrack')"
-        />
-        <div class="other-controls">
-            <button class="queue-button" @click.stop="emit('toggleQueue')">
-                <span class="material-symbols-rounded album-icon">queue_music</span>
-            </button>
-        </div>
-    </div>
+    </Transition>
 </template>
 
 <script setup>
@@ -134,7 +138,7 @@ const show_mini_player = ref(true)
 }
 
 .pause .control-icon {
-    --size: 48px;
+    --size: 56px;
 }
 
 .track-box {
@@ -265,5 +269,36 @@ button {
 .queue-button span {
     font-size: 28px;
     color: purple;
+}
+
+.big-enter-active,
+.big-leave-active {
+  transition: height 0.5s ease, padding-top 0.5s ease, opacity 0.5s ease;
+}
+
+.big-enter-active {
+    transition-delay: 0.07s;
+}
+
+.mini-enter-active {
+    transition-delay: 0.2s;
+}
+
+.big-enter-from,
+.big-leave-to {
+  height: 0;
+  padding-top: 0;
+  opacity: 0;
+}
+
+.mini-enter-active,
+.mini-leave-active {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.mini-enter-from,
+.mini-leave-to {
+  transform: translateY(110%);
+  opacity: 0;
 }
 </style>

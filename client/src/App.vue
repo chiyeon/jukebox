@@ -61,15 +61,28 @@ main {
 
 .v-enter-from,
 .v-leave-to {
-   width: 0;
    opacity: 0;
    padding-left: 0;
    padding-right: 0;
+   width: 0;
 }
 
 @media (max-width: 600px) {
-.horizontal-contents .page-contents {
-   padding-right: 0px;
-}
+  .horizontal-contents .page-contents {
+    padding-right: 0px;
+  }
+  .v-enter-active,
+  .v-leave-active {
+    transition:  opacity 500ms ease, transform 500ms ease;
+  }
+
+  .v-enter-from,
+  .v-leave-to {
+    opacity: 0;
+    transform: translateX(100%);
+    padding-left: inherit !important;
+    padding-right: inherit !important;
+  }
+
 }
 </style>
