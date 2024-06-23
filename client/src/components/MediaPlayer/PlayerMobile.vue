@@ -252,7 +252,7 @@ button {
     text-align: left;
     width: 100%;
     user-select: none;
-    color: white;
+    color: black;
 }
 
 .close:hover span {

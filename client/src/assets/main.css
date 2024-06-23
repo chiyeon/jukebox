@@ -22,5 +22,11 @@ html, body, #app {
 
    #app .page-contents {
       padding-bottom: 400px;
+      overflow-y: hidden;
    }
+
+   html body {
+      overflow-y: auto;
+   }
+
 }

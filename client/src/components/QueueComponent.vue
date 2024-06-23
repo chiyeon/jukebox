@@ -75,6 +75,7 @@ const after_queue = computed(() => store.state.afterQueue)
 
 .tracks {
    overflow-y: auto;
+   overflow-x: hidden;
    flex: 1;
    padding-right: 12px;
 }
