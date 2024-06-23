@@ -163,15 +163,20 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          const artist = user_data.username // important: user USERNAME! this is used to recall a display name later
          const title = req.body.title
          const lyrics = req.body.lyrics ? req.body.lyrics : ""
+
+         if (lyrics.length > files.MAX_LYRICS_LENGTH) return res.status(400).send({ message: "Exceeds maximum lyrics length" })
+
          let pulled_artists = req.body.artists ? JSON.parse(req.body.artists) : []
          let artists = [ artist ]
          if (req.body.artists && pulled_artists.length > 0) {
-            if (pulled_artists.length > 8) return res.status(400).send({ message: "Surpassed artist limit" })
+            if (pulled_artists.length > files.MAX_ARTISTS) return res.status(400).send({ message: "Surpassed artist limit" })
+            if (pulled_artists.includes(user_data.username)) return res.status(400).send({ message: "You are already apart of this track" })
 
-            pulled_artists.forEach(a => {
-               if (users.validate_displayname(a) != 0)
-                  return res.status(400).send({ message: a + " is an invalid name" })
-            })
+            for (let i = 0; i < pulled_artists.length; i++) {
+               if (users.validate_displayname(pulled_artists[i]) != 0) {
+                  return res.status(400).send({ message: pulled_artists[i] + " is an invalid name"})
+               }
+            }
 
             artists = [ artist, ...pulled_artists ]
          }
@@ -285,6 +290,47 @@ app.post("/api/deletetrack", users.authenticate_token, async (req, res) => {
    // start with deleting track and album ONLY IF NOT DEFAULT !!!
    await delete_track(trackdata)
    return res.status(200).send({ message: "Deleted track" })
+})
+
+app.post("/api/edittrack", users.authenticate_token, async (req, res) => {
+   const uuid = req.body.uuid
+   if (!uuid) return res.status(400).send({ message: "No UUID provided" })
+
+   // get our copy
+   const trackdata = await fb.get_doc("tracks", uuid)
+   if (!trackdata) return res.status(400).send({ message: "Invalid UUID" })
+   if (trackdata.artist != req.username) return res.status(400).send({ message: "You cannot edit this track" })
+
+   // validate our stuff
+   let pulled_artists = req.body.artists ? JSON.parse(req.body.artists) : []
+   if (req.body.artists && pulled_artists.length > 0) {
+      if (pulled_artists.length > files.MAX_ARTISTS) return res.status(400).send({ message: "Surpassed artist limit" })
+      if (pulled_artists.includes(trackdata.artist)) return res.status(400).send({ message: "You are already apart of this track" })
+
+      for (let i = 0; i < pulled_artists.length; i++) {
+         if (users.validate_displayname(pulled_artists[i]) != 0) {
+            return res.status(400).send({ message: pulled_artists[i] + " is an invalid name"})
+         }
+      }
+
+      pulled_artists = [ trackdata.artist, ...pulled_artists ]
+   }
+
+   const validate_title = users.validate_tracktitle(req.body.title)
+   if (validate_title != 0) {
+      return res.status(400).send({ message: validate_title })
+   }
+   
+   let updated_track = {
+      title: req.body.title,
+      lyrics: req.body.lyrics ? req.body.lyrics : "",
+      artists: pulled_artists
+   }
+
+   // update server db
+   await fb.update_doc("tracks", uuid, updated_track)
+
+   return res.status(200).send({ message: "Track updated successfully" })
 })
 
 app.post("/api/removefromtrack", users.authenticate_token, async (req, res) => {

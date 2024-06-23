@@ -16,20 +16,31 @@
       </template>
     </div>
 
+    <div class="controls" v-if="show_edit">
+      <div class="button-block label">
+        <span class="material-symbols-rounded">edit</span>
+      </div>
+      <button class="button-block edit" title="Edit track" @click.stop="submit_edit_track()">
+        <span class="material-symbols-rounded">check</span>
+      </button>
+      <button class="button-block cancel" title="Cancel edit track" @click.stop="cancel_editing_track">
+        <span class="material-symbols-rounded">cancel</span>
+      </button>
+    </div>
+
     <div class="controls">
       <template v-if="type == 'allowedit'">
-        <button class="button-block delete" title="Delete track" @click.stop="delete_track(track.filename)" v-if="!show_delete">
+        <button class="button-block edit" title="Edit track" @click.stop="start_editing_track" v-if="!show_edit">
+          <span class="material-symbols-rounded">edit</span>
+        </button>
+
+        <button class="button-block delete" title="Delete track" @click.stop="delete_track()" v-if="!show_delete">
           <span class="material-symbols-rounded">delete</span>
-        </button>
-        <button @click.stop="delete_track(track.filename)" title="Confirm Delete" class="button-block delete" v-else>
-          <span class="material-symbols-rounded">delete_forever</span>
-        </button>
-        <button v-if="show_delete" @click.stop="cancel_delete" title="Cancel Delete" class="button-block cancel">
-          <span class="material-symbols-rounded">cancel</span>
         </button>
       </template>
       <template v-else-if="type == 'allowremove'">
-        <button class="button-block delete" title="Remove self from Track" @click.stop="remove_self_from_track()" v-if="!show_remove_self">
+        <button class="button-block delete" title="Remove self from Track" @click.stop="remove_self_from_track()"
+          v-if="!show_remove_self">
           <span class="material-symbols-rounded">person_remove</span>
         </button>
         <button class="button-block delete" title="Confirm Removal" @click.stop="remove_self_from_track()" v-else>
@@ -39,17 +50,30 @@
           <span class="material-symbols-rounded">cancel</span>
         </button>
       </template>
+    </div>
 
+    <div class="controls" v-if="show_delete">
+      <button @click.stop="delete_track()" title="Confirm Delete" class="button-block delete">
+        <span class="material-symbols-rounded">delete_forever</span>
+      </button>
+      <button v-if="show_delete" @click.stop="cancel_delete" title="Cancel Delete" class="button-block cancel">
+        <span class="material-symbols-rounded">cancel</span>
+      </button>
+    </div>
+
+    <div class="controls">
       <button v-if="!is_hiding_queue_button()" @click.stop="add_to_queue" class="button-block">
         <span class="material-symbols-rounded add-to-queue">playlist_add</span>
       </button>
-
-      <button v-if="type == 'queue'"@click.stop="remove_from_queue" class="button-block queue">
+      <button v-if="type == 'queue'" @click.stop="remove_from_queue" class="button-block queue">
         <span class="material-symbols-rounded add-to-queue">close</span>
       </button>
     </div>
-  </div>
 
+  </div>
+  <div class="edit-track" v-if="show_edit">
+    <EditTrack :track="track" />
+  </div>
   <LoadingScreen v-if="loading" />
 </template>
 
@@ -59,9 +83,12 @@ import { useStore } from "vuex";
 import { RouterLink } from "vue-router";
 import LoadingScreen from "./LoadingComponent.vue";
 import eventbus from "../eventbus"
+import EditTrack from "./EditTrackComponent.vue"
+import router from "../router"
 
 const validated_delete = ref(false);
 const show_delete = ref(false);
+const show_edit = ref(false)
 
 const validated_remove = ref(false);
 const show_remove_self = ref(false);
@@ -99,12 +126,57 @@ const is_hiding_queue_button = () => {
 const cancel_delete = () => {
   show_delete.value = false;
   validated_delete.value = false;
-};
+}
 
 const cancel_remove = () => {
   show_remove_self.value = false;
   validated_remove.value = false;
-};
+}
+
+const start_editing_track = () => {
+  show_edit.value = true
+}
+
+const cancel_editing_track = () => {
+  show_edit.value = false
+}
+
+const submit_edit_track = async () => {
+  if (loading.value) return
+  loading.value = true
+
+  if (props.track.title == "" || props.track.title == undefined) {
+    loading.value = false
+    return alert("Invalid title")
+  }
+
+  let res = await fetch("/api/edittrack", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      uuid: props.track.uuid,
+      title: props.track.title,
+      artists: JSON.stringify(props.track.artists.slice(1)),
+      lyrics: props.track.lyrics
+    })
+  })
+
+  if (!res.ok) {
+    let msg = (await res.json()).message
+    alert("Error: " + msg)
+  } else {
+    alert("Edited track successfully")
+    window.location.reload()
+
+    show_edit.value = false
+  }
+
+  loading.value = false
+
+}
 
 const delete_track = async () => {
   if (!validated_delete.value) {
@@ -332,15 +404,15 @@ button:hover {
   flex-direction: row;
 }
 
-.controls > .button-block:first-child {
+.controls>.button-block:first-child {
   border-radius: 10px 0 0 10px;
 }
 
-.controls > .button-block:last-child {
+.controls>.button-block:last-child {
   border-radius: 0 10px 10px 0;
 }
 
-.controls > .button-block:first-child:last-child {
+.controls>.button-block:first-child:last-child {
   border-radius: 10px;
 }
 
@@ -377,5 +449,9 @@ button:hover {
 
 .cancel span {
   color: white;
+}
+
+.edit {
+  background-color: goldenrod;
 }
 </style>
