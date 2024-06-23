@@ -9,7 +9,7 @@
       <Queue v-if="open_queue" />
     </Transition>
   </div>
-  <PlayerMini :queue="queue" @toggle_queue="toggle_queue" />
+  <MediaPlayer :queue="queue" @toggle_queue="toggle_queue" />
 </template>
 
 <script setup>
@@ -17,7 +17,7 @@ import { RouterView } from "vue-router";
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import Header from "./components/HeaderComponent.vue";
-import PlayerMini from "./components/MediaPlayer/PlayerMiniComponent.vue";
+import MediaPlayer from "./components/MediaPlayer/MediaPlayer.vue";
 import Queue from "./components/QueueComponent.vue";
 
 const store = useStore();

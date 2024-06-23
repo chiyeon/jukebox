@@ -1,57 +1,27 @@
 <template>
   <div class="player-mini-box">
-    <div class="player-mini">
-      <ProgressSlider 
-        :style="{ marginBottom: '20px' }"
-         color="coral"
-         :progress="audio_progress"
-         :disabled="audio_ref && audio_ref.src == ''"
-         @setProgress="(p) => audio_ref.src && (audio_ref.currentTime = p * audio_ref.duration)"
-         :left_label="get_current_playback_time()"
-         :right_label="get_song_duration()"
-      />
-      <div class="track-box">
-        <Track
-          v-if="current_song"
-          :track="current_song"
-          type="player"
-        />
-        <div v-else class="not-playing-preview">
-          <span class="material-symbols-rounded album-icon"> album </span>
-          <p>No track selected</p>
-        </div>
-        <MediaControls
-          :paused="audio_ref && audio_ref.paused"
-          :repeat_mode="repeat_mode"
-          :shuffle="shuffle"
+    <PlayerDesktop
+      :current_song="current_song"
+      :audio_ref="audio_ref"
+      :controls="{
+        repeat_mode: repeat_mode,
+        shuffle: shuffle,
+        audio_progress: audio_progress,
+        volume_progress: volume_progress
+      }"
+      :current_playback_time="get_current_playback_time()"
+      :song_duration="get_song_duration()"
 
-          @togglePlayback="toggle_playback"
-          @cycleRepeatMode="next_repeat"
-          @toggleShuffle="toggle_shuffle"
-          @nextTrack="next_song"
-          @prevTrack="prev_song"
-        />
-        <div class="controls-right">
-          <div class="volume-controls">
-            <span class="material-symbols-rounded volume-icon" :style="{ color: 'purple' }" @click="toggle_mute">{{ get_volume_icon() }}</span>
-            <ProgressSlider
-              color="purple"
-              :allow_drag="true"
-              :progress="volume_progress"
-              :disabled="!audio_ref"
-              @setProgress="(p) => audio_ref && (audio_ref.volume = p) && (volume_progress = p)"
-            />
-          </div>
-          <span
-            class="material-symbols-rounded queue-icon"
-            :style="{ color: 'lightcoral' }"
-            @click="emit('toggle_queue')"
-          >
-            queue_music
-          </span>
-        </div>
-      </div>
-    </div>
+      @setAudioProgress="set_audio_progress"
+      @setVolumeProgress="set_volume_progress"
+      @toggleMute="toggle_mute"
+      @togglePlayback="toggle_playback"
+      @cycleRepeatMode="next_repeat"
+      @toggleShuffle="toggle_shuffle"
+      @nextTrack="next_song"
+      @prevTrack="prev_song"
+      @toggleQueue="emit('toggle_queue')"
+    />
     <audio ref="audio_ref"></audio>
   </div>
 </template>
@@ -60,9 +30,7 @@
 import { defineProps, defineEmits, ref, watch, onMounted, computed, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import eventbus from "../../eventbus"
-import ProgressSlider from "./ProgressSlider.vue"
-import MediaControls from "./MediaControls.vue"
-import Track from "../TrackComponent.vue";
+import PlayerDesktop from "./PlayerDesktop.vue"
 
 const store = useStore();
 const emit = defineEmits(["toggle_queue"]);
@@ -75,7 +43,6 @@ const REPEAT_MULTI = 1;
 const REPEAT_SINGLE = 2;
 const shuffle = ref(false);
 const repeat_mode = ref(REPEAT_OFF);
-const volume_icons = ["volume_up", "volume_down", "volume_mute", "volume_off"];
 
 // afterqeues are built up of QueueTrack components, which hold teh track & a flag
 // on whether or not it was part of the queue or afterqueue
@@ -108,6 +75,20 @@ const shuffle_array = (array) => {
   return arr;
 };
 
+const set_audio_progress = (progress) => {
+  if (audio_ref.value.src) {
+    audio_ref.value.currentTime = progress * audio_ref.value.duration
+    audio_progress.value = progress
+  }
+}
+
+const set_volume_progress = (progress) => {
+  if (audio_ref.value) {
+    audio_ref.value.volume = progress
+    volume_progress.value = progress
+  }
+}
+
 // get all the songs in front of us and either shuffle them or set them back to their
 // order in tracks.
 const toggle_shuffle = () => {
@@ -116,7 +97,11 @@ const toggle_shuffle = () => {
   if (!current_song.value) return;
 
   if (shuffle.value) {
-    store.dispatch("setAfterQueue", shuffle_array(tracks.value))
+    // shuffle ALL tracks except the current one (if we are listening)
+    let remaining_tracks = current_song.value ? 
+      tracks.value.filter(t => t.title != current_song.value.title) :
+      tracks.value
+    store.dispatch("setAfterQueue", shuffle_array(remaining_tracks))
   } else {
     store.dispatch("setAfterQueue", get_following_tracks(current_song.value))
   }
@@ -242,22 +227,6 @@ const toggle_mute = () => {
   }
 };
 
-const get_volume_icon = () => {
-  if (!audio_ref.value) return volume_icons[3];
-
-  let vol = volume_progress.value
-
-  if (vol <= 0) {
-    return volume_icons[3];
-  } else if (vol <= 0.34) {
-    return volume_icons[2];
-  } else if (vol <= 0.67) {
-    return volume_icons[1];
-  } else {
-    return volume_icons[0];
-  }
-};
-
 // given a track object, return a list of the tracks that follow it in order
 // takes a queue track or track, returns a list normal tracks
 const get_following_tracks = (track) => {
@@ -276,7 +245,11 @@ const handle_play_song = (track) => {
   if (!shuffle.value)
     store.dispatch("setAfterQueue", get_following_tracks(track))
   else {
-    store.dispatch("setAfterQueue", shuffle_array(tracks.value))
+    // shuffle ALL tracks except the current one (if we are listening)
+    let remaining_tracks = current_song.value ? 
+      tracks.value.filter(t => t.title != current_song.title) :
+      tracks.value
+    store.dispatch("setAfterQueue", shuffle_array(remaining_tracks))
   }
 }
 
@@ -336,117 +309,4 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.jam-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  text-align: center;
-  line-height: 32px;
-}
-
-.player-mini-box {
-  width: 100%;
-
-  background-color: white;
-  border-top: 1px solid black;
-  box-sizing: border-box;
-}
-
-.player-mini {
-  margin: auto;
-  padding: 20px;
-  padding-top: 20;
-}
-
-.track-box {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
-.album {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 15px;
-
-  flex: 0.35;
-}
-
-.album-cover {
-  width: 64px;
-  height: 64px;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.album-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.album-icon {
-  font-size: 64px;
-  color: black;
-}
-
-.artist-comma {
-  display: inline;
-}
-
-.track-info {
-  flex: 1;
-}
-
-.track-info p {
-  margin: 0;
-}
-
-.controls-right {
-  flex: 1;
-
-  display: flex;
-  justify-content: flex-end;
-}
-
-.volume-controls {
-  width: 90px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-}
-
-.volume-icon,
-.jam-icon {
-  cursor: pointer;
-}
-
-.queue-icon {
-  margin-left: 8px;
-  cursor: pointer;
-}
-
-.queue-icon:hover {
-  opacity: 0.6;
-}
-
-.material-symbols-rounded {
-  user-select: none;
-}
-
-.not-playing-preview {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-
-  flex: 1;
-}
-
-.not-playing-preview p {
-  margin: 0;
-}
 </style>
