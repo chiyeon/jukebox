@@ -273,7 +273,6 @@ const prevent_parent_click = (e) => { };
 
   padding: 0 8px;
   height: var(--track-height);
-  border-radius: 2px;
 
   border-bottom: 1px solid gray;
   display: flex;
