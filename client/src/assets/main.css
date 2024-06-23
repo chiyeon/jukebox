@@ -13,7 +13,8 @@ html, body, #app {
    #app .queue-box {
       position: fixed;
       right: 0;
-      width: 300px;
+      width: 100vw;
+      box-sizing: border-box;
    }
    #app .queue-box .up-next {
       padding-bottom: 300px;

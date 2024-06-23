@@ -20,6 +20,9 @@
                 <span class="material-symbols-rounded album-icon"> album </span>
                 <p>No track selected</p>
             </div>
+            <button class="queue-button" @click.stop="emit('toggleQueue')">
+                <span class="material-symbols-rounded">queue_music</span>
+            </button>
             <button class="pause" @click.stop="emit('togglePlayback')">
                 <span
                 class="material-symbols-rounded control-icon"
@@ -244,11 +247,11 @@ button {
     padding-top: 10px;
 }
 
-.other-controls .queue-button {
+.queue-button {
     padding: 0;
 }
 
-.other-controls .queue-button span {
+.queue-button span {
     font-size: 28px;
     color: purple;
 }

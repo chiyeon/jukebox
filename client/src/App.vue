@@ -6,7 +6,7 @@
     </div>
 
     <Transition>
-      <Queue v-if="open_queue" />
+      <Queue v-if="open_queue" @close="open_queue = false" />
     </Transition>
   </div>
   <MediaPlayer :queue="queue" @toggle_queue="toggle_queue" />

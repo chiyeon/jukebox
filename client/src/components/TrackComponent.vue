@@ -365,9 +365,9 @@ button:hover {
 }
 
 .queue .title {
-  overflow-x: hidden;
+  /* overflow-x: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: nowrap; */
 }
 
 .queue .track-info {

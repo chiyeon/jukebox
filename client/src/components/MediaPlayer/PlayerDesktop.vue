@@ -17,7 +17,7 @@
           type="player"
         />
         <div v-else class="not-playing-preview">
-          <span class="material-symbols-rounded album-icon"> album </span>
+          <span class="material-symbols-rounded album-icon">album</span>
           <p>No track selected</p>
         </div>
         <MediaControls
