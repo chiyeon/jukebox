@@ -157,6 +157,7 @@ const set_current_song = (track) => {
     audio_ref.value.src = track.url;
     audio_ref.value.currentTime = 0;
     audio_ref.value.play();
+    audio_progress.value = 0
 
     // update media player stuff
     navigator.mediaSession.metadata = new MediaMetadata({
