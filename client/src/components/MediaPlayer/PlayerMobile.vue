@@ -101,6 +101,9 @@ const show_mini_player = ref(true)
 </script>
 
 <style scoped>
+.player {
+    --animation-curve: ease;
+}
 /* both */
 .progress-labels {
     display: flex;
@@ -273,27 +276,26 @@ button {
 
 .big-enter-active,
 .big-leave-active {
-  transition: height 0.5s ease, padding-top 0.5s ease, opacity 0.5s ease;
+  transition: transform 0.5s var(--animation-curve), opacity 0.5s var(--animation-curve);
 }
 
 .big-enter-active {
-    transition-delay: 0.07s;
+    transition-delay: 0.05s;
 }
 
 .mini-enter-active {
-    transition-delay: 0.2s;
+    transition-delay: 0.25s;
 }
 
 .big-enter-from,
 .big-leave-to {
-  height: 0;
-  padding-top: 0;
+  transform: translateY(100%);
   opacity: 0;
 }
 
 .mini-enter-active,
 .mini-leave-active {
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  transition: transform 0.5s var(--animation-curve), opacity 0.5s var(--animation-curve);
 }
 
 .mini-enter-from,
