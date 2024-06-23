@@ -1,6 +1,6 @@
 <template>
   <div @click="play_track"
-    :class="{ track: true, minimal: type == 'player', mobile_expanded: type == 'playermobile', queue: is_queue_element() }">
+    :class="{ track: true, minimal: is_media_player(), mobile_expanded: type == 'playermobile', queue: is_queue_element() }">
     <img v-if="!is_queue_element()" class="album" :src="track.album" />
     <div class="track-info">
       <p class="title">
@@ -121,6 +121,10 @@ const is_queue_element = () => {
 
 const is_hiding_queue_button = () => {
   return ["queue", "player", "playermobile"].includes(props.type)
+}
+
+const is_media_player = () => {
+  return ["player", "playermobile"].includes(props.type)
 }
 
 const cancel_delete = () => {
@@ -271,8 +275,8 @@ const prevent_parent_click = (e) => { };
 .track {
   --track-height: 72px;
 
-  padding: 0 8px;
-  height: var(--track-height);
+  padding: 8px;
+  /* height: var(--track-height); */
 
   border-bottom: 1px solid gray;
   display: flex;
@@ -387,7 +391,6 @@ button:hover {
 
 .mobile_expanded .track-info {
   align-self: flex-start;
-  padding-bottom: 20px;
 }
 
 .mobile_expanded .track-info .title {
@@ -395,7 +398,7 @@ button:hover {
 }
 
 .mobile_expanded .track-info .artist {
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .controls {

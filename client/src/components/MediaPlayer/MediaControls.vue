@@ -1,5 +1,5 @@
 <template>
-    <div class="controls">
+    <div :class="{ controls: true, mobile: mobile }">
         <button @click="emit('toggleShuffle')" class="shuffle">
             <span
             class="material-symbols-rounded control-icon"
@@ -45,7 +45,7 @@
 <script setup>
 import { defineProps, defineEmits, } from "vue"
 
-const props = defineProps([ "paused", "repeat_mode", "shuffle" ])
+const props = defineProps([ "paused", "repeat_mode", "shuffle", "mobile" ])
 const emit = defineEmits([ "togglePlayback", "cycleRepeatMode", "toggleShuffle", "nextTrack", "prevTrack" ])
 
 const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"];
@@ -54,7 +54,6 @@ const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"];
 
 <style scoped>
 .controls {
-  flex: 1;
   display: flex;
   flex-direction: row;
   gap: 10px;
@@ -88,4 +87,20 @@ const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"];
   text-align: center;
   line-height: var(--size);
 }
+
+.shuffle .control-icon,
+.repeat .control-icon {
+  --size: 24px;
+  font-size: var(--size);
+}
+
+.mobile .control-icon {
+  --size: 48px;
+}
+
+.mobile .shuffle .control-icon,
+.mobile .repeat .control-icon {
+  --size: 20px;
+}
+
 </style>
