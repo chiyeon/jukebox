@@ -5,6 +5,7 @@
             :progress="controls.audio_progress"
             :disabled="audio_ref && audio_ref.src == ''"
             @setProgress="(p) => emit('setAudioProgress', p)"
+            @click.stop="undefined"
         />
         <div class="progress-labels">
             <p class="left">{{ current_playback_time }}</p>
@@ -57,6 +58,7 @@
             :progress="controls.audio_progress"
             :disabled="audio_ref && audio_ref.src == ''"
             @setProgress="(p) => emit('setAudioProgress', p)"
+            @click.stop="undefined"
         />
         <div class="progress-labels">
             <p class="left">{{ current_playback_time }}</p>
@@ -103,7 +105,7 @@ const show_mini_player = ref(true)
 
 .progress-labels p {
     flex: 1;
-    font-size: 14px;
+    font-size: 12px;
     margin-top: 0;
 }
 
@@ -125,6 +127,10 @@ const show_mini_player = ref(true)
 
     display: flex;
     flex-direction: column;
+}
+
+.pause .control-icon {
+    --size: 48px;
 }
 
 .track-box {
