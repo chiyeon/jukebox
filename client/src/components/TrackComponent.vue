@@ -272,6 +272,23 @@ const prevent_parent_click = (e) => { };
 </script>
 
 <style scoped>
+
+@media (hover: none) {
+  .track:hover {
+    background-color: inherit !important;
+  }
+  .track:not(.header, .minimal):active {
+    background-color: #f1f1f1;
+  }
+
+  .track button:hover {
+    opacity: 1;
+  }
+
+  .track button:active {
+    opacity: 0.6 !important;
+  }
+}
 .track {
   --track-height: 72px;
 
