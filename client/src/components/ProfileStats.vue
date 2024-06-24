@@ -5,6 +5,7 @@
             :key="index" class="stat"
             :style="{ backgroundColor: stat.bg_color }"
             @mouseover="tooltip = stat.tooltip"
+            @click="tooltip = stat.tooltip"
             @mouseleave="tooltip = ''"
         >
             <span class="material-symbols-rounded icon" :style="{ color: stat.fg_color }">{{ stat.icon }}</span>
