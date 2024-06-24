@@ -63,7 +63,7 @@
 
     <div class="controls">
       <button v-if="!is_hiding_queue_button()" @click.stop="add_to_queue" class="button-block">
-        <span class="material-symbols-rounded add-to-queue">playlist_add</span>
+        <span class="material-symbols-rounded add-to-queue">add</span>
       </button>
       <button v-if="type == 'queue'" @click.stop="remove_from_queue" class="button-block queue">
         <span class="material-symbols-rounded add-to-queue">close</span>
@@ -346,14 +346,17 @@ const prevent_parent_click = (e) => { };
   margin-left: 4px;
 }
 
-button {
-  background: none;
-  border: none;
+.button-block:not(.label) {
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.5;
+.button-block.label {
+  cursor: default;
+}
+
+.button-block {
+  background: none;
+  border: none;
 }
 
 .norender {
@@ -448,7 +451,7 @@ button:hover {
 .button-block {
   width: 42px;
   aspect-ratio: 1.0;
-  background-color: rgb(183, 183, 183);
+  background-color: #d4d4d4;
 
   display: flex;
   justify-content: center;
@@ -474,6 +477,17 @@ button:hover {
 
 .button-block.cancel {
   background-color: rgb(60, 148, 163);
+}
+
+.button-block .queue {
+  color: black;
+}
+.button-block:not(.label):hover span {
+  filter: invert(0.2);
+  /* opacity: 0.5; */
+}
+.button-block:not(.label):active {
+  background-color: lightblue;
 }
 
 .cancel span {
