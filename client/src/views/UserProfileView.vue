@@ -33,6 +33,7 @@
          :numWins="user.num_wins"
       />
 
+      <h3>Bio</h3>
       <template v-if="!editing_bio">
          <p class="bio">{{user.bio}}</p>
          <p class="edit" @click="open_edit_bio" v-if="user && selfuser && user.username == selfuser.username">edit</p>
@@ -355,8 +356,12 @@ textarea {
    gap: 20px;
 }
 
+h3 {
+   margin-bottom: 4px;
+}
+
 .bio {
-   margin: 16px 0px;
+   margin-top: 0;
    width: 100%;
    font-size: 16px;
    white-space: break-spaces;
