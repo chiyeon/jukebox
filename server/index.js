@@ -74,18 +74,18 @@ app.post("/api/eventupdate", users.authenticate_token_admin, async (req, res) =>
 })
 
 // update user name
-app.post("/api/update_displayname", users.authenticate_token, async (req, res) => {
-   const newname = req.body.display_name
+// app.post("/api/update_displayname", users.authenticate_token, async (req, res) => {
+//    const newname = req.body.display_name
 
-   const validation = users.validate_displayname(newname)
-   if (validation != 0) {
-      return res.status(400).send({ message: validation })
-   }
+//    const validation = users.validate_displayname(newname)
+//    if (validation != 0) {
+//       return res.status(400).send({ message: validation })
+//    }
 
-   await fb.update_doc("users", req.username, { display_name: newname })
+//    await fb.update_doc("users", req.username, { display_name: newname })
 
-   res.status(200).send({ message: "Updated display name" })
-})
+//    res.status(200).send({ message: "Updated display name" })
+// })
 
 app.post("/api/update_bio", users.authenticate_token, async (req, res) => {
    let bio = req.body.bio

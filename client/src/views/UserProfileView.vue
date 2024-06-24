@@ -12,15 +12,15 @@
             <img class="icon" :src="user.icon" />
          </div>
          <div class="user-info">
-            <template v-if="!editing_name">
+            <!-- <template v-if="!editing_name"> -->
                <h2 class="displayname">{{user.display_name}}</h2>
-               <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p>
-            </template>
-            <template v-else>
+               <!-- <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p> -->
+            <!-- </template> -->
+            <!-- <template v-else>
                <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="20" @input="autoscale_textinput" /> 
                <p class="edit name" @click="editing_name = false">cancel</p>
                <p class="edit name submit" @click="submit_new_displayname">submit</p>
-            </template>
+            </template> -->
 
             <p v-if="user.display_name != user.username" class="username">also known as {{user.username}}</p>
             <p class="date">Joined {{ new Date(user.creation_date._seconds * 1000).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }) }}</p>
@@ -107,28 +107,28 @@ const update_user_page = async () => {
    }
 }
 
-const submit_new_displayname = async () => {
-   if (displayname_input_ref.value.value == "") return alert("Field is empty!")
-   if (displayname_input_ref.value.value == user.value.display_name) return
+// const submit_new_displayname = async () => {
+//    if (displayname_input_ref.value.value == "") return alert("Field is empty!")
+//    if (displayname_input_ref.value.value == user.value.display_name) return
 
-   let res = await fetch("/api/update_displayname", {
-      method: "post",
-      headers: {
-         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ display_name: displayname_input_ref.value.value })
-   })
+//    let res = await fetch("/api/update_displayname", {
+//       method: "post",
+//       headers: {
+//          'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify({ display_name: displayname_input_ref.value.value })
+//    })
 
-   if (res.ok) {
-      update_user_page()
+//    if (res.ok) {
+//       update_user_page()
 
-      editing_name.value = false 
-   } else {
-      let json = await res.json()
-      editing_name.value = false
-      alert(json.message)
-   }
-}
+//       editing_name.value = false 
+//    } else {
+//       let json = await res.json()
+//       editing_name.value = false
+//       alert(json.message)
+//    }
+// }
 
 const submit_new_bio = async () => {
    if (newbio_ref.value.value == user.bio) return 

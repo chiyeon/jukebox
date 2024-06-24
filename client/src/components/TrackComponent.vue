@@ -379,6 +379,7 @@ button:hover {
   flex: 1;
   padding: 0;
   align-self: flex-start;
+  user-select: inherit;
 }
 
 .queue .title {
