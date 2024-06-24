@@ -107,7 +107,7 @@ app.post("/api/update_icon", users.authenticate_token, files.upload.single("icon
    let icon = req.file
    icon.originalname = icon.originalname.replace(/ /g, "_")
 
-   let validation = files.validate_filename(icon.originalname, ".webp")
+   let validation = files.validate_filename(icon.originalname)
    if (validation != 0) {
       return res.status(400).send({ message: validation })
    }
@@ -207,7 +207,7 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          const albumfile = userfiles.album ? userfiles.album[0] : undefined
          if (albumfile) {
             albumfile.originalname = albumfile.originalname.replace(/ /g, "_")
-            const albumfile_validation = files.validate_filename(albumfile.originalname, ".webp")
+            const albumfile_validation = files.validate_filename(albumfile.originalname)
             if (albumfile_validation != 0) {
                return res.status(400).send({ message: albumfile_validation })
             }
@@ -413,7 +413,7 @@ app.post("/api/signup", files.upload.fields([
       const icon = req.files.icon ? req.files.icon[0] : undefined
       if (icon) {
          icon.originalname = icon.originalname.replace(/ /g, "_")
-         const validate_iconname = files.validate_filename(icon.originalname, ".webp")
+         const validate_iconname = files.validate_filename(icon.originalname)
          if (validate_iconname != 0) {
             return res.status(400).send({ message: validate_iconname })
          }

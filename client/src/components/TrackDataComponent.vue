@@ -151,7 +151,7 @@ const upload = async (e) => {
     let url = "/api/upload"
     let formdata = new FormData()
     let track = track_ref.value.files[0]
-    let album = album_ref.value.files.length != 0 ? await compress_image(album_ref.value.files[0], 512, 0.7) : undefined
+    let album = album_ref.value.files.length != 0 ? await compress_image(album_ref.value.files[0], 512, 0.39) : undefined
 
     if (album) console.log(`Compressed album from ${album_ref.value.files[0].size / 1024}kb to ${album.size / 1024}kb.`)
 

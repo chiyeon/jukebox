@@ -15,8 +15,8 @@ const tracks_bucket = gstorage.bucket(tracks_bucket_name)
 const albums_bucket = gstorage.bucket(albums_bucket_name)
 const profiles_bucket = gstorage.bucket(profiles_bucket_name)
 const MAX_TRACK_SIZE_KB = 15000
-const MAX_ALBUM_SIZE_KB = 100
-const MAX_ICON_SIZE_KB = 50
+const MAX_ALBUM_SIZE_KB = 400
+const MAX_ICON_SIZE_KB = 300
 const MIN_FILENAME_LENGTH = 5
 const MAX_FILENAME_LENGTH = 50
 const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-()[\].&]+$/
@@ -24,7 +24,7 @@ const MAX_LYRICS_LENGTH = 2000
 const MAX_ARTISTS = 7
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
-   const filename = crypto.randomUUID() + ".mp3"
+   const filename = crypto.randomUUID() + file.originalname.split(".")[0]
    const filecloud = bucket.file(filename)
 
    await filecloud.save(file.buffer, {
@@ -54,8 +54,10 @@ const validate_filename = (filename, extensions) => {
    if (split.length < 2) return "Filename doesn't have file extension"
    if (filename.length < MIN_FILENAME_LENGTH || filename > MAX_FILENAME_LENGTH) return `Filename must be between ${MIN_FILENAME_LENGTH} and ${MAX_FILENAME_LENGTH} characters`
 
-   let extension = split[split.length - 1]
-   if (!extensions.includes(extension)) return `Extension "${extension}" is invalid`
+   if (extensions != undefined) {
+      let extension = split[split.length - 1]
+      if (!extensions.includes(extension)) return `Extension "${extension}" is invalid`
+   }
    if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Filename contains invalid characters"
    return 0
 }
