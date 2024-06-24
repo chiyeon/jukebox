@@ -382,6 +382,10 @@ button:hover {
   user-select: inherit;
 }
 
+.title {
+  word-break: break-word;
+}
+
 .queue .title {
   /* overflow-x: hidden;
   text-overflow: ellipsis;
@@ -409,10 +413,15 @@ button:hover {
 
 .mobile_expanded .track-info {
   align-self: flex-start;
+  width: 100%;
 }
 
 .mobile_expanded .track-info .title {
   font-size: 24px;
+  overflow: hidden;
+  display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mobile_expanded .track-info .artist {
