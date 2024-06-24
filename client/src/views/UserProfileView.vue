@@ -27,6 +27,12 @@
          </div>
       </div>
 
+      <ProfileStats
+         :username="user.username"
+         :numTracks="user.num_tracks"
+         :numWins="user.num_wins"
+      />
+
       <template v-if="!editing_bio">
          <p class="bio">{{user.bio}}</p>
          <p class="edit" @click="open_edit_bio" v-if="user && selfuser && user.username == selfuser.username">edit</p>
@@ -51,6 +57,7 @@ import { onBeforeMount, watch, ref, computed } from "vue"
 import { useStore } from "vuex"
 import { compress_image } from "../utils/image.js"
 import Event from "../components/EventComponent.vue"
+import ProfileStats from "../components/ProfileStats.vue"
 
 const user = ref(null)
 const event = ref()

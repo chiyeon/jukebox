@@ -457,6 +457,11 @@ app.post("/api/user", async (req, res) => {
 
    let userdata = await fb.get_doc("users", req.body.username)
    if (userdata) {
+
+      // put total num tracks & wins in data. this is for user profile. copy as needed
+      let tracks = await fb.get_docs_by_query("tracks", [ "artists", "array-contains", userdata.username ])
+      userdata.num_tracks = tracks.length
+      userdata.num_wins = tracks.filter(t => t.winner).length
       res.status(200).send({ message: "Found user data", user: userdata })
    } else {
       res.status(400).send({ message: "Invalid username", user: undefined })
