@@ -42,8 +42,13 @@
               @setProgress="(p) => emit('setVolumeProgress', p)"
             />
           </div>
+          <span class="material-symbols-rounded icon" :style="{ color: 'green' }" @click="emit('toggleLyrics')"
+            v-if="current_song && current_song.lyrics != ''"
+          >
+            mic_external_on
+          </span>
           <span
-            class="material-symbols-rounded queue-icon"
+            class="material-symbols-rounded icon"
             :style="{ color: 'lightcoral' }"
             @click="emit('toggleQueue')"
           >
@@ -62,7 +67,7 @@ import MediaControls from "./MediaControls.vue"
 import Track from "../TrackComponent.vue";
 
 const props = defineProps([ "current_song", "audio_ref", "controls", "current_playback_time", "song_duration" ])
-const emit = defineEmits([ "setAudioProgress", "setVolumeProgress", "togglePlayback", "cycleRepeatMode", "toggleShuffle", "nextTrack", "prevTrack", "toggleQueue", "toggleMute" ])
+const emit = defineEmits([ "setAudioProgress", "setVolumeProgress", "togglePlayback", "cycleRepeatMode", "toggleShuffle", "nextTrack", "prevTrack", "toggleQueue", "toggleMute", "toggleLyrics" ])
 
 const volume_icons = ["volume_up", "volume_down", "volume_mute", "volume_off"];
 
@@ -100,8 +105,7 @@ const get_volume_icon = () => {
 
 .player-mini {
   margin: auto;
-  padding: 20px;
-  padding-top: 20;
+  padding: 20px 0;
 }
 
 .track-box {
@@ -170,12 +174,12 @@ const get_volume_icon = () => {
   cursor: pointer;
 }
 
-.queue-icon {
+.icon {
   margin-left: 8px;
   cursor: pointer;
 }
 
-.queue-icon:hover {
+.icon:hover {
   opacity: 0.6;
 }
 

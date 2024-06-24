@@ -1,4 +1,5 @@
 <template>
+  <div class="media-player-box">
   <PlayerDesktop
     v-if="!mobile_player"
     :current_song="current_song"
@@ -21,6 +22,7 @@
     @nextTrack="next_song"
     @prevTrack="prev_song"
     @toggleQueue="emit('toggle_queue')"
+    @toggleLyrics="show_lyrics = !show_lyrics"
   />
   <PlayerMobile
     v-else
@@ -41,8 +43,14 @@
     @nextTrack="next_song"
     @prevTrack="prev_song"
     @toggleQueue="emit('toggle_queue')"
+    @toggleLyrics="show_lyrics = !show_lyrics"
+    @closeLyrics="show_lyrics = false"
   />
   <audio ref="audio_ref"></audio>
+</div>
+  <Transition name="lyrics">
+    <Lyrics v-if="show_lyrics" :lyrics="current_song && current_song.lyrics" />
+  </Transition>
 </template>
 
 <script setup>
@@ -51,10 +59,12 @@ import { useStore } from "vuex";
 import eventbus from "../../eventbus"
 import PlayerDesktop from "./PlayerDesktop.vue"
 import PlayerMobile from "./PlayerMobile.vue";
+import Lyrics from "./LyricsComponent.vue"
 
 const store = useStore();
 const emit = defineEmits(["toggle_queue"]);
 const props = defineProps(["queue"]);
+const show_lyrics = ref(false)
 
 const audio_ref = ref(null)
 
@@ -158,6 +168,9 @@ const set_current_song = (track) => {
     audio_ref.value.currentTime = 0;
     audio_ref.value.play();
     audio_progress.value = 0
+    if (track.lyrics == "") {
+      show_lyrics.value = false
+    }
 
     // update media player stuff
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -177,6 +190,7 @@ const set_current_song = (track) => {
     audio_ref.value.currentTime = 0;
     audio_ref.value.pause();
     audio_progress.value = 0
+    show_lyrics.value = false
   }
 };
 
@@ -343,4 +357,17 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.media-player-box {
+  z-index: 50;
+}
+
+.lyrics-enter-active,
+.lyrics-leave-active {
+  transition: transform 0.5s ease;
+}
+
+.lyrics-enter-from,
+.lyrics-leave-to {
+  transform: translateY(110%);
+}
 </style>

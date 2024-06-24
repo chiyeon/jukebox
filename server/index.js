@@ -302,7 +302,7 @@ app.post("/api/edittrack", users.authenticate_token, async (req, res) => {
    if (trackdata.artist != req.username) return res.status(400).send({ message: "You cannot edit this track" })
 
    // validate our stuff
-   let pulled_artists = req.body.artists ? JSON.parse(req.body.artists) : []
+   let pulled_artists = req.body.artists ? JSON.parse(req.body.artists) : [ ]
    if (req.body.artists && pulled_artists.length > 0) {
       if (pulled_artists.length > files.MAX_ARTISTS) return res.status(400).send({ message: "Surpassed artist limit" })
       if (pulled_artists.includes(trackdata.artist)) return res.status(400).send({ message: "You are already apart of this track" })
@@ -312,9 +312,9 @@ app.post("/api/edittrack", users.authenticate_token, async (req, res) => {
             return res.status(400).send({ message: pulled_artists[i] + " is an invalid name"})
          }
       }
-
-      pulled_artists = [ trackdata.artist, ...pulled_artists ]
    }
+
+   pulled_artists.unshift(trackdata.artist)
 
    const validate_title = users.validate_tracktitle(req.body.title)
    if (validate_title != 0) {

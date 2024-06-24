@@ -1,6 +1,6 @@
 <template>
     <Transition name="mini">
-        <div class="player mini" v-if="show_mini_player" @click="show_mini_player = false">
+        <div class="player mini" v-if="show_mini_player" @click="() => { emit('closeLyrics'); (show_mini_player = false) }">
             <ProgressSlider 
                 color="coral"
                 :progress="controls.audio_progress"
@@ -22,9 +22,11 @@
                     <span class="material-symbols-rounded album-icon"> album </span>
                     <p>No track selected</p>
                 </div>
-                <button class="queue-button" @click.stop="emit('toggleQueue')">
-                    <span class="material-symbols-rounded">queue_music</span>
-                </button>
+                <span v-if="current_song && current_song.lyrics != ''" class="material-symbols-rounded icon" :style="{ color: 'green' }" @click.stop="emit('toggleLyrics')"
+                >
+                    mic_external_on
+                </span>
+                <span @click.stop="emit('toggleQueue')" class="material-symbols-rounded icon queue">queue_music</span>
                 <button class="pause" @click.stop="emit('togglePlayback')">
                     <span
                     class="material-symbols-rounded control-icon"
@@ -80,9 +82,11 @@
             @prevTrack="emit('prevTrack')"
             />
             <div class="other-controls">
-                <button class="queue-button" @click.stop="emit('toggleQueue')">
-                    <span class="material-symbols-rounded album-icon">queue_music</span>
-                </button>
+                <span v-if="current_song && current_song.lyrics != ''" class="material-symbols-rounded icon" :style="{ color: 'green' }" @click.stop="() => (show_mini_player = true) && emit('toggleLyrics')"
+                >
+                    mic_external_on
+                </span>
+                <span @click.stop="emit('toggleQueue')" class="material-symbols-rounded icon queue">queue_music</span>
             </div>
         </div>
     </Transition>
@@ -95,7 +99,7 @@ import ProgressSlider from "./ProgressSlider.vue"
 import MediaControls from "./MediaControls.vue"
 
 const props = defineProps([ "current_song", "audio_ref", "controls", "current_playback_time", "song_duration" ])
-const emit = defineEmits([ "setAudioProgress", "togglePlayback", "cycleRepeatMode", "toggleShuffle", "nextTrack", "prevTrack", "toggleQueue", ])
+const emit = defineEmits([ "setAudioProgress", "togglePlayback", "cycleRepeatMode", "toggleShuffle", "nextTrack", "prevTrack", "toggleQueue", "toggleLyrics", "closeLyrics" ])
 
 const show_mini_player = ref(true)
 </script>
@@ -265,13 +269,11 @@ button {
     justify-content: flex-end;
     padding-top: 10px;
 }
-
-.queue-button {
-    padding: 0;
+.big .icon {
+    font-size: 28px;
 }
 
-.queue-button span {
-    font-size: 28px;
+.queue.icon {
     color: purple;
 }
 
