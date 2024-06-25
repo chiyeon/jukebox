@@ -2,28 +2,59 @@
    <div class="header">
       <h1>ThatMyFavorite</h1>
       <div class="nav">
-         <RouterLink to="/">Listen</RouterLink>
+         <RouterLink to="/" title="Listen to tracks" class="link" style="gap: 0">
+            <span class="material-symbols-rounded" style="display: flex"
+               >music_note</span
+            >
+            <p>Listen</p>
+         </RouterLink>
          <div class="space"></div>
          <RouterLink v-if="user && user.permissions >= 2" to="/s/admin"
-            ><span class="material-symbols-rounded" style="display: flex">terminal</span></RouterLink
+            ><span class="material-symbols-rounded" style="display: flex"
+               >terminal</span
+            ></RouterLink
          >
-         <RouterLink v-if="user" to="/upload"><span class="material-symbols-rounded" style="display: flex">upload</span></RouterLink>
+         <RouterLink v-if="user" title="Upload Tracks" to="/upload"
+            ><span class="material-symbols-rounded" style="display: flex"
+               >upload</span
+            ></RouterLink
+         >
          <Dropdown v-if="user">
             <template #trigger>
                <img :src="user.icon" class="user-icon" />
             </template>
-            <RouterLink :to="`/u/${user.username}`" class="dropdown-option" v-if="user">
-               <span class="material-symbols-rounded" style="display: flex">person</span>
+            <RouterLink
+               :to="`/u/${user.username}`"
+               class="dropdown-option"
+               v-if="user"
+               title="View User Profile"
+            >
+               <span class="material-symbols-rounded" style="display: flex"
+                  >person</span
+               >
                <p>View profile</p>
             </RouterLink>
             <hr />
-            <a class="dropdown-option" v-if="user" @click="logout">
-               <span class="material-symbols-rounded" style="display: flex; color: lightcoral">logout</span>
+            <a
+               class="dropdown-option"
+               title="Logout"
+               v-if="user"
+               @click="logout"
+            >
+               <span
+                  class="material-symbols-rounded"
+                  style="display: flex; color: lightcoral"
+                  >logout</span
+               >
                <p>Logout</p>
             </a>
          </Dropdown>
          <div class="link" v-if="!user">
-            <span class="material-symbols-rounded" style="display: flex; font-size: 24px">login</span>
+            <span
+               class="material-symbols-rounded"
+               style="display: flex;"
+               >login</span
+            >
             <RouterLink to="/login">Login</RouterLink>
             <p>/</p>
             <RouterLink to="/register">Register</RouterLink>
@@ -113,6 +144,10 @@ a:hover {
    gap: 4px;
 }
 
+.link .material-symbols-rounded {
+   font-size: 24px;
+}
+
 .user-icon {
    width: 36px;
    aspect-ratio: 1;
@@ -131,7 +166,4 @@ a:hover {
 .dropdown-option .material-symbols-rounded {
    font-size: 24px;
 }
-
-
-
 </style>
