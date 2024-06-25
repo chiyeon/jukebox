@@ -156,7 +156,6 @@ const handle_submit = async (e) => {
 
    loading.value = false
    if (res.status == 200) {
-      alert(`${is_register.value ? "Registered" : "Logged in"} successfully`)
       store.dispatch("setUser", json.user)
       router.push({ path: "/" })
    } else {

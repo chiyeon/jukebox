@@ -171,7 +171,6 @@ const upload = async (e) => {
         })
 
         if (res.status == 200) {
-            alert("Successfully uploaded!")
             router.push("/")
         } else {
             throw (await res.json()).message
@@ -186,7 +185,7 @@ const upload = async (e) => {
  
 <style scoped>
 .upload-box {
-    max-width: 300px;
+    max-width: 600px;
     margin: auto;
     margin-top: 100px;
     background-color: #e4e4e4;
