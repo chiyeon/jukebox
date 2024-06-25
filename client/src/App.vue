@@ -6,29 +6,49 @@
     </div>
 
     <Transition>
-      <Queue v-if="open_queue" @close="open_queue = false" />
+      <Queue v-if="show_queue" />
     </Transition>
   </div>
-  <MediaPlayer :queue="queue" @toggle_queue="toggle_queue" />
+  <MediaPlayer :queue="queue" :show_lyrics="show_lyrics" />
 </template>
 
 <script setup>
-import { RouterView } from "vue-router";
-import { ref, computed } from "vue";
-import { useStore } from "vuex";
-import Header from "./components/HeaderComponent.vue";
-import MediaPlayer from "./components/MediaPlayer/MediaPlayer.vue";
-import Queue from "./components/QueueComponent.vue";
+import { RouterView } from "vue-router"
+import { ref, computed, onMounted, onUnmounted } from "vue"
+import { useStore } from "vuex"
+import eventbus from "./eventbus"
+import Header from "./components/HeaderComponent.vue"
+import MediaPlayer from "./components/MediaPlayer/MediaPlayer.vue"
+import Queue from "./components/QueueComponent.vue"
 
 const store = useStore();
 
-const queue = computed(() => store.state.queue);
-const afterQueue = computed(() => store.state.afterQueue);
-const open_queue = ref(false);
+const queue = computed(() => store.state.queue)
+const afterQueue = computed(() => store.state.afterQueue)
 
-const toggle_queue = () => {
-  open_queue.value = !open_queue.value;
-};
+const show_queue = ref(false)
+const show_lyrics = ref(false)
+
+const set_queue_visibility = (s) => { show_queue.value = s }
+const toggle_queue_visibilty = () => { show_queue.value = !show_queue.value }
+const set_lyrics_visibility = (s) => { show_lyrics.value = s }
+const toggle_lyrics_visibilty = () => { show_lyrics.value = !show_lyrics.value }
+
+onMounted(() => {
+   eventbus.on("set_queue_visibility", set_queue_visibility) 
+   eventbus.on("toggle_queue_visibility", toggle_queue_visibilty)
+
+   eventbus.on("set_lyrics_visibility", set_lyrics_visibility) 
+   eventbus.on("toggle_lyrics_visibility", toggle_lyrics_visibilty)
+})
+
+onUnmounted(() => {
+   eventbus.off("set_queue_visibility", set_queue_visibility) 
+   eventbus.off("toggle_queue_visibility", toggle_queue_visibilty)
+
+   eventbus.off("set_lyrics_visibility", set_lyrics_visibility) 
+   eventbus.off("toggle_lyrics_visibility", toggle_lyrics_visibilty)
+})
 </script>
 
 <style scoped>

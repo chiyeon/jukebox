@@ -45,7 +45,7 @@
           <span
             class="material-symbols-rounded icon"
             :style="{ color: 'green' }"
-            @click="emit('toggleLyrics')"
+            @click="eventbus.emit('toggle_lyrics_visibility')"
             v-if="current_song && current_song.lyrics != ''"
           >
             mic_external_on
@@ -53,7 +53,7 @@
           <span
             class="material-symbols-rounded icon"
             :style="{ color: 'lightcoral' }"
-            @click="emit('toggleQueue')"
+            @click="eventbus.emit('toggle_queue_visibility')"
           >
             queue_music
           </span>
@@ -65,6 +65,7 @@
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
+import eventbus from "../../eventbus"
 import ProgressSlider from "./ProgressSlider.vue";
 import MediaControls from "./MediaControls.vue";
 import Track from "../TrackComponent.vue";
@@ -84,9 +85,7 @@ const emit = defineEmits([
   "toggleShuffle",
   "nextTrack",
   "prevTrack",
-  "toggleQueue",
   "toggleMute",
-  "toggleLyrics",
   "showAlbum",
 ]);
 

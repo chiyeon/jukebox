@@ -1,14 +1,18 @@
 <template>
    <div class="queue-box">
       <div class="close-box">
-         <span class="material-symbols-rounded close" @click="emit('close')">close</span>
+         <span class="material-symbols-rounded close" @click="emit('close')"
+            >close</span
+         >
       </div>
-      
+
       <div class="tracks">
          <div v-if="queue.length != 0" class="queue">
             <span class="queue-title">
                <h2>Queue</h2>
-               <p class="button" @click="store.dispatch('setQueue', [])">Clear queue</p>
+               <p class="button" @click="store.dispatch('setQueue', [])">
+                  Clear queue
+               </p>
             </span>
             <Track
                v-for="(track, index) in queue"
@@ -16,7 +20,7 @@
                :track="track"
                :index="index"
                type="queue"
-               @clickArtist="emit('close')"
+               @clickArtist="close_queue"
             />
          </div>
 
@@ -30,7 +34,7 @@
                   :track="track"
                   :index="index"
                   type="afterqueue"
-                  @clickArtist="emit('close')"
+                  @clickArtist="close_queue"
                />
             </template>
          </div>
@@ -41,16 +45,19 @@
 <script setup>
 import Track from "./TrackComponent.vue"
 import { useStore } from "vuex"
-import { computed, defineEmits } from "vue"
-
-const emit = defineEmits([ "close" ])
+import { computed } from "vue"
+import eventbus from "../eventbus"
 
 const store = useStore()
 
 const queue = computed(() => store.state.queue)
 const after_queue = computed(() => store.state.afterQueue)
 
-
+const close_queue = () => {
+   // close lyrics as well
+   eventbus.emit("set_lyrics_visibility", false)
+   eventbus.emit("set_queue_visibility", false)
+}
 </script>
 
 <style scoped>
@@ -121,5 +128,4 @@ const after_queue = computed(() => store.state.afterQueue)
 .close {
    font-size: 32px;
 }
-
 </style>

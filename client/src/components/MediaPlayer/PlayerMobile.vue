@@ -1,153 +1,187 @@
 <template>
-    <Transition name="mini">
-        <div class="player mini" v-if="show_mini_player" @click="() => { emit('closeLyrics'); (show_mini_player = false) }">
-            <ProgressSlider 
-                color="coral"
-                :progress="controls.audio_progress"
-                :disabled="audio_ref && audio_ref.src == ''"
-                @setProgress="(p) => emit('setAudioProgress', p)"
-                @click.stop="undefined"
-            />
-            <div class="progress-labels">
-                <p class="left">{{ current_playback_time }}</p>
-                <p class="right">{{ song_duration }}</p>
-            </div>
-            <div class="track-box">
-                <Track
-                    v-if="current_song"
-                    :track="current_song"
-                    type="player"
-                    @clickArtist="emit('closeLyrics')"
-                />
-                <div v-else class="not-playing-preview">
-                    <span class="material-symbols-rounded album-icon"> album </span>
-                    <p>No track selected</p>
-                </div>
-                <span v-if="current_song && current_song.lyrics != ''" class="material-symbols-rounded icon" :style="{ color: 'green' }" @click.stop="emit('toggleLyrics')"
-                >
-                    mic_external_on
-                </span>
-                <span @click.stop="emit('toggleQueue')" class="material-symbols-rounded icon queue">queue_music</span>
-                <button class="pause" @click.stop="emit('togglePlayback')">
-                    <span
-                    class="material-symbols-rounded control-icon"
-                    >
-                    {{
-                        audio_ref && audio_ref.paused
-                        ? "play_circle"
-                        : "pause_circle"
-                    }}
-                    </span>
-                </button>
-            </div>
+  <Transition name="mini">
+    <div
+      class="player mini"
+      v-if="show_mini_player"
+      @click="
+        () => {
+          eventbus.emit('set_lyrics_visibility', false)
+          show_mini_player = false;
+        }
+      "
+    >
+      <ProgressSlider
+        color="coral"
+        :progress="controls.audio_progress"
+        :disabled="audio_ref && audio_ref.src == ''"
+        @setProgress="(p) => emit('setAudioProgress', p)"
+        @click.stop="undefined"
+      />
+      <div class="progress-labels">
+        <p class="left">{{ current_playback_time }}</p>
+        <p class="right">{{ song_duration }}</p>
+      </div>
+      <div class="track-box">
+        <Track
+          v-if="current_song"
+          :track="current_song"
+          type="player"
+          @clickArtist="eventbus.emit('set_lyrics_visibility', false)"
+        />
+        <div v-else class="not-playing-preview">
+          <span class="material-symbols-rounded album-icon"> album </span>
+          <p>No track selected</p>
         </div>
-    </Transition>
-    
-    <Transition name="big">
-        <div class="player big" v-if="!show_mini_player">
-            <button class="close">
-                <span @click="show_mini_player=true" class="material-symbols-rounded">keyboard_arrow_down</span>
-            </button>
-            <div class="track-box">
-                <Track
-                    v-if="current_song"
-                    :track="current_song"
-                    type="playermobile"
-                    @clickArtist="show_mini_player = true"
-                />
-                <div v-else class="not-playing-preview mobile_expanded">
-                    <span class="material-symbols-rounded album-icon"> album </span>
-                    <p>No track selected</p>
-                </div>
-            </div>
-            <ProgressSlider 
-                color="coral"
-                :progress="controls.audio_progress"
-                :disabled="audio_ref && audio_ref.src == ''"
-                @setProgress="(p) => emit('setAudioProgress', p)"
-                @click.stop="undefined"
-            />
-            <div class="progress-labels">
-                <p class="left">{{ current_playback_time }}</p>
-                <p class="right">{{ song_duration }}</p>
-            </div>
-            <MediaControls
-            :paused="audio_ref && audio_ref.paused"
-            :repeat_mode="controls.repeat_mode"
-            :shuffle="controls.shuffle"
-            :mobile="true"
+        <span
+          v-if="current_song && current_song.lyrics != ''"
+          class="material-symbols-rounded icon"
+          :style="{ color: 'green' }"
+          @click.stop="eventbus.emit('toggle_lyrics_visibility')"
+        >
+          mic_external_on
+        </span>
+        <span
+          @click.stop="eventbus.emit('toggle_queue_visibility')"
+          class="material-symbols-rounded icon queue"
+          >queue_music</span
+        >
+        <button class="pause" @click.stop="emit('togglePlayback')">
+          <span class="material-symbols-rounded control-icon">
+            {{ audio_ref && audio_ref.paused ? "play_circle" : "pause_circle" }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </Transition>
 
-            @togglePlayback="emit('togglePlayback')"
-            @cycleRepeatMode="emit('cycleRepeatMode')"
-            @toggleShuffle="emit('toggleShuffle')"
-            @nextTrack="emit('nextTrack')"
-            @prevTrack="emit('prevTrack')"
-            />
-            <div class="other-controls">
-                <span v-if="current_song && current_song.lyrics != ''" class="material-symbols-rounded icon" :style="{ color: 'green' }" @click.stop="() => (show_mini_player = true) && emit('toggleLyrics')"
-                >
-                    mic_external_on
-                </span>
-                <span @click.stop="emit('toggleQueue')" class="material-symbols-rounded icon queue">queue_music</span>
-            </div>
+  <Transition name="big">
+    <div class="player big" v-if="!show_mini_player">
+      <button class="close">
+        <span @click="show_mini_player = true" class="material-symbols-rounded"
+          >keyboard_arrow_down</span
+        >
+      </button>
+      <div class="track-box">
+        <Track
+          v-if="current_song"
+          :track="current_song"
+          type="playermobile"
+          @clickArtist="show_mini_player = true"
+        />
+        <div v-else class="not-playing-preview mobile_expanded">
+          <span class="material-symbols-rounded album-icon"> album </span>
+          <p>No track selected</p>
         </div>
-    </Transition>
+      </div>
+      <ProgressSlider
+        color="coral"
+        :progress="controls.audio_progress"
+        :disabled="audio_ref && audio_ref.src == ''"
+        @setProgress="(p) => emit('setAudioProgress', p)"
+        @click.stop="undefined"
+      />
+      <div class="progress-labels">
+        <p class="left">{{ current_playback_time }}</p>
+        <p class="right">{{ song_duration }}</p>
+      </div>
+      <MediaControls
+        :paused="audio_ref && audio_ref.paused"
+        :repeat_mode="controls.repeat_mode"
+        :shuffle="controls.shuffle"
+        :mobile="true"
+        @togglePlayback="emit('togglePlayback')"
+        @cycleRepeatMode="emit('cycleRepeatMode')"
+        @toggleShuffle="emit('toggleShuffle')"
+        @nextTrack="emit('nextTrack')"
+        @prevTrack="emit('prevTrack')"
+      />
+      <div class="other-controls">
+        <span
+          v-if="current_song && current_song.lyrics != ''"
+          class="material-symbols-rounded icon"
+          :style="{ color: 'green' }"
+          @click.stop="() => (show_mini_player = true) && eventbus.emit('toggle_lyrics_visibility')"
+        >
+          mic_external_on
+        </span>
+        <span
+          @click.stop="eventbus.emit('toggle_queue_visibility')"
+          class="material-symbols-rounded icon queue"
+          >queue_music</span
+        >
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup>
-import { ref } from "vue"
-import Track from "../TrackComponent.vue"
-import ProgressSlider from "./ProgressSlider.vue"
-import MediaControls from "./MediaControls.vue"
+import { ref } from "vue";
+import eventbus from "../../eventbus"
+import Track from "../TrackComponent.vue";
+import ProgressSlider from "./ProgressSlider.vue";
+import MediaControls from "./MediaControls.vue";
 
-const props = defineProps([ "current_song", "audio_ref", "controls", "current_playback_time", "song_duration" ])
-const emit = defineEmits([ "setAudioProgress", "togglePlayback", "cycleRepeatMode", "toggleShuffle", "nextTrack", "prevTrack", "toggleQueue", "toggleLyrics", "closeLyrics" ])
+const props = defineProps([
+  "current_song",
+  "audio_ref",
+  "controls",
+  "current_playback_time",
+  "song_duration",
+]);
+const emit = defineEmits([
+  "setAudioProgress",
+  "togglePlayback",
+  "cycleRepeatMode",
+  "toggleShuffle",
+  "nextTrack",
+  "prevTrack",
+]);
 
-const show_mini_player = ref(true)
+const show_mini_player = ref(true);
 </script>
 
 <style scoped>
 .player {
-    --animation-curve: ease;
+  --animation-curve: ease;
 }
 /* both */
 .progress-labels {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .progress-labels p {
-    flex: 1;
-    font-size: 12px;
-    margin-top: 0;
+  flex: 1;
+  font-size: 12px;
+  margin-top: 0;
 }
 
 .progress-labels .right {
-    text-align: right;
+  text-align: right;
 }
 
 /* mini player start */
 .player {
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    padding: 10px 10px;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 10px 10px;
 
-    box-sizing: border-box;
-    border-top: 1px solid black;
-    background-color: white;
+  box-sizing: border-box;
+  border-top: 1px solid black;
+  background-color: white;
 
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .player.mini {
-    overflow-y: hidden;
+  overflow-y: hidden;
 }
 
 .pause .control-icon {
-    --size: 56px;
+  --size: 56px;
 }
 
 .track-box {
@@ -208,7 +242,6 @@ button {
   padding: 0;
 }
 
-
 .control-icon {
   text-align: center;
   display: block;
@@ -224,72 +257,74 @@ button {
 
 /* bigt player */
 .big {
-    --padding: 40px;
-    padding: 10px var(--padding) var(--padding) var(--padding);
-    height: 90vh;
-    height: 90vdh;
+  --padding: 40px;
+  padding: 10px var(--padding) var(--padding) var(--padding);
+  height: 90vh;
+  height: 90vdh;
 }
 
 .mobile_expanded span {
-    font-size: calc(100vw - calc(var(--padding) * 2)); /* for padding */
-    color: white;
-    background-color: black;
+  font-size: calc(100vw - calc(var(--padding) * 2)); /* for padding */
+  color: white;
+  background-color: black;
 }
 
 .big .not-playing-preview {
-    flex-direction: column;
-    align-items: flex-start;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .big .not-playing-preview p {
-    font-size: 28px;
-    font-weight: bold;
-    padding-bottom: 30px;
+  font-size: 28px;
+  font-weight: bold;
+  padding-bottom: 30px;
 }
 
 .close {
-    /* align-self: flex-end; */
-    margin-bottom: 10px;
-    padding: 0;
-    transform: translateX(-12px);
+  /* align-self: flex-end; */
+  margin-bottom: 10px;
+  padding: 0;
+  transform: translateX(-12px);
 }
 
 .close span {
-    font-size: 48px;
-    text-align: left;
-    width: 100%;
-    user-select: none;
-    color: black;
+  font-size: 48px;
+  text-align: left;
+  width: 100%;
+  user-select: none;
+  color: black;
 }
 
 .close:hover span {
-    color: coral;
+  color: coral;
 }
 
 .other-controls {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    padding-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-top: 10px;
 }
 .big .icon {
-    font-size: 28px;
+  font-size: 28px;
 }
 
 .queue.icon {
-    color: purple;
+  color: purple;
 }
 
 .big-enter-active,
 .big-leave-active {
-  transition: transform 0.5s var(--animation-curve), opacity 0.5s var(--animation-curve);
+  transition:
+    transform 0.5s var(--animation-curve),
+    opacity 0.5s var(--animation-curve);
 }
 
 .big-enter-active {
-    transition-delay: 0.05s;
+  transition-delay: 0.05s;
 }
 
 .mini-enter-active {
-    transition-delay: 0.25s;
+  transition-delay: 0.25s;
 }
 
 .big-enter-from,
@@ -300,7 +335,9 @@ button {
 
 .mini-enter-active,
 .mini-leave-active {
-  transition: transform 0.5s var(--animation-curve), opacity 0.5s var(--animation-curve);
+  transition:
+    transform 0.5s var(--animation-curve),
+    opacity 0.5s var(--animation-curve);
 }
 
 .mini-enter-from,
