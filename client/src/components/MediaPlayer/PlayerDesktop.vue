@@ -1,30 +1,25 @@
 <template>
   <div class="player-mini-box">
     <div class="player-mini">
-      <ProgressSlider 
+      <ProgressSlider
         :style="{ marginBottom: '20px' }"
-         color="coral"
-         :progress="controls.audio_progress"
-         :disabled="audio_ref && audio_ref.src == ''"
-         @setProgress="(p) => emit('setAudioProgress', p)"
-         :left_label="current_playback_time"
-         :right_label="song_duration"
+        color="coral"
+        :progress="controls.audio_progress"
+        :disabled="audio_ref && audio_ref.src == ''"
+        @setProgress="(p) => emit('setAudioProgress', p)"
+        :left_label="current_playback_time"
+        :right_label="song_duration"
       />
       <div class="track-box">
-        <Track
-          v-if="current_song"
-          :track="current_song"
-          type="player"
-        />
-        <div v-else class="not-playing-preview">
-          <span class="material-symbols-rounded album-icon">album</span>
-          <p>No track selected</p>
-        </div>
+          <Track v-if="current_song" :track="current_song" type="player" @click="() => emit('showAlbum')" />
+          <div v-else class="not-playing-preview" @click="() => emit('showAlbum')">
+            <span class="material-symbols-rounded album-icon">album</span>
+            <p>No track selected</p>
+          </div>
         <MediaControls
           :paused="audio_ref && audio_ref.paused"
           :repeat_mode="controls.repeat_mode"
           :shuffle="controls.shuffle"
-
           @togglePlayback="emit('togglePlayback')"
           @cycleRepeatMode="emit('cycleRepeatMode')"
           @toggleShuffle="emit('toggleShuffle')"
@@ -33,7 +28,12 @@
         />
         <div class="controls-right">
           <div class="volume-controls">
-            <span class="material-symbols-rounded volume-icon" :style="{ color: 'purple' }" @click="emit('toggleMute')">{{ get_volume_icon() }}</span>
+            <span
+              class="material-symbols-rounded volume-icon"
+              :style="{ color: 'purple' }"
+              @click="emit('toggleMute')"
+              >{{ get_volume_icon() }}</span
+            >
             <ProgressSlider
               color="purple"
               :allow_drag="true"
@@ -42,7 +42,10 @@
               @setProgress="(p) => emit('setVolumeProgress', p)"
             />
           </div>
-          <span class="material-symbols-rounded icon" :style="{ color: 'green' }" @click="emit('toggleLyrics')"
+          <span
+            class="material-symbols-rounded icon"
+            :style="{ color: 'green' }"
+            @click="emit('toggleLyrics')"
             v-if="current_song && current_song.lyrics != ''"
           >
             mic_external_on
@@ -61,18 +64,36 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue"
-import ProgressSlider from "./ProgressSlider.vue"
-import MediaControls from "./MediaControls.vue"
+import { defineProps, defineEmits } from "vue";
+import ProgressSlider from "./ProgressSlider.vue";
+import MediaControls from "./MediaControls.vue";
 import Track from "../TrackComponent.vue";
 
-const props = defineProps([ "current_song", "audio_ref", "controls", "current_playback_time", "song_duration" ])
-const emit = defineEmits([ "setAudioProgress", "setVolumeProgress", "togglePlayback", "cycleRepeatMode", "toggleShuffle", "nextTrack", "prevTrack", "toggleQueue", "toggleMute", "toggleLyrics" ])
+const props = defineProps([
+  "current_song",
+  "audio_ref",
+  "controls",
+  "current_playback_time",
+  "song_duration",
+]);
+const emit = defineEmits([
+  "setAudioProgress",
+  "setVolumeProgress",
+  "togglePlayback",
+  "cycleRepeatMode",
+  "toggleShuffle",
+  "nextTrack",
+  "prevTrack",
+  "toggleQueue",
+  "toggleMute",
+  "toggleLyrics",
+  "showAlbum",
+]);
 
 const volume_icons = ["volume_up", "volume_down", "volume_mute", "volume_off"];
 
 const get_volume_icon = () => {
-  let vol = props.controls.volume_progress
+  let vol = props.controls.volume_progress;
 
   if (vol <= 0) {
     return volume_icons[3];
@@ -83,7 +104,7 @@ const get_volume_icon = () => {
   } else {
     return volume_icons[0];
   }
-}
+};
 </script>
 
 <style scoped>

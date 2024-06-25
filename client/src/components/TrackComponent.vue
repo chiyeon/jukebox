@@ -1,7 +1,7 @@
 <template>
   <div @click="play_track"
     :class="{ track: true, minimal: is_media_player(), mobile_expanded: type == 'playermobile', queue: is_queue_element() }">
-    <img v-if="!is_queue_element()" class="album" :src="track.album" />
+    <img v-if="!is_queue_element()" class="album" :src="track.album" @click="emit('click')"/>
     <div class="track-info">
       <p class="title">
         {{ track.title
@@ -78,13 +78,15 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from "vue";
+import { defineProps, ref, defineEmits } from "vue";
 import { useStore } from "vuex";
 import { RouterLink } from "vue-router";
 import LoadingScreen from "./LoadingComponent.vue";
 import eventbus from "../eventbus"
 import EditTrack from "./EditTrackComponent.vue"
 import router from "../router"
+
+const emit = defineEmits([ "click" ])
 
 const validated_delete = ref(false);
 const show_delete = ref(false);
@@ -372,6 +374,7 @@ const prevent_parent_click = (e) => { };
 
 .album {
   height: 56px;
+  cursor: pointer;
 }
 
 .minimal .album {

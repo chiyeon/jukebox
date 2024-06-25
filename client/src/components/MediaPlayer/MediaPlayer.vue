@@ -23,6 +23,7 @@
     @prevTrack="prev_song"
     @toggleQueue="emit('toggle_queue')"
     @toggleLyrics="show_lyrics = !show_lyrics"
+    @showAlbum="show_album = true"
   />
   <PlayerMobile
     v-else
@@ -51,6 +52,19 @@
   <Transition name="lyrics">
     <Lyrics v-if="show_lyrics" :lyrics="current_song && current_song.lyrics" @closeLyrics="show_lyrics = false" />
   </Transition>
+
+   <div class="album-preview" v-if="show_album" @click="show_album = false">
+      <template v-if="current_song">
+         <div class="big-background" :style="current_song ? { backgroundImage: `url(${current_song.album}` } : { }"></div>
+         <img :src="current_song.album" class="big-album" @click.stop="" />
+         <p class="big-label" @click.stop="">{{ current_song.title }}</p>
+         <p class="big-label artists" @click.stop="">{{ current_song.artists.join(", ") }}</p>
+      </template>
+      <template v-else>
+         <span class="material-symbols-rounded big-album">album</span>
+         <p class="big-label">No track selected</p>
+      </template>
+   </div>
 </template>
 
 <script setup>
@@ -65,6 +79,7 @@ const store = useStore();
 const emit = defineEmits(["toggle_queue"]);
 const props = defineProps(["queue"]);
 const show_lyrics = ref(false)
+const show_album = ref(false)
 
 const audio_ref = ref(null)
 
@@ -346,6 +361,7 @@ onMounted(() => {
 
   window.addEventListener("resize", () => {
     mobile_player.value = window.innerWidth <= mobile_size
+    if (mobile_player.value) show_album.value = false
   })
 })
 
@@ -369,5 +385,55 @@ onUnmounted(() => {
 .lyrics-enter-from,
 .lyrics-leave-to {
   transform: translateY(110%);
+}
+
+.album-preview {
+   position: fixed;
+   left: 0;
+   top: 0;
+   width: 100vw;
+   height: 100vh;
+   background-color: #303030ab;
+   z-index: 200;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+}
+
+.big-album {
+   width: 512px;
+   margin-bottom: 20px;
+   z-index: 1;
+}
+
+span.big-album {
+   font-size: 512px;
+   color: lightpink;
+   background-color: #303030;
+}
+
+.big-label {
+   font-size: 48px;
+   font-weight: bold;
+   color: white;
+   margin: 0;
+   z-index: 1;
+}
+
+.big-label.artists {
+   font-size: 32px;
+   font-weight: normal;
+}
+
+.big-background {
+   position: fixed;
+   width: 130%;
+   height: 130%;
+   filter: blur(100px) contrast(0.75) saturate(0.9) brightness(0.5);
+   background-size: cover;
+   background-position: center;
+   user-select: none;
 }
 </style>
