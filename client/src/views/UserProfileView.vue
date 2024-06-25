@@ -3,50 +3,53 @@
    <p v-if="!user">Loading</p>
    <p v-else-if="typeof user === 'string'">{{ user }}</p>
    <div class="user-profile" v-else>
-      <div class="user">
-         <div class="icon-box">
-            <div
-               v-if="user && selfuser && user.username == selfuser.username"
-               class="edit-icon"
-               @click="icon_ref.click()"
-            >
-               <p>edit icon</p>
-               <input
-                  @input="submit_new_icon"
-                  ref="icon_ref"
-                  type="file"
-                  accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp"
-               />
+      <div class="upper-box">
+         <div class="user">
+            <div class="icon-box">
+               <div
+                  v-if="user && selfuser && user.username == selfuser.username"
+                  class="edit-icon"
+                  @click="icon_ref.click()"
+               >
+                  <p>edit icon</p>
+                  <input
+                     @input="submit_new_icon"
+                     ref="icon_ref"
+                     type="file"
+                     accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp"
+                  />
+               </div>
+               <img class="icon" :src="user.icon" />
             </div>
-            <img class="icon" :src="user.icon" />
-         </div>
-         <div class="user-info">
-            <!-- <template v-if="!editing_name"> -->
-            <h2 class="displayname">{{ user.display_name }}</h2>
-            <!-- <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p> -->
-            <!-- </template> -->
-            <!-- <template v-else>
+            <div class="user-info">
+               <!-- <template v-if="!editing_name"> -->
+               <h2 class="displayname">{{ user.display_name }}</h2>
+               <!-- <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p> -->
+               <!-- </template> -->
+               <!-- <template v-else>
                <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="20" @input="autoscale_textinput" /> 
                <p class="edit name" @click="editing_name = false">cancel</p>
                <p class="edit name submit" @click="submit_new_displayname">submit</p>
             </template> -->
 
-            <p v-if="user.display_name != user.username" class="username">
-               also known as {{ user.username }}
-            </p>
-            <p class="date">
-               Joined
-               {{
-                  new Date(
-                     user.creation_date._seconds * 1000
-                  ).toLocaleDateString("en-US", {
-                     month: "2-digit",
-                     day: "2-digit",
-                     year: "numeric",
-                  })
-               }}
-            </p>
+               <p v-if="user.display_name != user.username" class="username">
+                  also known as {{ user.username }}
+               </p>
+               <p class="date">
+                  Joined
+                  {{
+                     new Date(
+                        user.creation_date._seconds * 1000
+                     ).toLocaleDateString("en-US", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                     })
+                  }}
+               </p>
+            </div>
          </div>
+         <ProfileBadges :badges="user.badges" />
       </div>
 
       <ProfileStats
@@ -55,7 +58,6 @@
          :numWins="user.num_wins"
       />
 
-      <ProfileBadges :badges="user.badges" />
 
       <h3>Bio</h3>
       <template v-if="!editing_bio">
@@ -275,6 +277,18 @@ h2 {
    padding-bottom: 300px;
 }
 
+.upper-box {
+   display: flex;
+   flex-direction: row;
+   flex-wrap: wrap;
+   width: 100%;
+   gap: 10px;
+}
+
+.upper-box > * {
+   flex: 1;
+}
+
 .username {
    margin: 0;
    font-style: italic;
@@ -285,6 +299,7 @@ h2 {
    flex-direction: row;
    align-items: center;
    gap: 20px;
+   flex: 3;
 }
 
 .user-info > * {

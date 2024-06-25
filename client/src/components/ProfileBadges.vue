@@ -1,21 +1,78 @@
 <template>
    <div class="badges-box">
-      <div 
-         v-for="(badge, index) in badges"
-         :key="index"
-         class="badge">
-         <span class="material-symbols-rounded icon">{{ badge.icon }}</span>
+      <div class="badges">
+         <div
+            v-for="(badge, index) in badges"
+            :key="index"
+            class="badge"
+            :style="{ backgroundColor: badge.color }"
+            @mouseover="tooltip = badge"
+            @click="tooltip = badge"
+            @mouseleave = "tooltip = null"
+         >
+            <span class="material-symbols-rounded icon">{{ badge.icon }}</span>
+         </div>
+      </div>
+      <div class="tooltip">
+         <p class="title">{{ tooltip && (tooltip.name + " badge") }} </p>
+         <p>{{ tooltip && tooltip.description }}</p>
       </div>
    </div>
 </template>
 
 <script setup>
-import { defineProps } from "vue"
+import { defineProps, ref } from "vue"
 
-defineProps([ "badges" ])
+const tooltip = ref("")
 
+defineProps(["badges"])
 </script>
 
 <style scoped>
 
+.badges-box {
+   flex: 1;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+}
+
+.badges {
+   display: flex;
+   gap: 10px;
+   justify-content: center;
+   align-items: center;
+}
+
+.badge {
+   color: white;
+   border-radius: 100px;
+}
+
+.badge:hover .material-symbols-rounded {
+   font-size: 36px;
+   padding: 12px;
+}
+
+.badge .material-symbols-rounded {
+   padding: 8px;
+   font-size: 28px;
+   user-select: none;
+   transition: 0.1s font-size ease, 0.1s padding ease;
+}
+
+.tooltip {
+   height: 30px;
+   margin-top: 10px;
+   text-align: center;
+}
+
+.tooltip p {
+   margin: 0;
+}
+
+.tooltip .title {
+   font-weight: bold;
+}
 </style>

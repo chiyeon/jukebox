@@ -8,6 +8,7 @@ const path = require("path")
 require("dotenv").config()
 const cookieparser = require("cookie-parser")
 const crypto = require("crypto")
+const { badges } = require("./badges.js")
 // const cors = require("cors")
 
 const app = express()
@@ -485,6 +486,9 @@ app.post("/api/user", async (req, res) => {
       let tracks = await fb.get_docs_by_query("tracks", [ "artists", "array-contains", userdata.username ])
       userdata.num_tracks = tracks.length
       userdata.num_wins = tracks.filter(t => t.winner).length
+      // also replace their badge ids with the badge data. see statement above
+      let user_badges = userdata.badges.map(badge => badges[badge])
+      userdata.badges = user_badges
       res.status(200).send({ message: "Found user data", user: userdata })
    } else {
       res.status(400).send({ message: "Invalid username", user: undefined })
