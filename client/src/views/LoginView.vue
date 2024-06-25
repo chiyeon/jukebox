@@ -270,24 +270,4 @@ form button {
    padding: 12px 0;
    margin-top: 8px;
 }
-
-.loading {
-   position: fixed;
-   z-index: 5;
-   left: 0;
-   top: 0;
-   width: 100vw;
-   height: 100vh;
-   background-color: #30303090;
-
-   display: flex;
-   justify-content: center;
-   align-items: center;
-}
-
-.loading p {
-   font-size: 32px;
-   font-weight: bold;
-   color: white;
-}
 </style>

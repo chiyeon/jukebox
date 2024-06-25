@@ -22,7 +22,7 @@
                <p>Logout</p>
             </a>
          </Dropdown>
-         <div class="link">
+         <div class="link" v-if="!user">
             <span class="material-symbols-rounded" style="display: flex; font-size: 24px">login</span>
             <RouterLink to="/login">Login</RouterLink>
             <p>/</p>
