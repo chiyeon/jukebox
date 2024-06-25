@@ -35,21 +35,32 @@ defineProps(["badges"])
    justify-content: center;
    align-items: center;
    height: 64px;
+
+   transition: 0.1s gap ease;
 }
 
 .badge {
    color: white;
-   border-radius: 100px;
+   border-radius: 10px;
+   margin-right: -24px;
 }
 
 .badge:hover .material-symbols-rounded {
    font-size: 36px;
-   padding: 12px;
+   padding: 20px 10px;
+}
+
+.badge:hover {
+   z-index: 2;
+}
+
+.badges:hover {
+   gap: 40px;
 }
 
 .badge .material-symbols-rounded {
-   padding: 8px;
-   font-size: 28px;
+   padding: 16px 8px;
+   font-size: 24px;
    user-select: none;
    transition: 0.1s font-size ease, 0.1s padding ease;
 }
