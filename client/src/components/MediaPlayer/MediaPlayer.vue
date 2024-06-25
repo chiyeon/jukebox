@@ -49,7 +49,7 @@
   <audio ref="audio_ref"></audio>
 </div>
   <Transition name="lyrics">
-    <Lyrics v-if="show_lyrics" :lyrics="current_song && current_song.lyrics" />
+    <Lyrics v-if="show_lyrics" :lyrics="current_song && current_song.lyrics" @closeLyrics="show_lyrics = false" />
   </Transition>
 </template>
 

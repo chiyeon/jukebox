@@ -1,5 +1,6 @@
 <template>
     <div class="lyrics-box">
+        <span class="material-symbols-rounded exit" @click="emit('closeLyrics')">keyboard_arrow_down</span>
         <p class="lyrics">
             {{ lyrics }}
         </p>
@@ -7,9 +8,10 @@
 </template>
 
 <script setup>
-import { defineProps } from "vue"
+import { defineProps, defineEmits } from "vue"
 
 defineProps([ "lyrics" ])
+const emit = defineEmits([ "closeLyrics" ])
 </script>
 
 <style scoped>
@@ -40,5 +42,17 @@ defineProps([ "lyrics" ])
     font-size: 32px;
     font-weight: bold;
     color: cadetblue;
+}
+
+.exit {
+   color: white; 
+   font-size: 48px;
+   background-color: lightcoral;
+   cursor: pointer;
+   margin-top: 30px;
+}
+
+.exit:hover {
+   background-color: pink;
 }
 </style>
