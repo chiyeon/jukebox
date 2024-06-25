@@ -55,6 +55,15 @@ const logout = async () => {
 </script>
 
 <style scoped>
+.header {
+   padding-top: 20px;
+   margin-bottom: 20px;
+}
+
+h1 {
+   margin-top: 0;
+}
+
 .nav {
    display: flex;
    flex-direction: row;
@@ -75,7 +84,6 @@ p {
 }
 
 a {
-   color: black;
    text-decoration: none;
    cursor: pointer;
 }

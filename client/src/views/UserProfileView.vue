@@ -46,8 +46,11 @@
       <hr />
       <!--p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p-->
 
-      <Event v-if="event && event.tracks.length != 0" :event="event" :allowDelete="user && selfuser && user.username == selfuser.username" :user="user" />
-      <p v-else-if="event && event.tracks.length == 0">No published tracks</p>
+      <TracksSearchBar
+         @onSearch="(tracks) => visible_tracks = tracks"
+      />
+      <Event v-if="visible_tracks.length != 0" :event="{ tracks: visible_tracks }" :allowDelete="user && selfuser && user.username == selfuser.username" :user="user" />
+      <p v-else-if="visible_tracks.length == 0">No published tracks</p>
       <p v-else>Loading tracks</p>
    </div>
 </template>
@@ -59,12 +62,15 @@ import { useStore } from "vuex"
 import { compress_image } from "../utils/image.js"
 import Event from "../components/EventComponent.vue"
 import ProfileStats from "../components/ProfileStats.vue"
+import TracksSearchBar from "../components/TracksSearchBar.vue"
 
-const user = ref(null)
-const event = ref()
-const route = useRoute()
+const route = useRoute() 
 const store = useStore()
-const selfuser = computed(() => store.state.user)
+
+const user = ref(null) // which user are we looking at
+const selfuser = computed(() => store.state.user) // user acc of logged in person viewing
+const tracks = computed(() => store.state.tracks) // ref to tracks in store (we calc this)
+const visible_tracks = ref([]) // ref to VISIBLE tracks (filtererd)
 
 const editing_name = ref(false)
 const editing_bio = ref(false)
@@ -104,11 +110,8 @@ const update_user_page = async () => {
       })
 
       if (res_tracks.ok) {
-         let tracks = (await res_tracks.json()).tracks
-         event.value = {
-            tracks: tracks
-         }
-         store.dispatch("setTracks", tracks)
+         visible_tracks.value = (await res_tracks.json()).tracks
+         store.dispatch("setTracks", visible_tracks.value)
       }
    } else {
       user.value = `User ${route.params.username} was not found`
