@@ -1,7 +1,7 @@
 <template>
    <div class="queue-box">
       <div class="close-box">
-         <span class="material-symbols-rounded close" @click="emit('close')"
+         <span class="material-symbols-rounded close" @click="eventbus.emit('set_queue_visibility', false)"
             >close</span
          >
       </div>
