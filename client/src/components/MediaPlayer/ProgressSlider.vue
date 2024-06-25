@@ -1,38 +1,60 @@
 <template>
-  <div :class="{ 'progress-box': true, disabled: disabled }">
-    <span v-if="left_icon" class="material-symbols-rounded" :style="{ color: left_icon.color }">{{ left_icon.icon }}</span>
-    <p v-if="left_label" class="label">{{ left_label }}</p>
-    <div class="progress-background">
-      <div
-        class="progress"
-        ref="progress_ref"
-        :style="{ width: ((current_progress * 100) + '%'), backgroundColor: color }"
-      ></div>
-      <input
-        @input="drag_slider"
-        @change="set_progress"
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        class="progress-slider"
-      />
-    </div>
-    <p v-if="right_label" class="label right">{{ right_label }}</p>
-    <span v-if="right_icon" class="material-symbols-rounded right" :style="{ color: right_icon.color }">{{ right_icon.icon }}</span>
-  </div>
+   <div :class="{ 'progress-box': true, disabled: disabled }">
+      <span
+         v-if="left_icon"
+         class="material-symbols-rounded"
+         :style="{ color: left_icon.color }"
+         >{{ left_icon.icon }}</span
+      >
+      <p v-if="left_label" class="label">{{ left_label }}</p>
+      <div class="progress-background">
+         <div
+            class="progress"
+            ref="progress_ref"
+            :style="{
+               width: current_progress * 100 + '%',
+               backgroundColor: color,
+            }"
+         ></div>
+         <input
+            @input="drag_slider"
+            @change="set_progress"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            class="progress-slider"
+         />
+      </div>
+      <p v-if="right_label" class="label right">{{ right_label }}</p>
+      <span
+         v-if="right_icon"
+         class="material-symbols-rounded right"
+         :style="{ color: right_icon.color }"
+         >{{ right_icon.icon }}</span
+      >
+   </div>
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, computed, watch } from "vue";
+import { ref, defineProps, defineEmits, computed, watch } from "vue"
 
-const props = defineProps([ "color", "progress", "disabled", "left_label", "right_label", "left_icon", "right_icon", "allow_drag" ])
+const props = defineProps([
+   "color",
+   "progress",
+   "disabled",
+   "left_label",
+   "right_label",
+   "left_icon",
+   "right_icon",
+   "allow_drag",
+])
 // setProgress - whenever the user lets go of the mouse after dragging. change progress to that value
 // returns a value between 0 and 1
-const emit = defineEmits([ "setProgress" ])
+const emit = defineEmits(["setProgress"])
 
-const progress_ref = ref();
-const progress = ref(props.progress);
+const progress_ref = ref()
+const progress = ref(props.progress)
 
 let dragging = false
 
@@ -40,86 +62,91 @@ const current_progress = computed(() => {
    return progress.value
 })
 
-watch(() => props.progress, (newval, oldval) => {
-  // only change the value if we arent dragging!
-  if (!dragging) progress.value = newval
-})
+watch(
+   () => props.progress,
+   (newval, oldval) => {
+      // only change the value if we arent dragging!
+      if (!dragging) progress.value = newval
+   }
+)
 
 const drag_slider = (e) => {
-  progress.value = e.currentTarget.value
-  if (props.allow_drag) { emit("setProgress", e.currentTarget.value) }
-  else { dragging = true }
+   progress.value = e.currentTarget.value
+   if (props.allow_drag) {
+      emit("setProgress", e.currentTarget.value)
+   } else {
+      dragging = true
+   }
 }
 
 const set_progress = () => {
-  dragging = false
-  emit("setProgress", progress.value)
+   dragging = false
+   emit("setProgress", progress.value)
 }
-
 </script>
 
 <style scoped>
 .progress-background {
-  width: 100%;
-  height: 6px;
-  border-radius: 100px;
-  background-color: #e4e4e4;
+   width: 100%;
+   height: 6px;
+   border-radius: 100px;
+   background-color: #e4e4e4;
 
-  transition: height 300ms cubic-bezier(0, 0.74, 0.04, 1);
+   transition: height 300ms cubic-bezier(0, 0.74, 0.04, 1);
 }
 
 .progress {
-  border-radius: 100px;
-  height: 100%;
-  width: 0%;
+   border-radius: 100px;
+   height: 100%;
+   width: 0%;
 }
 
 .progress-box {
-  width: 100%;
-  height: 12px;
-  cursor: pointer;
+   width: 100%;
+   height: 12px;
+   cursor: pointer;
 
-  display: flex;
-  align-items: center;
+   display: flex;
+   align-items: center;
 }
 
 .progress-background:hover,
 .progress-box:hover .progress-background {
-  height: 8px;
+   height: 8px;
 }
 
 .progress-background {
-  position: relative;
+   position: relative;
 }
 
 .progress-slider {
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
-  width: 100%;
+   appearance: none;
+   -webkit-appearance: none;
+   outline: none;
+   width: 100%;
 
-  position: absolute;
-  top: 0;
-  transform: translateY(-25%);
+   position: absolute;
+   top: 0;
+   transform: translateY(-25%);
 
-  margin: 0;
-  opacity: 0;
-  padding: 0;
+   margin: 0;
+   opacity: 0;
+   padding: 0;
 
-  cursor: pointer;
+   cursor: pointer;
 
-  background-color: #e4e4e4;
+   background-color: #e4e4e4;
 }
 
 .label {
-  font-size: 13px;
-  width: 50px;
+   font-size: 13px;
+   width: 50px;
 }
 .label.right {
-  text-align: right;
+   text-align: right;
 }
 
 .disabled {
-  pointer-events: none;
+   pointer-events: none;
 }
 </style>

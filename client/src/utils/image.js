@@ -1,50 +1,68 @@
 import imageCompression from "browser-image-compression"
 
 const crop_image_to_square = (file, dim) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-           const img = new Image()
-              
-           img.onload = () => {
-               const canvas = document.createElement('canvas')
-               let width = img.width
-               let height = img.height
-                let newsize
-    
-                if (width < height) {
-                    newsize = dim / width * height;
-                    width = dim;
-                    height = newsize;
-                } else {
-                    newsize = dim / height * width;
-                    width = newsize;
-                    height = dim;
-                }
-  
-              canvas.width = dim
-              canvas.height = dim
-  
-               const ctx = canvas.getContext('2d')
-               ctx.imageSmoothingEnabled = true
-               var offsetX = (dim - width) / 2;
-               var offsetY = (dim - height) / 2;
-               ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, width, height);
-               canvas.toBlob(blob => {
-                   const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + '.webp', { type: 'image/webp' });
-                   resolve(compressedFile);
-               }, 'image/webp', 1)
-           }
-           
-           img.src = e.target.result;
-        }
-          
-        reader.onerror = (error) => {
-           reject(error);
-        }
-       
-        reader.readAsDataURL(file);
-     })
+   return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+         const img = new Image()
+
+         img.onload = () => {
+            const canvas = document.createElement("canvas")
+            let width = img.width
+            let height = img.height
+            let newsize
+
+            if (width < height) {
+               newsize = (dim / width) * height
+               width = dim
+               height = newsize
+            } else {
+               newsize = (dim / height) * width
+               width = newsize
+               height = dim
+            }
+
+            canvas.width = dim
+            canvas.height = dim
+
+            const ctx = canvas.getContext("2d")
+            ctx.imageSmoothingEnabled = true
+            var offsetX = (dim - width) / 2
+            var offsetY = (dim - height) / 2
+            ctx.drawImage(
+               img,
+               0,
+               0,
+               img.width,
+               img.height,
+               offsetX,
+               offsetY,
+               width,
+               height
+            )
+            canvas.toBlob(
+               (blob) => {
+                  const compressedFile = new File(
+                     [blob],
+                     file.name.replace(/\.[^/.]+$/, "") + ".webp",
+                     { type: "image/webp" }
+                  )
+                  resolve(compressedFile)
+               },
+               "image/webp",
+               1
+            )
+         }
+
+         img.src = e.target.result
+      }
+
+      reader.onerror = (error) => {
+         reject(error)
+      }
+
+      reader.readAsDataURL(file)
+   })
 }
 
 export const compress_image_old = (file, dim, quality) => {
@@ -52,56 +70,77 @@ export const compress_image_old = (file, dim, quality) => {
       const reader = new FileReader()
       reader.onload = (e) => {
          const img = new Image()
-            
+
          img.onload = () => {
-             const canvas = document.createElement('canvas')
-             let width = img.width
-             let height = img.height
+            const canvas = document.createElement("canvas")
+            let width = img.width
+            let height = img.height
             let newsize
 
-          if (width < height) {
-              newsize = dim / width * height;
-              width = dim;
-              height = newsize;
-          } else {
-              newsize = dim / height * width;
-              width = newsize;
-              height = dim;
-          }
+            if (width < height) {
+               newsize = (dim / width) * height
+               width = dim
+               height = newsize
+            } else {
+               newsize = (dim / height) * width
+               width = newsize
+               height = dim
+            }
 
             canvas.width = dim
             canvas.height = dim
 
-             const ctx = canvas.getContext('2d')
-             var offsetX = (dim - width) / 2;
-             var offsetY = (dim - height) / 2;
-             ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, width, height);
-             canvas.toBlob(blob => {
-                 const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + '.webp', { type: 'image/webp' });
-                 resolve(compressedFile);
-             }, 'image/webp', quality)
+            const ctx = canvas.getContext("2d")
+            var offsetX = (dim - width) / 2
+            var offsetY = (dim - height) / 2
+            ctx.drawImage(
+               img,
+               0,
+               0,
+               img.width,
+               img.height,
+               offsetX,
+               offsetY,
+               width,
+               height
+            )
+            canvas.toBlob(
+               (blob) => {
+                  const compressedFile = new File(
+                     [blob],
+                     file.name.replace(/\.[^/.]+$/, "") + ".webp",
+                     { type: "image/webp" }
+                  )
+                  resolve(compressedFile)
+               },
+               "image/webp",
+               quality
+            )
          }
-         
-         img.src = e.target.result;
+
+         img.src = e.target.result
       }
-        
+
       reader.onerror = (error) => {
-         reject(error);
+         reject(error)
       }
-     
-      reader.readAsDataURL(file);
+
+      reader.readAsDataURL(file)
    })
 }
 
 export const compress_image = async (file, dim, maxsize) => {
-    const options = {
-        maxSizeMB: maxsize,
-        maxWidthOrHeight: dim,
-        fileType: "image/webp"
-    }
+   const options = {
+      maxSizeMB: maxsize,
+      maxWidthOrHeight: dim,
+      fileType: "image/webp",
+   }
 
-    const cropped_image = await crop_image_to_square(file, dim)
-    const compressedFile = new File([await imageCompression(cropped_image, options)], cropped_image.name.replace(/\.[^/.]+$/, "") + '.webp', { type: 'image/webp' });
-    return compressedFile
+   const cropped_image = await crop_image_to_square(file, dim)
+   const compressedFile = new File(
+      [await imageCompression(cropped_image, options)],
+      cropped_image.name.replace(/\.[^/.]+$/, "") + ".webp",
+      { type: "image/webp" }
+   )
+   return compressedFile
 }
-

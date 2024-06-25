@@ -4,11 +4,13 @@
       <div class="nav">
          <RouterLink to="/">Listen</RouterLink>
          <div class="space"></div>
-         <RouterLink v-if="user && user.permissions >= 2" to="/s/admin">Console</RouterLink>
+         <RouterLink v-if="user && user.permissions >= 2" to="/s/admin"
+            >Console</RouterLink
+         >
          <RouterLink v-if="user" to="/upload">Upload</RouterLink>
          <a v-if="user" @click="logout()">Logout</a>
          <RouterLink :to="`/u/${user.username}`" class="user-info" v-if="user">
-            <p>{{user.username}}</p>
+            <p>{{ user.username }}</p>
             <img :src="user.icon" />
          </RouterLink>
          <RouterLink v-if="!user" to="/login">Login</RouterLink>
@@ -17,8 +19,8 @@
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
-import { onBeforeMount, ref, computed } from 'vue';
+import { RouterLink } from "vue-router"
+import { onBeforeMount, ref, computed } from "vue"
 import { useStore } from "vuex"
 import router from "../router"
 
@@ -50,7 +52,6 @@ const logout = async () => {
       store.dispatch("setUser", null)
       router.push("/")
    }
-
 }
 </script>
 
@@ -103,8 +104,8 @@ a:hover {
 
 .user-info img {
    width: 32px;
-   aspect-ratio: 1.0;
+   aspect-ratio: 1;
    margin-left: 10px;
-   border-radius: 100px
+   border-radius: 100px;
 }
 </style>

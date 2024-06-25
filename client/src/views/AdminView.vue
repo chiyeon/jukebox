@@ -7,13 +7,26 @@
 
       <div class="form">
          <label>Title</label>
-         <input ref="event_title_ref" type="text" placeholder="The Month of May 3" required />
+         <input
+            ref="event_title_ref"
+            type="text"
+            placeholder="The Month of May 3"
+            required
+         />
 
          <label>Description</label>
-         <textarea ref="event_description_ref" placeholder="Its the month of may..." required />
+         <textarea
+            ref="event_description_ref"
+            placeholder="Its the month of may..."
+            required
+         />
 
          <label>Tags</label>
-         <input ref="event_tags_ref" type="text" placeholder="24 hours,Collaborative" />
+         <input
+            ref="event_tags_ref"
+            type="text"
+            placeholder="24 hours,Collaborative"
+         />
 
          <button @click="submit_new_event">Submit</button>
       </div>
@@ -45,16 +58,18 @@ const submit_new_event = async () => {
    let newevent = {
       name: event_title_ref.value.value,
       desc: event_description_ref.value.value,
-      tags: event_tags_ref.value.value ? event_tags_ref.value.value.split(",") : [],
+      tags: event_tags_ref.value.value
+         ? event_tags_ref.value.value.split(",")
+         : [],
    }
 
    let res = await fetch("/api/eventcreate", {
       method: "post",
       credentials: "include",
       headers: {
-         "Content-Type": "application/json"
+         "Content-Type": "application/json",
       },
-      body: JSON.stringify(newevent)
+      body: JSON.stringify(newevent),
    })
 
    if (res.ok) {
@@ -66,7 +81,7 @@ const submit_new_event = async () => {
 onBeforeMount(async () => {
    let res = await fetch("/api/events", {
       method: "get",
-      credentials: "include"
+      credentials: "include",
    })
 
    if (res.ok) {
@@ -83,12 +98,12 @@ onBeforeMount(async () => {
    margin: auto;
 }
 
-input, textarea {
+input,
+textarea {
    margin-bottom: 10px;
 }
 
 hr {
    margin-top: 40px;
 }
-
 </style>

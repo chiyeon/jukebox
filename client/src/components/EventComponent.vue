@@ -1,41 +1,45 @@
 <template>
-  <div class="event">
-    <template v-if="event.name">
-      <hr />
-      <p class="date">{{ get_event_date() }}</p>
-      <h2>{{ event.name }}</h2>
-      <div class="tags-box">
-        <p class="tag" v-for="tag in event.tags" :key="tag">{{ tag }}</p>
-      </div>
-      <p class="description">{{ event.desc }}</p>
-    </template>
-    <div class="tracks">
-      <!--Track :track="track_header" :header=true /-->
-      <Track
-        v-for="track in event.tracks"
-        :key="track.url"
-        :track="track"
-        :type="get_type(track)"
-      />
+   <div class="event">
+      <template v-if="event.name">
+         <hr />
+         <p class="date">{{ get_event_date() }}</p>
+         <h2>{{ event.name }}</h2>
+         <div class="tags-box">
+            <p class="tag" v-for="tag in event.tags" :key="tag">{{ tag }}</p>
+         </div>
+         <p class="description">{{ event.desc }}</p>
+      </template>
+      <div class="tracks">
+         <!--Track :track="track_header" :header=true /-->
+         <Track
+            v-for="track in event.tracks"
+            :key="track.url"
+            :track="track"
+            :type="get_type(track)"
+         />
          <p v-if="event.tracks.length == 0"><i>No tracks found</i></p>
-    </div>
-  </div>
+      </div>
+   </div>
 </template>
 
 <script setup>
 // to make this hold tracks only, we can just only pass tracks
 
-import Track from "./TrackComponent.vue";
-import { defineProps } from "vue";
+import Track from "./TrackComponent.vue"
+import { defineProps } from "vue"
 
-const props = defineProps(["event", "allowDelete", "user"]);
+const props = defineProps(["event", "allowDelete", "user"])
 
 const get_type = (track) => {
-  if (props.allowDelete) {
-    if (track.artist == props.user.username) { return "allowedit" }
-    else if (track.artists.includes(props.user.username)) { return "allowremove" }
-    else { return undefined }
-  }
+   if (props.allowDelete) {
+      if (track.artist == props.user.username) {
+         return "allowedit"
+      } else if (track.artists.includes(props.user.username)) {
+         return "allowremove"
+      } else {
+         return undefined
+      }
+   }
 }
 
 const get_event_date = () => {
@@ -43,31 +47,32 @@ const get_event_date = () => {
    if (props.event.date.length == 1) {
       return new Date(props.event.date[0]._seconds * 1000).toLocaleDateString()
    } else {
-      return `${new Date(props.event.date[0]._seconds * 1000).toLocaleDateString()
-} - ${new Date(props.event.date[1]._seconds * 1000).toLocaleDateString()
-}`
+      return `${new Date(
+         props.event.date[0]._seconds * 1000
+      ).toLocaleDateString()} - ${new Date(
+         props.event.date[1]._seconds * 1000
+      ).toLocaleDateString()}`
    }
 }
-
 </script>
 
 <style scoped>
 hr {
-  margin-top: 30px;
+   margin-top: 30px;
 }
 
 h2 {
-  margin: 0;
+   margin: 0;
 }
 
 .date {
-  font-style: italic;
-  margin: 0 2px;
+   font-style: italic;
+   margin: 0 2px;
 }
 
 .tracks {
-  display: flex;
-  flex-direction: column;
+   display: flex;
+   flex-direction: column;
 }
 
 .tags-box {

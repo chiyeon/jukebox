@@ -1,4 +1,4 @@
-import { createStore } from 'vuex';
+import { createStore } from "vuex"
 
 export default createStore({
    state: {
@@ -13,7 +13,7 @@ export default createStore({
          state.queue.push(track)
       },
       removeTrack(state, index) {
-         state.queue.splice(index, 1)  
+         state.queue.splice(index, 1)
       },
       skipQueueTo(state, index) {
          state.queue = state.queue.slice(index + 1)
@@ -41,7 +41,7 @@ export default createStore({
       },
       setTracks(state, tracks) {
          state.tracks = tracks
-      }
+      },
    },
    actions: {
       addTrack({ commit }, track) {
@@ -77,12 +77,12 @@ export default createStore({
       },
       popTrack({ commit }) {
          commit("popTrack")
-      }
+      },
    },
    getters: {
-      getQueue: state => state.queue,
-      getUser: state => state.user,
-      getAfterQueue: state => state.afterQueue,
-      getTracks: state => state.tracks
-   }
-});
+      getQueue: (state) => state.queue,
+      getUser: (state) => state.user,
+      getAfterQueue: (state) => state.afterQueue,
+      getTracks: (state) => state.tracks,
+   },
+})

@@ -1,20 +1,29 @@
 <template>
    <hr />
    <p v-if="!user">Loading</p>
-   <p v-else-if="typeof user === 'string'">{{user}}</p>
+   <p v-else-if="typeof user === 'string'">{{ user }}</p>
    <div class="user-profile" v-else>
       <div class="user">
          <div class="icon-box">
-            <div v-if="user && selfuser && user.username == selfuser.username" class="edit-icon" @click="icon_ref.click()">
+            <div
+               v-if="user && selfuser && user.username == selfuser.username"
+               class="edit-icon"
+               @click="icon_ref.click()"
+            >
                <p>edit icon</p>
-               <input @input="submit_new_icon" ref="icon_ref" type="file" accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp" />
+               <input
+                  @input="submit_new_icon"
+                  ref="icon_ref"
+                  type="file"
+                  accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp"
+               />
             </div>
             <img class="icon" :src="user.icon" />
          </div>
          <div class="user-info">
             <!-- <template v-if="!editing_name"> -->
-               <h2 class="displayname">{{user.display_name}}</h2>
-               <!-- <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p> -->
+            <h2 class="displayname">{{ user.display_name }}</h2>
+            <!-- <p class="edit name" @click="open_edit_displayname" v-if="user && selfuser && user.username == selfuser.username">edit</p> -->
             <!-- </template> -->
             <!-- <template v-else>
                <input type="text" class="displayname input" ref="displayname_input_ref" maxlength="20" @input="autoscale_textinput" /> 
@@ -22,8 +31,21 @@
                <p class="edit name submit" @click="submit_new_displayname">submit</p>
             </template> -->
 
-            <p v-if="user.display_name != user.username" class="username">also known as {{user.username}}</p>
-            <p class="date">Joined {{ new Date(user.creation_date._seconds * 1000).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }) }}</p>
+            <p v-if="user.display_name != user.username" class="username">
+               also known as {{ user.username }}
+            </p>
+            <p class="date">
+               Joined
+               {{
+                  new Date(
+                     user.creation_date._seconds * 1000
+                  ).toLocaleDateString("en-US", {
+                     month: "2-digit",
+                     day: "2-digit",
+                     year: "numeric",
+                  })
+               }}
+            </p>
          </div>
       </div>
 
@@ -35,21 +57,36 @@
 
       <h3>Bio</h3>
       <template v-if="!editing_bio">
-         <p class="bio">{{user.bio}}</p>
-         <p class="edit" @click="open_edit_bio" v-if="user && selfuser && user.username == selfuser.username">edit</p>
+         <p class="bio">{{ user.bio }}</p>
+         <p
+            class="edit"
+            @click="open_edit_bio"
+            v-if="user && selfuser && user.username == selfuser.username"
+         >
+            edit
+         </p>
       </template>
       <template v-else>
-         <textarea @input="autoscale_textarea" ref="newbio_ref" type="text" class="bio input" maxlength="300" />
+         <textarea
+            @input="autoscale_textarea"
+            ref="newbio_ref"
+            type="text"
+            class="bio input"
+            maxlength="300"
+         />
          <p class="edit" @click="editing_bio = false">cancel</p>
          <p class="edit name submit" @click="submit_new_bio">submit</p>
       </template>
       <hr />
       <!--p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p-->
 
-      <TracksSearchBar
-         @onSearch="(tracks) => visible_tracks = tracks"
+      <TracksSearchBar @onSearch="(tracks) => (visible_tracks = tracks)" />
+      <Event
+         v-if="visible_tracks.length != 0"
+         :event="{ tracks: visible_tracks }"
+         :allowDelete="user && selfuser && user.username == selfuser.username"
+         :user="user"
       />
-      <Event v-if="visible_tracks.length != 0" :event="{ tracks: visible_tracks }" :allowDelete="user && selfuser && user.username == selfuser.username" :user="user" />
       <p v-else-if="visible_tracks.length == 0">No published tracks</p>
       <p v-else>Loading tracks</p>
    </div>
@@ -64,7 +101,7 @@ import Event from "../components/EventComponent.vue"
 import ProfileStats from "../components/ProfileStats.vue"
 import TracksSearchBar from "../components/TracksSearchBar.vue"
 
-const route = useRoute() 
+const route = useRoute()
 const store = useStore()
 
 const user = ref(null) // which user are we looking at
@@ -92,9 +129,9 @@ const update_user_page = async () => {
    let res = await fetch("/api/user", {
       method: "post",
       headers: {
-         'Content-Type': 'application/json'
+         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username: route.params.username })
+      body: JSON.stringify({ username: route.params.username }),
    })
 
    if (res.ok) {
@@ -104,9 +141,9 @@ const update_user_page = async () => {
       let res_tracks = await fetch("/api/tracks", {
          method: "post",
          headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
          },
-         body: JSON.stringify({ username: route.params.username })
+         body: JSON.stringify({ username: route.params.username }),
       })
 
       if (res_tracks.ok) {
@@ -133,7 +170,7 @@ const update_user_page = async () => {
 //    if (res.ok) {
 //       update_user_page()
 
-//       editing_name.value = false 
+//       editing_name.value = false
 //    } else {
 //       let json = await res.json()
 //       editing_name.value = false
@@ -142,19 +179,19 @@ const update_user_page = async () => {
 // }
 
 const submit_new_bio = async () => {
-   if (newbio_ref.value.value == user.bio) return 
+   if (newbio_ref.value.value == user.bio) return
 
    let res = await fetch("/api/update_bio", {
       method: "post",
       headers: {
-         'Content-Type': 'application/json'
+         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ bio: newbio_ref.value.value })
+      body: JSON.stringify({ bio: newbio_ref.value.value }),
    })
 
    if (res.ok) {
       update_user_page()
-      editing_bio.value = false 
+      editing_bio.value = false
    } else {
       let json = await res.json()
       editing_bio.value = false
@@ -165,15 +202,18 @@ const submit_new_bio = async () => {
 const submit_new_icon = async () => {
    if (icon_ref.value.files.length == 0) return alert("select a file!")
    let formdata = new FormData()
-   formdata.append("icon", await compress_image(icon_ref.value.files[0], 512, 0.29))
+   formdata.append(
+      "icon",
+      await compress_image(icon_ref.value.files[0], 512, 0.29)
+   )
 
    let res = await fetch("/api/update_icon", {
-       method: "POST",
-        body: formdata
+      method: "POST",
+      body: formdata,
    })
    if (res.ok) {
       update_user_page()
-      editing_bio.value = false 
+      editing_bio.value = false
    } else {
       let json = await res.json()
       editing_bio.value = false
@@ -195,9 +235,12 @@ onBeforeMount(() => {
    update_user_page()
 })
 
-watch(() => route.params.username, () => {
-   update_user_page()
-})
+watch(
+   () => route.params.username,
+   () => {
+      update_user_page()
+   }
+)
 
 watch(displayname_input_ref, (newval) => {
    if (newval) {
@@ -263,13 +306,14 @@ h2 {
    text-decoration: none;
 }
 
-.displayname, .edit {
+.displayname,
+.edit {
    display: inline;
 }
 
 .icon-box {
    width: 128px;
-   aspect-ratio: 1.0;
+   aspect-ratio: 1;
 
    position: relative;
 }
@@ -277,12 +321,12 @@ h2 {
 .icon {
    border-radius: 200px;
    width: 100%;
-   aspect-ratio: 1.0;
+   aspect-ratio: 1;
 }
 
 .edit-icon {
    border-radius: 200px;
-   aspect-ratio: 1.0;
+   aspect-ratio: 1;
 
    position: absolute;
    width: 100%;
@@ -346,7 +390,7 @@ textarea {
 }
 
 textarea {
-   resize: vertical; 
+   resize: vertical;
 }
 
 .editing-name {

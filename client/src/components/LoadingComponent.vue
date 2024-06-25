@@ -7,7 +7,7 @@
 <script setup>
 import { defineProps } from "vue"
 
-defineProps([ "message" ])
+defineProps(["message"])
 </script>
 
 <style scoped>
@@ -21,7 +21,7 @@ defineProps([ "message" ])
    height: 100vh;
 
    background-color: #30303090;
-   
+
    display: flex;
    justify-content: center;
    align-items: center;

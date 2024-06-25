@@ -6,6 +6,4 @@
 import TrackData from "../components/TrackDataComponent.vue"
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
