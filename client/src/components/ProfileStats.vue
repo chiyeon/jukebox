@@ -45,6 +45,16 @@ const stats = computed(() => [
 </script>
 
 <style scoped>
+@media (max-width: 600px) {
+   .stats-box {
+      justify-content: center !important;
+   }
+
+   .tooltip {
+      text-align: center;
+   }
+}
+
 .stats-box {
    display: flex;
    flex-direction: row;

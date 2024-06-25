@@ -37,6 +37,7 @@ defineProps(["badges"])
    height: 64px;
 
    transition: 0.1s gap ease;
+   margin-right: 24px;
 }
 
 .badge {

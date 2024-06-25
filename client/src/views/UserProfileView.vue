@@ -265,6 +265,12 @@ watch(newbio_ref, (newval) => {
 </script>
 
 <style scoped>
+@media (max-width: 600px) {
+   .upper-box {
+      flex-direction: column !important;
+   }
+}
+
 h2 {
    margin: 0;
    font-size: 32px;
@@ -280,7 +286,6 @@ h2 {
 .upper-box {
    display: flex;
    flex-direction: row;
-   flex-wrap: wrap;
    width: 100%;
    gap: 10px;
 }
