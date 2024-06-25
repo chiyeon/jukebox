@@ -3,15 +3,15 @@
       <div class="tabs">
          <button
             class="tab login-tab-title selected"
-            @click="switch_to(FORM_LOGIN)"
-            :ref="form_tab_refs[FORM_LOGIN]"
+            @click="set_registering(false)"
+            :ref="form_tab_refs[1]"
          >
             LOGIN
          </button>
          <button
             class="tab login-tab-title"
-            @click="switch_to(FORM_REGISTER)"
-            :ref="form_tab_refs[FORM_REGISTER]"
+            @click="set_registering(true)"
+            :ref="form_tab_refs[0]"
          >
             REGISTER
          </button>
@@ -20,7 +20,7 @@
          <form>
             <label for="username"
                >Username
-               <p class="required" v-if="form_type == FORM_REGISTER">
+               <p class="required" v-if="is_register">
                   *
                </p></label
             >
@@ -36,7 +36,7 @@
 
             <label for="password"
                >Password
-               <p class="required" v-if="form_type == FORM_REGISTER">
+               <p class="required" v-if="is_register">
                   *
                </p></label
             >
@@ -50,7 +50,7 @@
                required
             />
 
-            <div v-if="form_type == FORM_REGISTER">
+            <div v-if="is_register">
                <label for="email"
                   >Email
                   <p class="required">*</p></label
@@ -84,7 +84,7 @@
                type="submit"
                @click="handle_submit"
             >
-               {{ form_type ? "Register" : "Login" }}
+               {{ is_register ? "Register" : "Login" }}
             </button>
          </form>
       </div>
@@ -93,15 +93,19 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, defineProps, watch, onMounted } from "vue"
 import { useStore } from "vuex"
 import router from "../router"
+import { useRoute } from "vue-router"
 import { compress_image } from "../utils/image.js"
 import LoadingScreen from "../components/LoadingComponent.vue"
 
+const props = defineProps({
+   is_register: false
+})
+const is_register = ref(props.is_register)
 const store = useStore()
-const FORM_LOGIN = 0
-const FORM_REGISTER = 1
+const route = useRoute()
 
 const submit_button_ref = ref(null)
 const form_tab_refs = [ref(null), ref(null)]
@@ -111,7 +115,6 @@ const bio_ref = ref(null)
 const icon_ref = ref(null)
 const email_ref = ref(null)
 
-const form_type = ref(FORM_LOGIN)
 const loading = ref(false)
 
 const handle_submit = async (e) => {
@@ -127,7 +130,7 @@ const handle_submit = async (e) => {
    formdata.append("username", username_ref.value.value)
    formdata.append("password", password_ref.value.value)
 
-   if (form_type.value == FORM_REGISTER) {
+   if (is_register.value) {
       if (email_ref.value.value == "") return alert("Must include email!")
       formdata.append("email", email_ref.value.value)
       if (bio_ref.value.value != "") formdata.append("bio", bio_ref.value.value)
@@ -144,7 +147,7 @@ const handle_submit = async (e) => {
       }
    }
 
-   let res = await fetch("/api/" + (form_type.value ? "signup" : "login"), {
+   let res = await fetch("/api/" + (is_register.value ? "signup" : "login"), {
       method: "POST",
       body: formdata,
    })
@@ -153,23 +156,45 @@ const handle_submit = async (e) => {
 
    loading.value = false
    if (res.status == 200) {
-      alert(`${form_type.value ? "Registered" : "Logged in"} successfully`)
+      alert(`${is_register.value ? "Registered" : "Logged in"} successfully`)
       store.dispatch("setUser", json.user)
       router.push({ path: "/" })
    } else {
       alert(
-         `Unable to ${form_type.value ? "register" : "login"}: ${json.message}`
+         `Unable to ${is_register.value ? "register" : "login"}: ${json.message}`
       )
    }
 }
 
-const switch_to = (type) => {
-   form_type.value = type
-
-   // swap selected class between tabs
-   document.querySelector(".tab.selected").classList.remove("selected")
-   form_tab_refs[type].value.classList.add("selected")
+const toggle_registering = () => {
+   is_register.value = !is_register.value
+   if (is_register.value) {
+      router.push({ name: "Login" })
+   } else {
+      router.push({ name: "Register" })
+   }
 }
+
+const set_registering = (enabled) => {
+   is_register.value = enabled
+   if (is_register.value) {
+      router.push({ name: "Register" })
+   } else {
+      router.push({ name: "Login" })
+   }
+}
+
+onMounted(() => {
+   document.querySelector(".tab.selected").classList.remove("selected")
+   form_tab_refs[props.is_register ? 0 : 1].value.classList.add("selected")
+})
+
+watch(() => route.name, (newval) => {
+   is_register.value = newval === "Register"
+
+   document.querySelector(".tab.selected").classList.remove("selected")
+   form_tab_refs[newval === "Register" ? 0 : 1].value.classList.add("selected")
+})
 </script>
 
 <style scoped>
@@ -199,6 +224,7 @@ const switch_to = (type) => {
    background-color: #f0f0f0;
    height: 50px;
    border: none;
+   cursor: pointer;
 }
 
 .tab p {

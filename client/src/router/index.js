@@ -11,8 +11,15 @@ const router = createRouter({
       },
       {
          path: "/login",
-         name: "login",
+         name: "Login",
          component: () => import("../views/LoginView.vue"),
+         props: { is_register: false },
+      },
+      {
+         path: "/register",
+         name: "Register",
+         component: () => import("../views/LoginView.vue"),
+         props: { is_register: true },
       },
       {
          path: "/upload",

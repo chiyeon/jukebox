@@ -5,15 +5,29 @@
          <RouterLink to="/">Listen</RouterLink>
          <div class="space"></div>
          <RouterLink v-if="user && user.permissions >= 2" to="/s/admin"
-            >Console</RouterLink
+            ><span class="material-symbols-rounded" style="display: flex">terminal</span></RouterLink
          >
-         <RouterLink v-if="user" to="/upload">Upload</RouterLink>
-         <a v-if="user" @click="logout()">Logout</a>
-         <RouterLink :to="`/u/${user.username}`" class="user-info" v-if="user">
-            <p>{{ user.username }}</p>
-            <img :src="user.icon" />
-         </RouterLink>
-         <RouterLink v-if="!user" to="/login">Login</RouterLink>
+         <RouterLink v-if="user" to="/upload"><span class="material-symbols-rounded" style="display: flex">upload</span></RouterLink>
+         <Dropdown v-if="user">
+            <template #trigger>
+               <img :src="user.icon" class="user-icon" />
+            </template>
+            <RouterLink :to="`/u/${user.username}`" class="dropdown-option" v-if="user">
+               <span class="material-symbols-rounded" style="display: flex">person</span>
+               <p>View profile</p>
+            </RouterLink>
+            <hr />
+            <a class="dropdown-option" v-if="user" @click="logout">
+               <span class="material-symbols-rounded" style="display: flex; color: lightcoral">logout</span>
+               <p>Logout</p>
+            </a>
+         </Dropdown>
+         <div class="link">
+            <span class="material-symbols-rounded" style="display: flex; font-size: 24px">login</span>
+            <RouterLink to="/login">Login</RouterLink>
+            <p>/</p>
+            <RouterLink to="/register">Register</RouterLink>
+         </div>
       </div>
    </div>
 </template>
@@ -23,6 +37,7 @@ import { RouterLink } from "vue-router"
 import { onBeforeMount, ref, computed } from "vue"
 import { useStore } from "vuex"
 import router from "../router"
+import Dropdown from "./DropdownComponent.vue"
 
 const store = useStore()
 
@@ -92,20 +107,31 @@ a:hover {
    opacity: 0.7;
 }
 
-.user-info {
+.link {
    display: flex;
    align-items: center;
+   gap: 4px;
+}
+
+.user-icon {
+   width: 36px;
+   aspect-ratio: 1;
+   border-radius: 100px;
    cursor: pointer;
 }
 
-.user-info:hover {
-   opacity: 0.7;
+.user-icon:hover {
+   outline: 4px solid lightpink;
 }
 
-.user-info img {
-   width: 32px;
-   aspect-ratio: 1;
-   margin-left: 10px;
-   border-radius: 100px;
+.material-symbols-rounded {
+   font-size: 30px;
 }
+
+.dropdown-option .material-symbols-rounded {
+   font-size: 24px;
+}
+
+
+
 </style>
