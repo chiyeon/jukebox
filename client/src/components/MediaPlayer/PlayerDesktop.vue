@@ -127,6 +127,7 @@ const get_volume_icon = () => {
 .player-mini {
   margin: auto;
   padding: 20px 0;
+  max-width: 1000px;
 }
 
 .track-box {
