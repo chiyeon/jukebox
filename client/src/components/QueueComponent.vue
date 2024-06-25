@@ -16,6 +16,7 @@
                :track="track"
                :index="index"
                type="queue"
+               @clickArtist="emit('close')"
             />
          </div>
 
@@ -29,6 +30,7 @@
                   :track="track"
                   :index="index"
                   type="afterqueue"
+                  @clickArtist="emit('close')"
                />
             </template>
          </div>

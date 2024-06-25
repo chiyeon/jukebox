@@ -8,7 +8,7 @@
         }}<span v-if="track.winner" class="material-symbols-rounded trophy">trophy</span>
       </p>
       <template v-for="(artist, index) in track.artists" :key="index">
-        <RouterLink @click.stop="prevent_parent_click" :to="`/u/${track.artists[index]}`" class="artist">{{ artist }}
+        <RouterLink @click.stop="emit('clickArtist')" :to="`/u/${track.artists[index]}`" class="artist">{{ artist }}
         </RouterLink>
         <p v-if="index == track.artists.length - 1 ? '' : ', '" class="artist-comma">
           ,
@@ -86,7 +86,7 @@ import eventbus from "../eventbus"
 import EditTrack from "./EditTrackComponent.vue"
 import router from "../router"
 
-const emit = defineEmits([ "click" ])
+const emit = defineEmits([ "click", "clickArtist" ])
 
 const validated_delete = ref(false);
 const show_delete = ref(false);

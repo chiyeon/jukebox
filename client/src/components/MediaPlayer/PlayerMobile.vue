@@ -17,6 +17,7 @@
                     v-if="current_song"
                     :track="current_song"
                     type="player"
+                    @clickArtist="emit('closeLyrics')"
                 />
                 <div v-else class="not-playing-preview">
                     <span class="material-symbols-rounded album-icon"> album </span>
@@ -52,6 +53,7 @@
                     v-if="current_song"
                     :track="current_song"
                     type="playermobile"
+                    @clickArtist="show_mini_player = true"
                 />
                 <div v-else class="not-playing-preview mobile_expanded">
                     <span class="material-symbols-rounded album-icon"> album </span>
