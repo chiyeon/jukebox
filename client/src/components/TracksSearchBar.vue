@@ -15,10 +15,14 @@ const store = useStore()
 
 const tracks = computed(() => store.state.tracks)
 const query = ref("")
-const score_threshold = 0.1
+const score_threshold = 0.5
 const search_opts = {
    includeScore: true,
-   keys: [ "artist", "title", "artists" ]
+   keys: [
+      { name: "title", weight: 0.5 },
+      { name: "artist", weight: 0.35 },
+      { name: "artists", weight: 0.15 }
+   ]
 }
 
 let fuse = new Fuse(tracks.value, search_opts)
