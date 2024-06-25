@@ -3,19 +3,19 @@
       <h1>ThatMyFavorite</h1>
       <div class="nav">
          <RouterLink to="/" title="Listen to tracks" class="link" style="gap: 0">
-            <span class="material-symbols-rounded" style="display: flex"
+            <span class="material-symbols-rounded circle" style="display: flex; background-color: lightcoral"
                >music_note</span
             >
-            <p>Listen</p>
+            <p style="margin-left: 4px">Listen</p>
          </RouterLink>
          <div class="space"></div>
          <RouterLink v-if="user && user.permissions >= 2" to="/s/admin"
-            ><span class="material-symbols-rounded" style="display: flex"
+            ><span class="material-symbols-rounded circle" style="display: flex;"
                >terminal</span
             ></RouterLink
          >
          <RouterLink v-if="user" title="Upload Tracks" to="/upload"
-            ><span class="material-symbols-rounded" style="display: flex"
+            ><span class="material-symbols-rounded circle" style="display: flex; background-color: teal"
                >upload</span
             ></RouterLink
          >
@@ -114,7 +114,7 @@ h1 {
 .nav {
    display: flex;
    flex-direction: row;
-   gap: 20px;
+   gap: 10px;
    align-items: center;
 }
 
@@ -159,8 +159,11 @@ a:hover {
    outline: 4px solid lightpink;
 }
 
-.material-symbols-rounded {
-   font-size: 30px;
+.material-symbols-rounded.circle {
+   border-radius: 100px;
+   padding: 6px;
+   color: white;
+   background-color: gray;
 }
 
 .dropdown-option .material-symbols-rounded {
