@@ -16,12 +16,21 @@
          </p>
          <p v-else-if="!events">Loading tracks</p>
          <p v-else-if="events.length == 0">No tracks found</p>
-         <Event
-            v-else
-            v-for="event in events"
-            :key="event.date"
-            :event="event"
-         />
+         <template v-else>
+            <div class="open-now-box" v-if="events.filter(e => e.open).length != 0">
+               <h2>Open Events</h2>
+               <Event
+                  v-for="event in events.filter(e => e.open)"
+                  :key="event.date"
+                  :event="event"
+               />
+            </div>
+            <Event
+               v-for="event in events.filter(e => !e.open)"
+               :key="event.date"
+               :event="event"
+            />
+         </template>
       </div>
    </main>
 </template>
@@ -65,5 +74,15 @@ onBeforeMount(async () => {
 <style scoped>
 .filtered-tracks {
    margin-top: 30px;
+}
+
+.open-now-box {
+   background: rgb(255,192,0);
+   background: linear-gradient(180deg, rgb(193, 175, 119) 0%, rgb(255, 255, 255) 100%);
+   padding: 20px;
+}
+
+.open-now-box h2 {
+   margin: 0;
 }
 </style>
