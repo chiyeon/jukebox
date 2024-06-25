@@ -20,13 +20,18 @@
             <label for="lyrics">lyrics<p class="tag">(optional)</p></label>
             <textarea ref="lyrics_ref" placeholder="there's a light over the ocean
  ..." v-model="track.lyrics"></textarea>
+
+            <label for="album">Album Cover<p class="tag">(optional)</p></label>
+            <input @input="emit_album_cover" type="file" accept=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp">
         </form>
     </div>
 </template>
  
 <script setup>
-import { ref, defineProps, onBeforeUnmount } from "vue"
+import { ref, defineProps, onBeforeUnmount, defineEmits } from "vue"
+import { compress_image } from "../utils/image.js"
 
+const emit = defineEmits([ "selectFile" ])
 const props = defineProps([ "track" ])
 const track = ref(props.track)
 const old_track = { 
@@ -49,6 +54,13 @@ const add_artist = () => {
 
 const remove_artist = (index) => {
     track.value.artists.splice(index, 1)
+}
+
+const emit_album_cover = async (e) => {
+   let orig = e.currentTarget.files[0]
+   let album = await compress_image(orig, 512, 0.39)
+   console.log(`Compressed album from ${orig.size / 1024}kb to ${album.size / 1024}kb.`)
+   emit("selectFile", album)
 }
 
 </script>

@@ -102,7 +102,6 @@ export const compress_image = async (file, dim, maxsize) => {
 
     const cropped_image = await crop_image_to_square(file, dim)
     const compressedFile = new File([await imageCompression(cropped_image, options)], cropped_image.name.replace(/\.[^/.]+$/, "") + '.webp', { type: 'image/webp' });
-    console.log(compressedFile)
     return compressedFile
 }
 

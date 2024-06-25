@@ -72,7 +72,7 @@
 
   </div>
   <div class="edit-track" v-if="show_edit">
-    <EditTrack :track="track" />
+      <EditTrack :track="track" @selectFile="(file) => new_album_file = file" />
   </div>
   <LoadingScreen v-if="loading" />
 </template>
@@ -94,6 +94,8 @@ const validated_remove = ref(false);
 const show_remove_self = ref(false);
 
 const loading = ref(false);
+
+let new_album_file = null // new album file ref
 
 const store = useStore();
 const props = defineProps({
@@ -154,18 +156,18 @@ const submit_edit_track = async () => {
     return alert("Invalid title")
   }
 
+  let formdata = new FormData()
+  formdata.append("uuid", props.track.uuid)
+  formdata.append("title", props.track.title)
+   formdata.append("artists", JSON.stringify(props.track.artists.slice(1))),
+   formdata.append("lyrics", props.track.lyrics)
+
+   if (new_album_file) formdata.append("album", new_album_file)
+
   let res = await fetch("/api/edittrack", {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      uuid: props.track.uuid,
-      title: props.track.title,
-      artists: JSON.stringify(props.track.artists.slice(1)),
-      lyrics: props.track.lyrics
-    })
+    body: formdata
   })
 
   if (!res.ok) {
@@ -264,7 +266,6 @@ const add_to_queue = () => {
 };
 
 const remove_from_queue = () => {
-  console.log("hmm")
   store.dispatch("removeTrack", props.index);
 };
 

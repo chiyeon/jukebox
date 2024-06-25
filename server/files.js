@@ -17,8 +17,8 @@ const profiles_bucket = gstorage.bucket(profiles_bucket_name)
 const MAX_TRACK_SIZE_KB = 15000
 const MAX_ALBUM_SIZE_KB = 400
 const MAX_ICON_SIZE_KB = 300
-const MIN_FILENAME_LENGTH = 5
-const MAX_FILENAME_LENGTH = 50
+const MIN_FILENAME_LENGTH = 1
+const MAX_FILENAME_LENGTH = 100
 const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-()[\].&]+$/
 const MAX_LYRICS_LENGTH = 2000
 const MAX_ARTISTS = 7
@@ -37,7 +37,11 @@ const upload_file = async (file, bucket) => {
 }
 
 const delete_file = async (file, bucket) => {
-   await bucket.file(file).delete() 
+   try {
+      await bucket.file(file).delete() 
+   } catch (e) {
+      console.log("Failed to delete file: " + e)
+   }
 }
 
 // formulate a link to a file in a bucket
@@ -58,7 +62,7 @@ const validate_filename = (filename, extensions) => {
       let extension = split[split.length - 1]
       if (!extensions.includes(extension)) return `Extension "${extension}" is invalid`
    }
-   if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Filename contains invalid characters"
+   // if (!FILENAME_REGEX_VALIDATION.test(filename)) return "Filename contains invalid characters"
    return 0
 }
 

@@ -261,11 +261,13 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
       }
    })
 
-const delete_track = async (trackdata) => {
+const delete_album = async (trackdata) => {
    let albumfile = trackdata.album.split("/")
    albumfile = albumfile[albumfile.length - 1]
-   if (albumfile != "default.webp") await files.delete_file(albumfile, files.albums_bucket)
-   
+   if (albumfile != "default.webp" && albumfile != "tmf_album.webp") await files.delete_file(albumfile, files.albums_bucket)
+}
+
+const delete_track = async (trackdata) => {
    let trackfile = trackdata.filename
    await files.delete_file(trackfile, files.tracks_bucket)
 
@@ -288,13 +290,16 @@ app.post("/api/deletetrack", users.authenticate_token, async (req, res) => {
    // delete the track :c
 
    // start with deleting track and album ONLY IF NOT DEFAULT !!!
+   await delete_album(trackdata)
    await delete_track(trackdata)
    return res.status(200).send({ message: "Deleted track" })
 })
 
-app.post("/api/edittrack", users.authenticate_token, async (req, res) => {
+app.post("/api/edittrack", users.authenticate_token, files.upload.single("album"), async (req, res) => {
    const uuid = req.body.uuid
    if (!uuid) return res.status(400).send({ message: "No UUID provided" })
+
+   const album = req.file ? req.file : null
 
    // get our copy
    const trackdata = await fb.get_doc("tracks", uuid)
@@ -320,11 +325,29 @@ app.post("/api/edittrack", users.authenticate_token, async (req, res) => {
    if (validate_title != 0) {
       return res.status(400).send({ message: validate_title })
    }
+
+   // validate album
+   if (album) {
+      const validation = files.validate_filename(album.originalname)
+      if (validation != 0) return res.status(400).send({ message: validation })
+
+      if (album.buffer.length / 1024 > files.MAX_ALBUM_SIZE_KB) {
+         return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(files.MAX_ALBUM_SIZE_KB)+ "kb limit)" })
+      }
+   }
    
    let updated_track = {
       title: req.body.title,
       lyrics: req.body.lyrics ? req.body.lyrics : "",
       artists: pulled_artists
+   }
+
+   // why is there another if? idk
+   if (album) {
+      // delete old album & upload
+      await delete_album(trackdata)
+      let album_link = files.get_gcloud_link(await files.upload_file(album, files.albums_bucket), files.albums_bucket_name)
+      updated_track.album = album_link
    }
 
    // update server db
