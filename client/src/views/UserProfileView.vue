@@ -1,5 +1,4 @@
 <template>
-   <hr />
    <p v-if="!user">Loading</p>
    <p v-else-if="typeof user === 'string'">{{ user }}</p>
    <div class="user-profile" v-else>
@@ -49,15 +48,16 @@
                </p>
             </div>
          </div>
-         <ProfileBadges :badges="user.badges" />
+         <div class="info-box">
+            <ProfileBadges :badges="user.badges" />
+            <!-- stats box also supported here -->
+         </div>
       </div>
-
       <ProfileStats
          :username="user.username"
          :numTracks="user.num_tracks"
          :numWins="user.num_wins"
       />
-
 
       <h3>Bio</h3>
       <template v-if="!editing_bio">
@@ -289,6 +289,12 @@ h2 {
    flex: 1;
 }
 
+.info-box {
+   display: flex;
+   align-items: center;
+   flex-direction: column;
+}
+
 .username {
    margin: 0;
    font-style: italic;
@@ -297,7 +303,6 @@ h2 {
 .user {
    display: flex;
    flex-direction: row;
-   align-items: center;
    gap: 20px;
    flex: 3;
 }

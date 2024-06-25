@@ -48,6 +48,7 @@ const stats = computed(() => [
 .stats-box {
    display: flex;
    flex-direction: row;
+   justify-content: flex-start;
    margin-top: 20px;
 }
 

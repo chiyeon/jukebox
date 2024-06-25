@@ -29,20 +29,12 @@ defineProps(["badges"])
 </script>
 
 <style scoped>
-
-.badges-box {
-   flex: 1;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   flex-direction: column;
-}
-
 .badges {
    display: flex;
    gap: 10px;
    justify-content: center;
    align-items: center;
+   height: 64px;
 }
 
 .badge {
