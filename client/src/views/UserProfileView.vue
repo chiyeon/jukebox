@@ -55,6 +55,8 @@
          :numWins="user.num_wins"
       />
 
+      <ProfileBadges :badges="user.badges" />
+
       <h3>Bio</h3>
       <template v-if="!editing_bio">
          <p class="bio">{{ user.bio }}</p>
@@ -100,6 +102,7 @@ import { compress_image } from "../utils/image.js"
 import Event from "../components/EventComponent.vue"
 import ProfileStats from "../components/ProfileStats.vue"
 import TracksSearchBar from "../components/TracksSearchBar.vue"
+import ProfileBadges from "../components/ProfileBadges.vue"
 
 const route = useRoute()
 const store = useStore()

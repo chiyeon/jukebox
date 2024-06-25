@@ -134,9 +134,6 @@ a {
    text-decoration: none;
    cursor: pointer;
 }
-a:hover {
-   opacity: 0.7;
-}
 
 .link {
    display: flex;
@@ -155,8 +152,11 @@ a:hover {
    cursor: pointer;
 }
 
-.user-icon:hover {
-   outline: 4px solid lightpink;
+.user-icon:hover,
+.circle:hover,
+.link:hover {
+   /*outline: 4px solid lightpink;*/
+   opacity: 0.6;
 }
 
 .material-symbols-rounded.circle {
@@ -164,6 +164,7 @@ a:hover {
    padding: 6px;
    color: white;
    background-color: gray;
+   box-sizing: border-box;
 }
 
 .dropdown-option .material-symbols-rounded {
