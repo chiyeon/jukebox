@@ -598,21 +598,36 @@ const get_tracks_as_objects = (uuids) => {
 // run whenever an event is created/updated. simply set the tracks,
 // then replace it in our events & repopulate events list
 const update_events = async (new_events) => {
+   let anything_updated = false
+
    for (let key in new_events) {
-      new_events[key].tracks = get_tracks_as_objects(new_events[key].tracks)   
+      switch (new_events[key].type) {
+         case "added":
+         case "modified":
+            anything_updated = true
+            new_events[key].tracks = get_tracks_as_objects(new_events[key].tracks)   
 
-      // remove old & add to list
-      if (events.hasOwnProperty(key)) {
-         // updating an existing event: remove it!
-         events_list = events_list.filter(e => e.uuid != key)
+            // remove old & add to list
+            if (events.hasOwnProperty(key)) {
+               // updating an existing event: remove it!
+               events_list = events_list.filter(e => e.uuid != key)
+            }
+
+            events_list.push(new_events[key])
+
+            events[key] = new_events[key]
+            break
+         case "removed":
+            events_list = events_list.filter(e => e.uuid != key)
+            delete events[key]
+            break
       }
+   } 
 
-      events_list.push(new_events[key])
-
-      events[key] = new_events[key]
+   // resort array if added/updated
+   if (anything_updated) {
+      events_list.sort((a, b) => get_timestamp_as_date(b.date) - get_timestamp_as_date(a.date))
    }
-
-   events_list.sort((a, b) => get_timestamp_as_date(b.date) - get_timestamp_as_date(a.date))
 }
 
 const update_tracks = async (new_tracks) => {

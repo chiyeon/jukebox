@@ -159,6 +159,7 @@ const setup_collection_listener = (col_name, callback) => {
       let output = {}
       snap.docChanges().forEach(change => {
          output[change.doc.id] = change.doc.data()
+         output[change.doc.id].type = change.type
       })
 
       callback(output)
