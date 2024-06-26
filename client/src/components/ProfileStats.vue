@@ -22,7 +22,7 @@
 
 <script setup>
 import { defineProps, computed, ref } from "vue"
-const props = defineProps(["username", "numTracks", "numWins"])
+const props = defineProps(["username", "stats"])
 
 // endtip = "ending" of the tooltip
 // ie ...total tracks uploaded
@@ -39,8 +39,9 @@ const Stat = (icon, label, bg_color, fg_color, endtip) => {
 const tooltip = ref("")
 
 const stats = computed(() => [
-   Stat("music_note", props.numTracks, "teal", "white", "total tracks"),
-   Stat("trophy", props.numWins, "#f08000", "#ffc000", "total wins"),
+   Stat("music_note", props.stats.tracks | 0, "teal", "white", "tracks"),
+   Stat("trophy", props.stats.wins | 0, "#f08000", "#ffc000", "wins"),
+   Stat("playing_cards", props.stats.badges | 0, "darkseagreen", "white", "badges")
 ])
 </script>
 
@@ -73,10 +74,10 @@ const stats = computed(() => [
    display: flex;
    justify-content: center;
    align-items: center;
-   gap: 4px;
+   gap: 2px;
    height: 42px;
-   padding: 0 10px;
    cursor: default;
+   width: 64px;
 }
 
 .stat .label {

@@ -55,8 +55,11 @@
       </div>
       <ProfileStats
          :username="user.username"
-         :numTracks="user.num_tracks"
-         :numWins="user.num_wins"
+         :stats="{
+            tracks: user.num_tracks,
+            wins: user.num_wins,
+            badges: user.badges.length
+         }"
       />
 
       <h3>Bio</h3>
