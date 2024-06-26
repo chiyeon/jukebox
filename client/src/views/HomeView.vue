@@ -80,6 +80,7 @@ onBeforeMount(async () => {
    background: rgb(255,192,0);
    background: linear-gradient(180deg, rgb(193, 175, 119) 0%, rgb(255, 255, 255) 100%);
    padding: 20px;
+   border-radius: 10px;
 }
 
 .open-now-box h2 {
