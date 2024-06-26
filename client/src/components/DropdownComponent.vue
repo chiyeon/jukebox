@@ -28,6 +28,7 @@ onMounted(() => {
 .dropdown-box {
    position: relative;
    display: flex;
+   z-index: 51;
 }
 
 .dropdown {

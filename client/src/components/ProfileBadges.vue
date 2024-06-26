@@ -23,9 +23,9 @@
 <script setup>
 import { defineProps, ref } from "vue"
 
-const tooltip = ref("")
+const props = defineProps(["badges"])
 
-defineProps(["badges"])
+const tooltip = ref("")
 </script>
 
 <style scoped>
@@ -33,7 +33,8 @@ defineProps(["badges"])
    display: flex;
    gap: 10px;
    justify-content: center;
-   align-items: center;
+   align-items: flex-end;
+   flex-direction: row-reverse;
    height: 64px;
 
    transition: 0.1s gap ease;
@@ -56,7 +57,6 @@ defineProps(["badges"])
 }
 
 .badges:hover {
-   gap: 40px;
 }
 
 .badge .material-symbols-rounded {
