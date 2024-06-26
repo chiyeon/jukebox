@@ -443,6 +443,9 @@ h3 {
    width: 100%;
    font-size: 16px;
    white-space: break-spaces;
+
+   max-height: 240px;
+   overflow-y: auto;
 }
 
 .bio.input {
