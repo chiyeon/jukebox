@@ -1,5 +1,5 @@
 <template>
-   <div class="dropdown-box" @click="toggle">
+   <div class="dropdown-box" @click.stop="toggle">
       <slot name="trigger"></slot>
       <div v-if="open" class="dropdown">
          <slot></slot>
@@ -11,16 +11,23 @@
 import { ref, onMounted } from "vue"
 
 const open = ref(false)
+let closing = false
 
 const toggle = (e) => { 
+   if (closing) {
+      closing = false
+      return
+   }
    e.stopPropagation()
    open.value = !open.value
 }
 
 onMounted(() => {
-   document.addEventListener("click", () => {
+   document.addEventListener("click", (e) => {
+      if (!open.value) return
       open.value = false
-   })
+      closing = true
+   }, true)
 })
 </script>
 
@@ -28,7 +35,6 @@ onMounted(() => {
 .dropdown-box {
    position: relative;
    display: flex;
-   z-index: 51;
 }
 
 .dropdown {
@@ -39,6 +45,7 @@ onMounted(() => {
    right: 0;
    top: calc(100% + 5px);
    background-color: white;
+   z-index: 51;
 }
 
 .dropdown > * {

@@ -124,19 +124,34 @@
       </div>
 
       <div class="controls">
-         <button
-            v-if="!is_hiding_queue_button()"
-            @click.stop="add_to_queue"
-            class="button-block"
-         >
-            <span class="material-symbols-rounded add-to-queue">add</span>
-         </button>
+         <Dropdown>
+            <template #trigger>
+               <button
+                  v-if="!is_hiding_queue_button()"
+                  class="button-block nobg"
+               >
+                  <span class="material-symbols-rounded icon nobg" style="font-size: 28px"
+                     >more_horiz</span
+                  >
+               </button>
+            </template>
+            <div class="dropdown-option" @click.stop="add_to_queue">
+               <span class="material-symbols-rounded icon">add</span>
+               <p>Add to Queue</p>
+            </div>
+            <div class="dropdown-option disabled">
+               <span class="material-symbols-rounded icon">playlist_add</span>
+               <p>Add to Playlist</p>
+            </div>
+         </Dropdown>
          <button
             v-if="type == 'queue'"
             @click.stop="remove_from_queue"
-            class="button-block queue"
+            class="button-block queue nobg"
          >
-            <span class="material-symbols-rounded add-to-queue">close</span>
+            <span class="material-symbols-rounded icon nobg"
+               >close</span
+            >
          </button>
       </div>
    </div>
@@ -157,6 +172,7 @@ import LoadingScreen from "./LoadingComponent.vue"
 import eventbus from "../eventbus"
 import EditTrack from "./EditTrackComponent.vue"
 import router from "../router"
+import Dropdown from "./DropdownComponent.vue"
 
 const emit = defineEmits(["click", "clickArtist"])
 
@@ -473,10 +489,6 @@ const prevent_parent_click = (e) => {}
    max-width: 85%;
 }
 
-.add-to-queue {
-   color: black;
-}
-
 .mobile_expanded {
    flex-direction: column;
    width: 100%;
@@ -570,5 +582,31 @@ const prevent_parent_click = (e) => {}
 
 .edit {
    background-color: goldenrod;
+}
+
+.dropdown-option:not(:last-child) {
+   margin-bottom: 8px;
+}
+
+.dropdown-option:hover {
+   opacity: 0.5;
+}
+
+.dropdown-option.disabled {
+   opacity: 0.2 !important;
+   cursor: default;
+}
+
+.button-block.nobg {
+   background: none !important;
+   border-radius: 10px;
+}
+
+.icon.nobg {
+   color: black;
+}
+
+.icon.nobg:hover {
+   color: lightcoral;
 }
 </style>
