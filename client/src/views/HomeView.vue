@@ -17,18 +17,20 @@
          <p v-else-if="!events">Loading tracks</p>
          <p v-else-if="events.length == 0">No tracks found</p>
          <template v-else>
-            <div class="open-now-box" v-if="events.filter(e => e.open).length != 0">
-               <h2>Open Events</h2>
+            <div class="open-now-box" v-if="events.filter(e => e.featured).length != 0">
+               <h2><strong>Active Events</strong></h2>
                <Event
-                  v-for="event in events.filter(e => e.open)"
+                  v-for="event in events.filter(e => e.featured)"
                   :key="event.date"
                   :event="event"
+                  :preview="!event.open"
                />
             </div>
             <Event
-               v-for="event in events.filter(e => !e.open)"
+               v-for="event in events.filter(e => !e.featured)"
                :key="event.date"
                :event="event"
+               :preview="event.featured && !event.open"
             />
          </template>
       </div>

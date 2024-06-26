@@ -15,14 +15,7 @@ module.exports = {
       "Contributor",
       "Website contributor",
       "code",
-      "teal"
-    ),
-    monthofmay2: Badge(
-      "monthofmay2",
-      "MONTH OF MAY 2",
-      "Month of May 2 event participant",
-      "today",
-      "brown"
+      "lightpink",
     ),
     renewer: Badge(
       "renewer",
@@ -30,6 +23,13 @@ module.exports = {
       "RENEWAL event participant",
       "raven",
       "crimson",
+    ),
+    christmas2023: Badge(
+      "christmas2023",
+      "Christmas Bouncin",
+      "Part of the 2023 Christmas Miracle",
+      "redeem",
+      "green",
     ),
   },
 };

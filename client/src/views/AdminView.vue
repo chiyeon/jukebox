@@ -1,38 +1,19 @@
 <template>
-   <h1>Admin Page</h1>
-
-   <div v-if="mode == 'events'">
-      <hr />
-      <h2>New Event</h2>
-
-      <div class="form">
-         <label>Title</label>
-         <input
-            ref="event_title_ref"
-            type="text"
-            placeholder="The Month of May 3"
-            required
-         />
-
-         <label>Description</label>
-         <textarea
-            ref="event_description_ref"
-            placeholder="Its the month of may..."
-            required
-         />
-
-         <label>Tags</label>
-         <input
-            ref="event_tags_ref"
-            type="text"
-            placeholder="24 hours,Collaborative"
-         />
-
-         <button @click="submit_new_event">Submit</button>
+   <div class="nav">
+      <div
+         v-for="mode in modes"
+         :key="mode.id"
+         :class="{ 'nav-button': true, selected: mode.id == current_mode }"
+         @click="current_mode = mode.id"
+      >
+         <span class="material-symbols-rounded icon">{{ mode.icon }}</span>
+         <p>{{ mode.title }}</p>
       </div>
-
-      <hr />
+   </div>
+   <AdminNewEvent v-if="current_mode == 'new-event'" />
+   <div v-else-if="current_mode == 'edit-events'">
       <h2>Events</h2>
+      <p>View & edit events here. Deleting an event <strong>will delete all track data & album files from storage/db</strong>. Opening/closing events by editing won't affect the dates and can be done freely. To set the final date, use the Close Event button.</p>
       <AdminEvent
          v-for="event in events"
          :key="event.uuid"
@@ -45,38 +26,15 @@
 <script setup>
 import { ref, onBeforeMount } from "vue"
 import AdminEvent from "./AdminComponents/AdminEvent.vue"
+import AdminNewEvent from "./AdminComponents/AdminNewEvent.vue"
 
-const event_title_ref = ref(null)
-const event_description_ref = ref(null)
-const event_tags_ref = ref(null)
-
-const mode = ref("events")
+const modes = [
+   { id: "new-event", title: "New Event", icon: "note_add" },
+   { id: "edit-events", title: "Edit Events", icon: "edit_note" },
+]
+const current_mode = ref("new-event")
 
 const events = ref([])
-
-const submit_new_event = async () => {
-   let newevent = {
-      name: event_title_ref.value.value,
-      desc: event_description_ref.value.value,
-      tags: event_tags_ref.value.value
-         ? event_tags_ref.value.value.split(",")
-         : [],
-   }
-
-   let res = await fetch("/api/eventcreate", {
-      method: "post",
-      credentials: "include",
-      headers: {
-         "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newevent),
-   })
-
-   if (res.ok) {
-      return alert("Uploaded successfully")
-   }
-   alert("Failed to upload")
-}
 
 onBeforeMount(async () => {
    let res = await fetch("/api/events", {
@@ -91,19 +49,27 @@ onBeforeMount(async () => {
 </script>
 
 <style scoped>
-.form {
+.nav-button:hover p,
+.nav-button.selected p {
+   text-decoration: underline;
+}
+
+.nav-button.selected {
+   color: coral;
+}
+
+.nav-button {
+   cursor: pointer;
    display: flex;
-   flex-direction: column;
-   max-width: 400px;
-   margin: auto;
+   align-items: center;
 }
 
-input,
-textarea {
-   margin-bottom: 10px;
+.nav-button .icon {
+   font-ize: 24px;
 }
 
-hr {
-   margin-top: 40px;
+.nav {
+   display: flex;
+   gap: 10px;
 }
 </style>

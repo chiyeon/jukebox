@@ -2,8 +2,8 @@
    <div class="header">
       <h1>ThatMyFavorite</h1>
       <div class="nav">
-         <RouterLink to="/" title="Listen to tracks" class="link" style="gap: 0">
-            <span class="material-symbols-rounded circle" style="display: flex; background-color: lightcoral"
+         <RouterLink to="/" title="Listen to tracks" class="link nocircle" style="gap: 0">
+            <span class="material-symbols-rounded circle" style="display: flex;"
                >music_note</span
             >
             <p style="margin-left: 4px">Listen</p>
@@ -133,6 +133,12 @@ p {
 a {
    text-decoration: none;
    cursor: pointer;
+}
+
+.link.nocircle .material-symbols-rounded {
+   background: none;
+   color: black;
+   padding: 0;
 }
 
 .link {

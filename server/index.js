@@ -41,7 +41,8 @@ app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) =>
       tags,
       uuid,
       tracks: [],
-      open: true
+      open: req.body.open ? req.body.open : false,
+      featured: req.body.featured ? req.body.featured : false
    }
    await fb.set_doc("events", uuid, newevent)
    return res.status(200).send({ message: "yay" })
@@ -49,6 +50,7 @@ app.post("/api/eventcreate", users.authenticate_token_admin, async (req, res) =>
 
 app.post("/api/eventdelete", users.authenticate_token_admin, async (req, res) => {
    const uuid = req.body.uuid
+   if (!uuid || uuid == "") return res.status(400).send({ message: "Invalid/empty UUID" })
    let event = await fb.get_doc("events", uuid)
    if (!event) return res.status(400).send({ message: "Invalid event UUID" })
 
@@ -68,10 +70,31 @@ app.post("/api/eventdelete", users.authenticate_token_admin, async (req, res) =>
 app.post("/api/eventupdate", users.authenticate_token_admin, async (req, res) => {
    const uuid = req.body.uuid
    const changes = req.body.changes
+   if (!uuid || uuid == "") return res.status(400).send({ message: "Invalid/empty UUID" })
+   let event = await fb.get_doc("events", uuid)
+   if (!event) return res.status(400).send({ message: "Invalid event UUID" })
 
    await fb.update_doc("events", uuid, changes)
 
    return res.status(200).send()
+})
+
+app.post("/api/eventclose", users.authenticate_token_admin, async (req, res) => {
+   const uuid = req.body.uuid
+   if (!uuid || uuid == "") return res.status(400).send({ message: "Invalid/empty UUID" })
+   let event = await fb.get_doc("events", uuid)
+   if (!event) return res.status(400).send({ message: "Invalid event UUID" })
+   let date = event.date
+
+   if (date.length >= 2) date[1] = fb.get_timestamp(new Date())
+   else date.push(fb.get_timestamp(new Date()))
+
+   await fb.update_doc("events", uuid, { 
+      open: false,
+      date
+   })
+
+   await res.status(200).send()
 })
 
 // update user name

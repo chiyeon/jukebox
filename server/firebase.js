@@ -7,7 +7,7 @@ const { print } = require("./utils.js")
 
 const admin = require("firebase-admin")
 const fb_key = require(process.env.FB_SERVICE_ACC_KEY)
-const { FieldValue } = require("firebase-admin/firestore")
+const { FieldValue, Timestamp } = require("firebase-admin/firestore")
 const {  doc, setDoc, getDoc, query, collection, getDocs, deleteDoc, onSnapshot, updateDoc } = require("firebase/firestore")
 
 const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG)
@@ -181,6 +181,10 @@ const setup_document_listener = (col_name, doc_id, callback) => {
    })
 }
 
+const get_timestamp = (date) => {
+   return Timestamp.fromDate(date)
+}
+
 /*
  * bye bye !!
  */
@@ -198,5 +202,6 @@ module.exports = {
    setup_collection_listener,
    setup_document_listener,
    FieldValue,
-   get_docs_by_query
+   get_docs_by_query,
+   get_timestamp
 }

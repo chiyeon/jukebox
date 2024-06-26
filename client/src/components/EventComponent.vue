@@ -7,9 +7,9 @@
          <div class="tags-box">
             <p class="tag" v-for="tag in event.tags" :key="tag">{{ tag }}</p>
          </div>
-         <p class="description">{{ event.desc }}</p>
+         <div class="description" v-html="event.desc"></div>
       </template>
-      <div class="tracks">
+      <div class="tracks" v-if="event.tracks.length != 0">
          <!--Track :track="track_header" :header=true /-->
          <Track
             v-for="track in event.tracks"
@@ -17,8 +17,9 @@
             :track="track"
             :type="get_type(track)"
          />
-         <p v-if="event.tracks.length == 0"><i>No tracks found</i></p>
       </div>
+      <p class="hint" v-else-if="!event.open && event.featured">Track submissions will open soon.</p>
+      <p v-else-if="event.tracks.length == 0"><i>No tracks found</i></p>
    </div>
 </template>
 
@@ -28,7 +29,7 @@
 import Track from "./TrackComponent.vue"
 import { defineProps } from "vue"
 
-const props = defineProps(["event", "allowDelete", "user"])
+const props = defineProps(["event", "allowDelete", "user", "preview"])
 
 const get_type = (track) => {
    if (props.allowDelete) {
@@ -87,5 +88,19 @@ h2 {
    background-color: #e0e0e0;
    padding: 4px 6px;
    border-radius: 100px;
+}
+
+.description {
+   margin: 20px 0;
+}
+
+.description p {
+   margin: 0;
+   white-space: break-spaces;
+}
+
+.hint {
+   font-style: italic;
+   margin-left: 10px;
 }
 </style>
