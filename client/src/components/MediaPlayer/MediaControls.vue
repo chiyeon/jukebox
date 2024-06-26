@@ -84,17 +84,32 @@ const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"]
    font-size: var(--size);
 }
 
+.mobile {
+   width: 100%;
+   align-items: center;
+   justify-content: space-between;
+}
+
+.mobile button {
+   width: fit-content;
+   height: fit-content;
+}
+
+.mobile button span {
+   width: fit-content;
+}
+
 .mobile .pause .control-icon {
-   --size: 56px;
+   --size: 64px;
 }
 
 .mobile .next .control-icon,
 .mobile .prev .control-icon {
-   --size: 48px;
+   --size: 56px;
 }
 
 .mobile .shuffle .control-icon,
 .mobile .repeat .control-icon {
-   --size: 24px;
+   --size: 28px;
 }
 </style>
