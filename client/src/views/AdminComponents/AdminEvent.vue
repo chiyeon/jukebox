@@ -114,9 +114,8 @@ const delete_event = async () => {
 
 const edit_event = async (uuid) => {
    // first set tags & remove new_tags
-   let updated_event = {...props.event}
+   let updated_event = { name: props.event.name, open: props.event.open, featured: props.event.featured, desc: props.event.desc, date: props.event.date }
    updated_event.tags = props.event.new_tags.split(",")
-   delete updated_event.new_tags
 
    let res = await fetch("/api/eventupdate", {
       method: "post",
@@ -126,15 +125,15 @@ const edit_event = async (uuid) => {
       },
       body: JSON.stringify({
          changes: updated_event,
-         uuid: updated_event.uuid
+         uuid: props.event.uuid
       })
    })
 
    if (res.ok) {
-      return alert("Updated successfully")
+      alert("Updated successfully")
    } else {
       let msg = (await res.json()).message
-      return alert("Error: " + msg)
+      alert("Error: " + msg)
    }
 
    editing.value = false
