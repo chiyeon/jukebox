@@ -22,8 +22,9 @@
             type="range"
             min="0"
             max="1"
-            step="0.01"
+            step="0.001"
             class="progress-slider"
+            :value="current_progress"
          />
       </div>
       <p v-if="right_label" class="label right">{{ right_label }}</p>
@@ -120,8 +121,8 @@ const set_progress = () => {
 }
 
 .progress-slider {
-   appearance: none;
    -webkit-appearance: none;
+   appearance: none;
    outline: none;
    width: 100%;
    background: none;
@@ -136,7 +137,9 @@ const set_progress = () => {
    cursor: pointer;
 }
 
-.progress-background:hover .progress-slider::-webkit-slider-thumb,
+.progress-background:hover .progress-slider::-webkit-slider-thumb {
+   opacity: 1;
+}
 .progress-background:hover .progress-slider::-moz-range-thumb {
    opacity: 1;
 }
@@ -144,11 +147,21 @@ const set_progress = () => {
 .progress-slider::-webkit-slider-thumb {
    -webkit-appearance: none;
    appearance: none;  
+   opacity: 0;
+   border: none;
+   width: 16px;
+   height: 16px;
+   border-radius: 100px;
+   background-color: darkseagreen;
 }
 
-.progress-slider::-webkit-slider-thumb,
 .progress-slider::-moz-range-thumb {
    opacity: 0;
+   border: none;
+   width: 16px;
+   height: 16px;
+   border-radius: 100px;
+   background-color: darkseagreen;
 }
 
 .label {
