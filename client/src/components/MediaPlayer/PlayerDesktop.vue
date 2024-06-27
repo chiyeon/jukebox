@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue"
+import { defineProps, defineEmits, computed } from "vue"
 import eventbus from "../../eventbus"
 import ProgressSlider from "./ProgressSlider.vue"
 import MediaControls from "./MediaControls.vue"
@@ -98,6 +98,7 @@ const emit = defineEmits([
    "showAlbum",
 ])
 
+const audio_ref = computed(() => props.audio_ref)
 const volume_icons = ["volume_up", "volume_down", "volume_mute", "volume_off"]
 
 const get_volume_icon = () => {
