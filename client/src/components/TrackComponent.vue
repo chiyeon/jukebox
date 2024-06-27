@@ -136,11 +136,11 @@
                </button>
             </template>
             <div class="dropdown-option" @click.stop="add_to_queue">
-               <span class="material-symbols-rounded icon">add</span>
+               <span class="material-symbols-rounded icon">playlist_add</span>
                <p>Add to Queue</p>
             </div>
             <div class="dropdown-option disabled">
-               <span class="material-symbols-rounded icon">playlist_add</span>
+               <span class="material-symbols-rounded icon">add</span>
                <p>Add to Playlist</p>
             </div>
          </Dropdown>

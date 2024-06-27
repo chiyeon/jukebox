@@ -54,6 +54,7 @@ onMounted(() => {
    align-items: center;
    white-space: nowrap;
    padding-right: 20px;
+   gap: 4px;
 }
 
 .dropdown > hr {
