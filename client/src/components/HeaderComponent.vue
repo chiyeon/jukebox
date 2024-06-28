@@ -14,7 +14,7 @@
                >terminal</span
             ></RouterLink
          >
-         <RouterLink v-if="user" title="View Playlists" to="/playlists"
+         <RouterLink v-if="user" title="View Playlists" :to="`/u/${user.username}/playlists`"
             ><span class="material-symbols-rounded circle" style="display: flex; background-color: rebeccapurple"
                >library_music</span
             ></RouterLink
@@ -40,7 +40,7 @@
                <p>View profile</p>
             </RouterLink>
             <RouterLink
-               to="/playlists"
+               :to="`/u/${user.username}/playlists`"
                class="dropdown-option"
                v-if="user"
                title="View Playlists"

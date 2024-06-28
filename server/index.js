@@ -582,8 +582,9 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
 
 app.post("/api/playlistcreate", users.authenticate_token, files.upload.single("cover"), playlists.create_new_playlist)
 
-app.get("/api/playlists", users.authenticate_token, async (req, res) => {
-   const userdata = await fb.get_doc("users", req.username)
+app.post("/api/playlists", users.authenticate_optional_token, async (req, res) => {
+   if (!req.body.username) return res.status(400).send({ message: "Missing username" })
+   const userdata = await fb.get_doc("users", req.body.username)
 
    if (!userdata) return res.status(400).send({ message: "Invalid user" })
 
@@ -595,7 +596,11 @@ app.get("/api/playlists", users.authenticate_token, async (req, res) => {
       let data = await fb.get_doc("playlists", userdata.playlists[i])
       if (!data) print("Found invalid playlist: " + userdata.playlists[i])
       else {
-         playlists.push(data)
+         // only push private playlists if we are the user in question
+         if (data.visibility === "public") playlists.push(data)
+         else if (data.visibility === "private" && (data.editors.includes(req.username) || data.viewers.includes(req.username))) {
+            playlists.push(data)
+         }
       }
    }
    

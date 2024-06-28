@@ -1,6 +1,10 @@
 <template>
    <div class="playlists-box">
-      <div class="new-playlist" @click="new_playlist">
+      <div
+         class="new-playlist"
+         @click="new_playlist"
+         v-if="user && user.username == route.params.username"
+      >
          <div class="cover">
             <span class="material-symbols-rounded icon">add_circle</span>
          </div>
@@ -13,13 +17,29 @@
             :playlist="playlist"
          />
       </template>
+      <p
+         v-if="
+            user &&
+            user.username != route.params.username &&
+            playlists &&
+            playlists.length == 0
+         "
+      >
+         No playlists found
+      </p>
    </div>
 </template>
 
 <script setup>
 import Playlist from "../components/PlaylistComponent.vue"
-import { onBeforeMount, ref } from "vue"
+import { onMounted, ref, defineProps, computed, watch } from "vue"
+import { useStore } from "vuex"
+import { useRoute } from "vue-router"
 
+const store = useStore()
+const route = useRoute()
+
+const user = computed(() => store.state.user)
 const playlists = ref(null)
 
 const new_playlist = async () => {
@@ -30,7 +50,7 @@ const new_playlist = async () => {
    let res = await fetch("/api/playlistcreate", {
       method: "POST",
       credentials: "include",
-      body: formdata
+      body: formdata,
    })
 
    if (res.ok) {
@@ -40,10 +60,15 @@ const new_playlist = async () => {
    }
 }
 
-onBeforeMount(async () => {
+const fetch_playlists = async () => {
+   if (!route.params.username || route.params.username == "") return
    let res = await fetch("/api/playlists", {
-      method: "GET",
-      credentials: "include"
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: route.params.username }),
+      credentials: "include",
    })
 
    if (res.ok) {
@@ -51,8 +76,14 @@ onBeforeMount(async () => {
    } else {
       alert((await res.json()).message)
    }
-})
+}
 
+onMounted(() => { fetch_playlists() })
+
+watch(
+   () => route.params.username,
+   () => { playlists.value = []; fetch_playlists() }
+)
 </script>
 
 <style scoped>
@@ -74,12 +105,12 @@ onBeforeMount(async () => {
 }
 
 .new-playlist:hover .cover {
-   filter: invert(1.0)
+   filter: invert(1);
 }
 
 .cover {
    width: 100%;
-   aspect-ratio: 1.0;
+   aspect-ratio: 1;
    background-color: #303030;
 
    display: flex;

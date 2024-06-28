@@ -27,9 +27,9 @@ const router = createRouter({
          component: () => import("../views/UploadView.vue"),
       },
       {
-         path: "/playlists",
+         path: "/u/:username/playlists",
          name: "Playlists",
-         component: () => import("../views/PlaylistsView.vue")
+         component: () => import("../views/PlaylistsView.vue"),
       },
       {
          path: "/u/:username",

@@ -100,6 +100,27 @@ const authenticate_token = (req, res, next) => {
    next()
 }
 
+// if token, set req.username, otherwise dont
+const authenticate_optional_token = (req, res, next) => {
+   let token = req.cookies.authentication_token
+
+   /*
+   if (!token) {
+      req.username = ""
+      next()
+   }*/
+
+   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+         // no jwt provided
+         req.username = ""
+      } else {
+         req.username = user.username
+      }
+   })
+   next()
+}
+
 // express middleware fn, check for valid auth token + permissions (>= USER_ADMIN [val = 2])
 const authenticate_token_admin = (req, res, next) => {
    let token = req.cookies.authentication_token 
@@ -185,6 +206,7 @@ module.exports = {
    USER_ADMIN,
    authenticate_token,
    authenticate_token_admin,
+   authenticate_optional_token,
    login_user,
    create_new_user,
    test_password,
