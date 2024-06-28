@@ -125,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import eventbus from "../../eventbus"
 import Track from "../TrackComponent.vue"
 import ProgressSlider from "./ProgressSlider.vue"
@@ -146,6 +146,8 @@ const emit = defineEmits([
    "nextTrack",
    "prevTrack",
 ])
+
+const audio_ref = computed(() => props.audio_ref)
 
 const show_mini_player = ref(true)
 </script>

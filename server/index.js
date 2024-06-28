@@ -23,7 +23,6 @@ const cookie_settings = {
 let tracks = {}
 let events = {}
 let events_list = []
-let populated_events = false // we should only start updating tracks when events are initially populated
 
 app.use(express.json())
 app.use(cookieparser())
