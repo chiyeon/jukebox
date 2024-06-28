@@ -11,6 +11,8 @@ const crypto = require("crypto")
 const { badges } = require("./badges.js")
 // const cors = require("cors")
 
+const playlists = require("./playlists.js")
+
 const app = express()
 const PORT = process.env.PORT || 3000
 const cookie_settings = {
@@ -576,6 +578,28 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
    open_events.reverse()
 
    res.status(200).send({ events: open_events })
+})
+
+app.post("/api/playlistcreate", users.authenticate_token, files.upload.single("cover"), playlists.create_new_playlist)
+
+app.get("/api/playlists", users.authenticate_token, async (req, res) => {
+   const userdata = await fb.get_doc("users", req.username)
+
+   if (!userdata) return res.status(400).send({ message: "Invalid user" })
+
+   let playlists = []
+   
+   if (!userdata.playlists || userdata.playlists.length == 0) return res.status(200).send({ playlists })
+
+   for (let i = 0; i < userdata.playlists.length; i++) {
+      let data = await fb.get_doc("playlists", userdata.playlists[i])
+      if (!data) print("Found invalid playlist: " + userdata.playlists[i])
+      else {
+         playlists.push(data)
+      }
+   }
+   
+   return res.status(200).send({ playlists })
 })
 
 const get_display_names = async (track) => {

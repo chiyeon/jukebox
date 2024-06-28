@@ -11,9 +11,11 @@ const gstorage = new Storage({
 const tracks_bucket_name = "jukebox-tracks"
 const albums_bucket_name = "jukebox-albums"
 const profiles_bucket_name = "jukebox-profiles"
+const playlists_bucket_name = "jukebox-playlist-covers"
 const tracks_bucket = gstorage.bucket(tracks_bucket_name)
 const albums_bucket = gstorage.bucket(albums_bucket_name)
 const profiles_bucket = gstorage.bucket(profiles_bucket_name)
+const playlists_bucket = gstorage.bucket(playlists_bucket_name)
 const MAX_TRACK_SIZE_KB = 15000
 const MAX_ALBUM_SIZE_KB = 400
 const MAX_ICON_SIZE_KB = 300
@@ -74,9 +76,11 @@ module.exports = {
    tracks_bucket,
    albums_bucket,
    profiles_bucket,
+   playlists_bucket,
    tracks_bucket_name,
    albums_bucket_name,
    profiles_bucket_name,
+   playlists_bucket_name,
    MAX_TRACK_SIZE_KB,
    MAX_ALBUM_SIZE_KB,
    MAX_ICON_SIZE_KB,
