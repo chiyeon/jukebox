@@ -14,6 +14,11 @@
                >terminal</span
             ></RouterLink
          >
+         <RouterLink v-if="user" title="View Playlists" to="/playlists"
+            ><span class="material-symbols-rounded circle" style="display: flex; background-color: rebeccapurple"
+               >library_music</span
+            ></RouterLink
+         >
          <RouterLink v-if="user" title="Upload Tracks" to="/upload"
             ><span class="material-symbols-rounded circle" style="display: flex; background-color: teal"
                >upload</span
@@ -33,6 +38,17 @@
                   >person</span
                >
                <p>View profile</p>
+            </RouterLink>
+            <RouterLink
+               to="/playlists"
+               class="dropdown-option"
+               v-if="user"
+               title="View Playlists"
+            >
+               <span class="material-symbols-rounded" style="display: flex"
+                  >library_music</span
+               >
+               <p>Playlists</p>
             </RouterLink>
             <hr />
             <a
@@ -171,6 +187,10 @@ a {
    color: white;
    background-color: gray;
    box-sizing: border-box;
+}
+
+.dropdown-option:not(:last-child) {
+   margin-bottom: 8px;
 }
 
 .dropdown-option .material-symbols-rounded {

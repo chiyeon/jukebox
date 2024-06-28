@@ -54,6 +54,7 @@ hr {
    height: 1px;
    background: black;
    width: 100%;
+   box-sizing: border-box;
 }
 
 @media (max-width: 600px) {
