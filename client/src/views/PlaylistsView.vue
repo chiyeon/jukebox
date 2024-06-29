@@ -2,7 +2,7 @@
    <div class="playlists-box">
       <div
          class="new-playlist"
-         @click="new_playlist"
+         @click="show_new_playlist = true"
          v-if="user && user.username == route.params.username"
       >
          <div class="cover">
@@ -28,10 +28,13 @@
          No playlists found
       </p>
    </div>
+
+   <PlaylistCreation v-if="show_new_playlist" @close="show_new_playlist = false" />
 </template>
 
 <script setup>
 import Playlist from "../components/PlaylistComponent.vue"
+import PlaylistCreation from "../components/PlaylistCreation.vue"
 import { onMounted, ref, defineProps, computed, watch } from "vue"
 import { useStore } from "vuex"
 import { useRoute } from "vue-router"
@@ -41,24 +44,7 @@ const route = useRoute()
 
 const user = computed(() => store.state.user)
 const playlists = ref(null)
-
-const new_playlist = async () => {
-   let formdata = new FormData()
-   formdata.append("name", "Test Playlist")
-   formdata.append("visibility", "private")
-
-   let res = await fetch("/api/playlist_create", {
-      method: "POST",
-      credentials: "include",
-      body: formdata,
-   })
-
-   if (res.ok) {
-      alert("Success")
-   } else {
-      alert((await res.json()).message)
-   }
-}
+const show_new_playlist = ref(false)
 
 const fetch_playlists = async () => {
    if (!route.params.username || route.params.username == "") return

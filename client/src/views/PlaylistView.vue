@@ -4,6 +4,7 @@
          <img class="cover" :src="playlist.cover" />
          <div class="info">
             <h1 class="name">{{ playlist.name }}</h1>
+            <p class="visibility">{{ playlist.visibility == "public" ? "Public" : "Private" }} playlist</p>
             <div class="contributors">
                <p>By </p>
                <RouterLink
@@ -83,7 +84,6 @@ watch(() => route.params.playlist, (newval) => {
 .info {
    display: flex;
    flex-direction: column;
-   gap: 10px;
 }
 
 .contributors {
@@ -91,5 +91,17 @@ watch(() => route.params.playlist, (newval) => {
    flex-direction: row;
    align-items: center;
    gap: 4px;
+}
+
+.contributors p {
+   margin: 0;
+}
+
+.visibility {
+   font-style: italic;
+}
+
+.description {
+   margin-top: 20px;
 }
 </style>

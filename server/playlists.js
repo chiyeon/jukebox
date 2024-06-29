@@ -1,6 +1,12 @@
-const crypto = require("crypto")
 const files = require("./files.js")
 const fb = require("./firebase.js")
+const short = require("short-uuid")
+
+const translator = short()
+
+const get_timestamp_as_date = (timestamp) => {
+   return new Date(timestamp._seconds * 1000)
+}
 
 // uploads playlist cover & returns url
 // returns object on failure (with error message)
@@ -11,7 +17,7 @@ const upload_playlist_cover = async (cover) => {
 
    // check size
    if (cover.buffer.length / 1024 > files.MAX_ALBUM_SIZE_KB) {
-      return { message: "Playlist cover file is too big (exceeds " + Math.floor(files.MAX_ALBUM_SIZE_KB / 1024) + "mb limit" }
+      return { message: "Playlist cover file is too big (exceeds " + Math.floor(files.MAX_ALBUM_SIZE_KB) + "kb limit)" }
    }
    let filename = await files.upload_file(cover, files.playlists_bucket) 
    return files.get_gcloud_link(filename, files.playlists_bucket_name)
@@ -27,7 +33,8 @@ const Playlist = (name, artist, description, cover, visibility, uuid) => {
       viewers: [ artist ],
       tracks: [], /* unlike others, these are uuids. these are objects that contain uuid + some other info */
       cover: cover,
-      uuid
+      uuid,
+      creation_date: fb.get_timestamp(new Date())
    }
 }
 
@@ -36,6 +43,17 @@ const PlaylistTrack = (uuid, uploader) => {
       uuid,
       uploader
    }
+}
+
+const validate_playlist_name = (name) => {
+   if (!name || name.length == 0) return "Invalid name"
+   if (name.length > 60) return "Playlist name too long (exceeds 60 character limit)"
+   return 0
+}
+
+const validate_playlist_description = (desc) => {
+   if (desc.length > 300) return "Playlist description is too long (exceeds 300 character limit)"
+   return 0
 }
 
 module.exports = {
@@ -51,9 +69,19 @@ module.exports = {
       // validate packet. should be:
       // name, description, visibility [ 'public', 'private' ], and album image
       if (req.body.name == undefined) return res.status(400).send({ message: "Missing playlist name" })
+      let validate_name = validate_playlist_name(req.body.name)
+      if (validate_name != 0) return res.status(400).send({ message: validate_name })
+
+      if (req.body.description) {
+         let validate_desc = validate_playlist_description(req.body.description)
+         if (validate_desc != 0) {
+            return res.status(400).send({ message: validate_desc })
+         }
+      }
+
       if (req.body.visibility && !["public", "private"].includes(req.body.visibility)) return res.status(400).send({ message: "Invalid playlist invisibility" })
-      if (req.body.cover) {
-         let url = await upload_playlist_cover(req.body.cover)
+      if (req.file) {
+         let url = await upload_playlist_cover(req.file)
          if (typeof url !== "string") {
             // we found an error
             return res.status(400).send(url)
@@ -64,7 +92,8 @@ module.exports = {
          req.body.cover_url = files.get_gcloud_link("default.webp", files.playlists_bucket_name)
       }
 
-      const uuid = crypto.randomUUID()
+
+      const uuid = translator.new()
 
       const playlist = Playlist(
          req.body.name,
@@ -94,7 +123,7 @@ module.exports = {
 
       for (let i = 0; i < userdata.playlists.length; i++) {
          let data = await fb.get_doc("playlists", userdata.playlists[i])
-         if (!data) print("Found invalid playlist: " + userdata.playlists[i])
+         if (!data) console.log("Found invalid playlist: " + userdata.playlists[i])
          else {
             // only push private playlists if we are the user in question
             if (data.visibility === "public") playlists.push(data)
@@ -103,6 +132,9 @@ module.exports = {
             }
          }
       }
+
+
+      playlists.sort((a, b) => get_timestamp_as_date(b.creation_date) - get_timestamp_as_date(a.creation_date))
       
       return res.status(200).send({ playlists })
    },
@@ -123,25 +155,31 @@ module.exports = {
       let changes = {}
 
       if (req.body.name) {
+         let validate = validate_playlist_name(req.body.name)
+         if (validate != 0) return res.status(400).send({ message: validate })
          changes.name = req.body.name
       }
 
       if (req.body.description) {
+         let validate = validate_playlist_description(req.body.description)
+         if (validate != 0) return res.status(400).send({ message: validate })
          changes.description = req.body.description
       }
 
       if (req.body.editors) {
+         if (!changes.editors.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
          changes.editors = req.body.editors
       }
 
       if (req.body.viewers) {
+         if (!changes.viewers.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
          changes.viewers = req.body.viewers
       }
 
       // at this point, we are set on changing db and stuff
-      if (req.body.cover) {
+      if (req.file) {
          // try to upload first
-         let url = await upload_playlist_cover(req.body.cover)
+         let url = await upload_playlist_cover(req.file)
          if (typeof url !== "string") {
             return res.status(400).send(url)
          }
