@@ -17,15 +17,27 @@
          </div>
       </div>
 
-      <Event
-         :event="{ tracks: playlist.tracks }"
-      />
+      <Track
+         v-for="track in playlist.tracks"
+         :key="track.uuid"
+         :track="track"
+      >
+         <template #extra-columns>
+            <p class="uploader">Added by {{ track.uploader }}</p>
+         </template>
+         <template #dropdown-options>
+            <div class="dropdown-option" @click.stop="remove_from_playlist(track)">
+               <span class="material-symbols-rounded icon">delete</span>
+               <p>Remove from Playlist</p>
+            </div>
+         </template>
+      </Track>
    </div>
    <p v-else>Loading</p>
 </template>
 
 <script setup>
-import Event from "../components/EventComponent.vue"
+import Track from "../components/TrackComponent.vue"
 import { ref, watch, onBeforeMount } from "vue"
 import { useRoute, RouterLink } from "vue-router"
 import { useStore } from "vuex"
@@ -55,18 +67,47 @@ const update_playlist_data = async (uuid) => {
    }
 }
 
+const remove_from_playlist = async (track) => {
+   // remember, we must match the server request... it takes a PlaylistTrack, containing
+   // uploader & uuid
+   let res = await fetch("/api/playlist_remove_tracks", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+         tracks: [
+            {
+               "uploader": track.uploader,
+               "uuid": track.uuid
+            }
+         ],
+         uuid: playlist.value.uuid
+      }),
+      credentials: "include"
+   })
+
+   if (res.ok) {
+      alert("Removed tracks")
+   } else {
+      alert("Error: " + (await res.json()).message)
+   }
+}
+
 onBeforeMount(() => {
    update_playlist_data(route.params.playlist)
 })
 
 watch(() => route.params.playlist, (newval) => {
-   console.log("uh")
    playlist.value = null
    update_playlist_data(newval)
 })
 </script>
 
 <style scoped>
+.playlist-box {
+   padding-bottom: 300px;
+}
 .cover {
    width: 256px;
 }
@@ -103,5 +144,9 @@ watch(() => route.params.playlist, (newval) => {
 
 .description {
    margin-top: 20px;
+}
+
+.dropdown-option p {
+   margin: 0;
 }
 </style>

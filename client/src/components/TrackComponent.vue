@@ -37,6 +37,8 @@
          </template>
       </div>
 
+      <slot name="extra-columns"></slot>
+
       <div class="controls" v-if="show_edit">
          <div class="button-block label">
             <span class="material-symbols-rounded">edit</span>
@@ -143,6 +145,7 @@
                <span class="material-symbols-rounded icon">add</span>
                <p>Add to Playlist</p>
             </div>
+            <slot name="dropdown-options"></slot>
          </Dropdown>
          <button
             v-if="type == 'queue'"

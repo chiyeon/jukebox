@@ -213,7 +213,7 @@ module.exports = {
       for (let i = 0; i < playlistdata.tracks.length; i++) {
          let track = await fb.get_doc("tracks", playlistdata.tracks[i].uuid)
          if (track) {
-            track.uploaded = playlistdata.tracks[i].uploaded
+            track.uploader = playlistdata.tracks[i].uploader
             tracks.push(track)
          }
       }
@@ -267,11 +267,11 @@ module.exports = {
 
       // valdiate all tracks, make sure they are in there
       for (let i = 0; i < req.body.tracks.length; i++) {
-         if (!(await fb.get_doc("tracks", req.body.tracks[i]))) {
+         if (!(await fb.get_doc("tracks", req.body.tracks[i].uuid))) {
             return res.status(400).send({ message: "Invalid track included: UUID " + req.body.tracks[i] + " isn't valid" })
          }
 
-         if (!playlistdata.tracks.includes(req.body.tracks[i])) {
+         if (!playlistdata.tracks.map(t => t.uuid).includes(req.body.tracks[i].uuid)) {
             return res.status(400).send({ message: "Attempted to remove track not in playlist" })
          }
       }

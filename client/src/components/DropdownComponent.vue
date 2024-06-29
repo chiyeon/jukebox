@@ -63,4 +63,8 @@ onMounted(() => {
    background-color: black;
    margin: 8px;
 }
+
+.dropdown > *:hover {
+   opacity: 0.7;
+}
 </style>
