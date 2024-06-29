@@ -139,7 +139,7 @@
                <span class="material-symbols-rounded icon">playlist_add</span>
                <p>Add to Queue</p>
             </div>
-            <div class="dropdown-option disabled">
+            <div :class="{ 'dropdown-option': true, disabled: false }" @click.stop="eventbus.emit('set_add_to_playlist_visibility', true); eventbus.emit('set_new_playlist_track', track)">
                <span class="material-symbols-rounded icon">add</span>
                <p>Add to Playlist</p>
             </div>

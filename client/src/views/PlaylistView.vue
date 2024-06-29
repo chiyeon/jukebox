@@ -1,8 +1,20 @@
 <template>
    <div class="playlist-box" v-if="playlist">
-      <img class="cover" :src="playlist.cover" />
-      <h1 class="name">{{ playlist.name }}</h1>
-      <p class="description">{{ playlist.description }}</p>
+      <div class="info-box">
+         <img class="cover" :src="playlist.cover" />
+         <div class="info">
+            <h1 class="name">{{ playlist.name }}</h1>
+            <div class="contributors">
+               <p>By </p>
+               <RouterLink
+                  v-for="user in playlist.editors"
+                  :key="user.uuid"
+                  :to="`/u/${user}`"
+               >{{ user }}</RouterLink>
+            </div>
+            <p class="description">{{ playlist.description }}</p>
+         </div>
+      </div>
 
       <Event
          :event="{ tracks: playlist.tracks }"
@@ -14,8 +26,10 @@
 <script setup>
 import Event from "../components/EventComponent.vue"
 import { ref, watch, onBeforeMount } from "vue"
-import { useRoute } from "vue-router"
+import { useRoute, RouterLink } from "vue-router"
+import { useStore } from "vuex"
 
+const store = useStore()
 const route = useRoute()
 
 const playlist = ref(null)
@@ -34,6 +48,7 @@ const update_playlist_data = async (uuid) => {
 
    if (res.ok) {
       playlist.value = (await res.json()).playlist
+      store.dispatch("setTracks", playlist.value.tracks)
    } else {
       alert("Error: " + (await res.json()).message)
    }
@@ -49,3 +64,32 @@ watch(() => route.params.playlist, (newval) => {
    update_playlist_data(newval)
 })
 </script>
+
+<style scoped>
+.cover {
+   width: 256px;
+}
+
+.info-box {
+   display: flex;
+   flex-direction: row;
+   gap: 20px;
+}
+
+.info > * {
+   margin: 0;
+}
+
+.info {
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+
+.contributors {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   gap: 4px;
+}
+</style>

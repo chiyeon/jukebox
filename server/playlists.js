@@ -173,12 +173,76 @@ module.exports = {
 
       let tracks = []
       for (let i = 0; i < playlistdata.tracks.length; i++) {
-         let track = await fb.get_doc("tracks", playlistdata.tracks[i])
-         if (track) tracks.push(track)
+         let track = await fb.get_doc("tracks", playlistdata.tracks[i].uuid)
+         if (track) {
+            track.uploaded = playlistdata.tracks[i].uploaded
+            tracks.push(track)
+         }
       }
 
       playlistdata.tracks = tracks
 
       return res.status(200).send({ playlist: playlistdata })
+   },
+
+   /* body takes NORMAL TRACK UUIDS!! */
+   add_to_playlist: async (req, res) => {
+      if (!req.body.uuid) return res.status(400).send({ message: "Invalid UUID" })
+
+      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+
+      if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
+
+      if (!playlistdata.editors.includes(req.username)) return res.status(400).send({ message: "You cannot edit this playlist" })
+
+      if (!req.body.tracks || req.body.tracks.length == 0) return res.status(400).send({ message: "Invalid or missing tracks" })
+
+      let tracks = []
+      // valdiate all tracks
+      for (let i = 0; i < req.body.tracks.length; i++) {
+         if (!(await fb.get_doc("tracks", req.body.tracks[i]))) {
+            return res.status(400).send({ message: "Invalid track included: UUID " + req.body.tracks[i] + " isn't valid" })
+         }
+
+         tracks.push(PlaylistTrack(req.body.tracks[i], req.username))
+      }
+
+      // update tracks
+      await fb.update_doc("playlists", req.body.uuid, {
+         tracks: fb.FieldValue.arrayUnion(...tracks)
+      })
+
+      return res.status(200).send({ message: "updated successfully" })
+   },
+
+   /* BODY TAKES PLAYLIST TRACKS */
+   remove_from_playlist: async (req, res) => {
+      if (!req.body.uuid) return res.status(400).send({ message: "Invalid UUID" })
+
+      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+
+      if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
+
+      if (!playlistdata.editors.includes(req.username)) return res.status(400).send({ message: "You cannot edit this playlist" })
+
+      if (!req.body.tracks || req.body.tracks.length == 0) return res.status(400).send({ message: "Invalid or missing tracks" })
+
+      // valdiate all tracks, make sure they are in there
+      for (let i = 0; i < req.body.tracks.length; i++) {
+         if (!(await fb.get_doc("tracks", req.body.tracks[i]))) {
+            return res.status(400).send({ message: "Invalid track included: UUID " + req.body.tracks[i] + " isn't valid" })
+         }
+
+         if (!playlistdata.tracks.includes(req.body.tracks[i])) {
+            return res.status(400).send({ message: "Attempted to remove track not in playlist" })
+         }
+      }
+
+      // update tracks
+      await fb.update_doc("playlists", req.body.uuid, {
+         tracks: fb.FieldValue.arrayRemove(...req.body.tracks)
+      })
+
+      return res.status(200).send({ message: "updated successfully" })
    }
 }

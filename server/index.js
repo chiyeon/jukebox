@@ -580,7 +580,10 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
    res.status(200).send({ events: open_events })
 })
 
-app.post("/api/playlistcreate", users.authenticate_token, files.upload.single("cover"), playlists.create_new_playlist)
+app.post("/api/playlist_create", users.authenticate_token, files.upload.single("cover"), playlists.create_new_playlist)
+app.post("/api/playlist_edit", users.authenticate_token, files.upload.single("cover"), playlists.edit_playlist)
+app.post("/api/playlist_add_tracks", users.authenticate_token, playlists.add_to_playlist)
+app.post("/api/playlist_remove_tracks", users.authenticate_token, playlists.remove_from_playlist)
 app.post("/api/playlists", users.authenticate_optional_token, playlists.get_playlists_from_user)
 app.post("/api/playlist", users.authenticate_optional_token, playlists.get_playlist_data)
 

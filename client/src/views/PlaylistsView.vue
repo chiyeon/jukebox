@@ -47,7 +47,7 @@ const new_playlist = async () => {
    formdata.append("name", "Test Playlist")
    formdata.append("visibility", "private")
 
-   let res = await fetch("/api/playlistcreate", {
+   let res = await fetch("/api/playlist_create", {
       method: "POST",
       credentials: "include",
       body: formdata,

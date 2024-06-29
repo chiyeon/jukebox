@@ -10,6 +10,7 @@
       </Transition>
    </div>
    <MediaPlayer :queue="queue" :show_lyrics="show_lyrics" />
+   <AddToPlaylist v-if="show_add_to_playlist" :track="new_playlist_track" />
 </template>
 
 <script setup>
@@ -20,6 +21,7 @@ import eventbus from "./eventbus"
 import Header from "./components/HeaderComponent.vue"
 import MediaPlayer from "./components/MediaPlayer/MediaPlayer.vue"
 import Queue from "./components/QueueComponent.vue"
+import AddToPlaylist from "./components/AddToPlaylist.vue"
 
 const store = useStore()
 
@@ -28,6 +30,8 @@ const afterQueue = computed(() => store.state.afterQueue)
 
 const show_queue = ref(false)
 const show_lyrics = ref(false)
+const show_add_to_playlist = ref(false)
+const new_playlist_track = ref(null)
 
 const set_queue_visibility = (s) => {
    show_queue.value = s
@@ -41,6 +45,12 @@ const set_lyrics_visibility = (s) => {
 const toggle_lyrics_visibilty = () => {
    show_lyrics.value = !show_lyrics.value
 }
+const set_add_to_playlist_visibility = (s) => {
+   show_add_to_playlist.value = s
+}
+const set_new_playlist_track = (track) => {
+   new_playlist_track.value = track
+}
 
 onMounted(() => {
    eventbus.on("set_queue_visibility", set_queue_visibility)
@@ -48,6 +58,9 @@ onMounted(() => {
 
    eventbus.on("set_lyrics_visibility", set_lyrics_visibility)
    eventbus.on("toggle_lyrics_visibility", toggle_lyrics_visibilty)
+
+   eventbus.on("set_add_to_playlist_visibility", set_add_to_playlist_visibility)
+   eventbus.on("set_new_playlist_track", set_new_playlist_track)
 })
 
 onUnmounted(() => {
@@ -56,6 +69,9 @@ onUnmounted(() => {
 
    eventbus.off("set_lyrics_visibility", set_lyrics_visibility)
    eventbus.off("toggle_lyrics_visibility", toggle_lyrics_visibilty)
+
+   eventbus.off("set_add_to_playlist_visibility", set_add_to_playlist_visibility)
+   eventbus.off("set_new_playlist_track", set_new_playlist_track)
 })
 </script>
 
