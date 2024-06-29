@@ -1,5 +1,5 @@
 <template>
-   <div class="playlist">
+   <div class="playlist" @click="router.push(`/p/${playlist.uuid}`)">
       <img :src="playlist.cover" class="cover" />
       <p class="title">{{ playlist.name }}</p>
    </div>
@@ -7,6 +7,7 @@
 
 <script setup>
 import { defineProps } from "vue"
+import router from "../router"
 
 const props = defineProps([ "playlist" ])
 </script>

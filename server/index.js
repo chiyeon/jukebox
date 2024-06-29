@@ -581,31 +581,8 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
 })
 
 app.post("/api/playlistcreate", users.authenticate_token, files.upload.single("cover"), playlists.create_new_playlist)
-
-app.post("/api/playlists", users.authenticate_optional_token, async (req, res) => {
-   if (!req.body.username) return res.status(400).send({ message: "Missing username" })
-   const userdata = await fb.get_doc("users", req.body.username)
-
-   if (!userdata) return res.status(400).send({ message: "Invalid user" })
-
-   let playlists = []
-   
-   if (!userdata.playlists || userdata.playlists.length == 0) return res.status(200).send({ playlists })
-
-   for (let i = 0; i < userdata.playlists.length; i++) {
-      let data = await fb.get_doc("playlists", userdata.playlists[i])
-      if (!data) print("Found invalid playlist: " + userdata.playlists[i])
-      else {
-         // only push private playlists if we are the user in question
-         if (data.visibility === "public") playlists.push(data)
-         else if (data.visibility === "private" && (data.editors.includes(req.username) || data.viewers.includes(req.username))) {
-            playlists.push(data)
-         }
-      }
-   }
-   
-   return res.status(200).send({ playlists })
-})
+app.post("/api/playlists", users.authenticate_optional_token, playlists.get_playlists_from_user)
+app.post("/api/playlist", users.authenticate_optional_token, playlists.get_playlist_data)
 
 const get_display_names = async (track) => {
    return track.artists
