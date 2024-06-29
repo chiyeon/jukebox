@@ -13,6 +13,12 @@ const props = defineProps([ "playlist", "disable_click" ])
 </script>
 
 <style scoped>
+@media (max-width: 600px) {
+   .playlist {
+      width: 165px !important;
+   }
+}
+
 .playlist {
    width: 200px;
    display: flex;

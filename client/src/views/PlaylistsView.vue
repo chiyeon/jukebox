@@ -73,6 +73,16 @@ watch(
 </script>
 
 <style scoped>
+@media (max-width: 600px) {
+   .playlists-box .new-playlist {
+      width: 165px;
+   }
+
+   .playlists-box {
+      justify-content: center;
+   }
+}
+
 .playlists-box {
    display: flex;
    gap: 20px;

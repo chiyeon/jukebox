@@ -105,6 +105,12 @@ watch(() => route.params.playlist, (newval) => {
 </script>
 
 <style scoped>
+@media (max-width: 600px) {
+   .playlist-box .cover {
+      width: 128px;
+   }
+}
+
 .playlist-box {
    padding-bottom: 300px;
 }
