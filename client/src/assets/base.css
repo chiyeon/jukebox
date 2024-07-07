@@ -57,6 +57,13 @@ hr {
    box-sizing: border-box;
 }
 
+select {
+   background-color: #e7e7e7;
+   border: none;
+   padding: 6px 12px;
+   font-size: 14px;
+}
+
 @media (max-width: 600px) {
    html body {
       padding: 0 10px;

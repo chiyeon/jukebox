@@ -196,6 +196,14 @@ module.exports = {
          changes.description = req.body.description
       }
 
+      if (req.body.visibility) {
+         // validate visibliity
+         if (!["public", "private"].includes(req.body.visibility)) {
+            return res.status(400).send({ message: "Invalid visibility value: " + req.body.visibility })
+         }
+         changes.visibility = req.body.visibility
+      }
+
       if (req.body.editors) {
          if (!changes.editors.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
          changes.editors = req.body.editors
