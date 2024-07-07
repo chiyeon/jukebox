@@ -41,6 +41,7 @@ import Loading from "./LoadingComponent.vue"
 const store = useStore()
 
 const emit = defineEmits([ "close" ])
+const props = defineProps([ "run_after" ])
 
 const loading = ref(false)
 
@@ -77,7 +78,7 @@ const new_playlist = async () => {
    })
 
    if (res.ok) {
-      alert("Success")
+      if (props.run_after) props.run_after()
    } else {
       alert((await res.json()).message)
    }

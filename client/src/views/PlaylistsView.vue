@@ -29,7 +29,7 @@
       </p>
    </div>
 
-   <PlaylistCreation v-if="show_new_playlist" @close="show_new_playlist = false" />
+   <PlaylistCreation v-if="show_new_playlist" @close="show_new_playlist = false" :run_after="fetch_playlists" />
 </template>
 
 <script setup>
@@ -76,10 +76,6 @@ watch(
 @media (max-width: 600px) {
    .playlists-box .new-playlist {
       width: 165px;
-   }
-
-   .playlists-box {
-      justify-content: center;
    }
 }
 

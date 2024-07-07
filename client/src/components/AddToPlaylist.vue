@@ -24,7 +24,7 @@
          </div>
       </div>
    </div>
-   <PlaylistCreation v-if="show_new_playlist" @close="show_new_playlist = false" />
+   <PlaylistCreation v-if="show_new_playlist" @close="show_new_playlist = false" :run_after="add_to_new_list" />
 </template>
 
 <script setup>
@@ -43,6 +43,11 @@ const user = computed(() => store.state.user)
 const playlists = ref(null)
 
 const show_new_playlist = ref(false)
+
+const add_to_new_list = async () => {
+   await fetch_playlists()
+   add_to_playlist(playlists.value[0].uuid) // newest should be first
+}
 
 const fetch_playlists = async () => {
    if (!user) return
