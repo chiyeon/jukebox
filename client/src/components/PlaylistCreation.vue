@@ -111,7 +111,7 @@ const update_cover_preview = () => {
    background-color: #f7f7f7;
    padding: 20px;
    margin: 20px;
-   width: 100%;
+   width: 95%;
    max-width: 750px;
    box-sizing: border-box;
    z-index: 1;
@@ -120,8 +120,14 @@ const update_cover_preview = () => {
 .info {
    display: flex;
    flex-direction: column;
+
    gap: 10px;
+   flex: 1;
+}
+
+.info > * {
    width: 100%;
+   min-width: 300px;
 }
 
 .name {
@@ -153,6 +159,7 @@ textarea {
    flex-direction: row;
    gap: 10px;
    align-items: center;
+   flex-wrap: wrap;
 }
 
 button {
@@ -213,5 +220,6 @@ button:hover {
 
 .row.main {
    align-items: flex-start;
+   justify-content: center;
 }
 </style>
