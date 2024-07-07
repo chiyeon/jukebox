@@ -14,6 +14,10 @@
                >{{ user }}</RouterLink>
             </div>
             <p class="description">{{ playlist.description }}</p>
+            <div class="playlist-controls" v-if="user && playlist.owner == user.username">
+               <span class="material-symbols-rounded icon" style="color: goldenrod">edit</span>
+               <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
+            </div>
          </div>
       </div>
 
@@ -34,18 +38,24 @@
       </Track>
    </div>
    <p v-else>Loading</p>
+   <ConfirmDelete v-if="show_delete" @close="show_delete=false" message="Delete Playlist?" @delete="delete_playlist" />
 </template>
 
 <script setup>
 import Track from "../components/TrackComponent.vue"
-import { ref, watch, onBeforeMount } from "vue"
+import ConfirmDelete from "../components/ConfirmDelete.vue"
+import { ref, watch, onBeforeMount, computed } from "vue"
 import { useRoute, RouterLink } from "vue-router"
 import { useStore } from "vuex"
+import router from "../router"
 
 const store = useStore()
 const route = useRoute()
+const user = computed(() => store.state.user)
 
 const playlist = ref(null)
+
+const show_delete = ref(false)
 
 const update_playlist_data = async (uuid) => {
    let res = await fetch("/api/playlist", {
@@ -93,6 +103,27 @@ const remove_from_playlist = async (track) => {
       alert("Error: " + (await res.json()).message)
    }
 }
+
+const delete_playlist = async () => {
+   let res = await fetch("/api/playlist_delete", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+         uuid: playlist.value.uuid
+      }),
+      credentials: "include"
+   })
+
+   if (res.ok) {
+      if (!user.value) return router.push("/")
+
+      router.push(`/u/${user.value.username}/playlists`)
+   } else {
+      alert("Failed to delete playlist: " + (await res.json()).message)
+   }
+} 
 
 onBeforeMount(() => {
    update_playlist_data(route.params.playlist)
@@ -155,4 +186,23 @@ watch(() => route.params.playlist, (newval) => {
 .dropdown-option p {
    margin: 0;
 }
+
+.playlist-controls {
+   margin-top: auto; 
+   margin-bottom: 8px;
+   display: flex;
+   gap: 8px;
+}
+
+.playlist-controls .icon {
+   font-size: 28px;
+   user-select: none;
+   cursor: pointer;
+}
+
+.playlist-controls .icon:hover {
+   opacity: 0.7;
+}
+
+
 </style>

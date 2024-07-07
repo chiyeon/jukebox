@@ -581,6 +581,7 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
 })
 
 app.post("/api/playlist_create", users.authenticate_token, files.upload.single("cover"), playlists.create_new_playlist)
+app.post("/api/playlist_delete", users.authenticate_token, playlists.delete_playlist)
 app.post("/api/playlist_edit", users.authenticate_token, files.upload.single("cover"), playlists.edit_playlist)
 app.post("/api/playlist_add_tracks", users.authenticate_token, playlists.add_to_playlist)
 app.post("/api/playlist_remove_tracks", users.authenticate_token, playlists.remove_from_playlist)

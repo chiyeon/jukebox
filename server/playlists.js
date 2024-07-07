@@ -111,6 +111,36 @@ module.exports = {
       return res.status(200).send({ message: "Playlist created successfully" })
    },
 
+   delete_playlist: async (req, res) => {
+      if (!req.username) return res.status(400).send({ message: "Not logged in" })
+      if (!req.body.uuid) return res.status(400).send({ message: "Playlist to delete required" })
+
+      const playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      if (!playlistdata) return res.status(400).send({ message: "Invalid playlist" })
+
+      if (playlistdata.owner != req.username) return res.status(400).send({ message: "You cannot delete this playlist" })
+
+      // delete cover
+      let split_names = playlistdata.cover.split("/")
+      let old_icon_name = split_names[split_names.length - 1]
+      if (old_icon_name != "default.webp") await files.delete_file(old_icon_name, files.playlists_bucket) 
+
+      await fb.delete_doc("playlists", req.body.uuid)
+
+      let to_remove = [...new Set([...playlistdata.viewers, ...playlistdata.editors])]
+      for (let i = 0; i < to_remove.length; i++) {
+         try {
+            await fb.update_doc("users", to_remove[i], {
+               playlists: fb.FieldValue.arrayRemove(req.body.uuid)
+            })
+         } catch {
+            console.log("Failed to remove playlist from user")
+         }
+      }
+
+      return res.status(200).send({ message: "Deleted succesfully" })
+   },
+
    get_playlists_from_user: async (req, res) => {
       if (!req.body.username) return res.status(400).send({ message: "Missing username" })
       const userdata = await fb.get_doc("users", req.body.username)
