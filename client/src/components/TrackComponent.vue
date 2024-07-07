@@ -141,7 +141,7 @@
                <span class="material-symbols-rounded icon">playlist_add</span>
                <p>Add to Queue</p>
             </div>
-            <div :class="{ 'dropdown-option': true, disabled: false }" @click.stop="eventbus.emit('set_add_to_playlist_visibility', true); eventbus.emit('set_new_playlist_track', track)">
+            <div :class="{ 'dropdown-option': true, disabled: !user }" @click.stop="add_to_playlist">
                <span class="material-symbols-rounded icon">add</span>
                <p>Add to Playlist</p>
             </div>
@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, defineEmits } from "vue"
+import { defineProps, ref, defineEmits, computed } from "vue"
 import { useStore } from "vuex"
 import { RouterLink } from "vue-router"
 import LoadingScreen from "./LoadingComponent.vue"
@@ -200,6 +200,7 @@ const props = defineProps({
    type: String,
    index: Number,
 })
+const user = computed(() => store.state.user)
 // what is props.type?
 // none - default. normal track used in listen page
 // queue - queue segment of queue tracks. songs that user has queued up. skips the queue to that point. hides icon.
@@ -355,6 +356,12 @@ const add_to_queue = () => {
    if (props.track) {
       store.dispatch("addTrack", props.track)
    }
+}
+
+const add_to_playlist = () => {
+   if (!user.value) return
+   eventbus.emit('set_add_to_playlist_visibility', true);
+   eventbus.emit('set_new_playlist_track', props.track)
 }
 
 const remove_from_queue = () => {

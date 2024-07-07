@@ -3,10 +3,17 @@
       <div class="panel" @click.stop="null">
          <div class="info-box">
             <div class="info">
-               <span class="row">
-                  <p style="margin: 0">Cover Picture</p>
-                  <input type="file" accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp" ref="cover" />
-               </span>
+               <div class="row main" style="gap: 20px">
+                  <div class="cover" @click="cover.click()">
+                     <img class="cover" :src="cover_url" />
+                     <span class="material-symbols-rounded">edit</span>
+                     <input class="upload-cover-input" type="file" accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp" ref="cover" @change="update_cover_preview" />
+                  </div>
+                  <div class="info">
+                     <input type="text" class="name" placeholder="New Playlist" v-model="name" maxlength="60" />
+                     <textarea class="description" placeholder="Description" v-model="description" maxlength="300" />
+                  </div>
+               </div>
                <span class="row">
                   <p style="margin: 0">Visibility</p>
                   <select class="dropdown" v-model="visibility">
@@ -14,8 +21,6 @@
                      <option value="public">Public</option>
                   </select>
                </span>
-               <input type="text" class="name" placeholder="New Playlist" v-model="name" maxlength="60" />
-               <textarea class="description" placeholder="Description" v-model="description" maxlength="300" />
             </div>
             <button class="button" @click="new_playlist">Create Playlist</button>
          </div>
@@ -43,6 +48,9 @@ const cover = ref(null)
 const name = ref(null)
 const description = ref(null)
 const visibility = ref("private")
+
+// used for previews
+const cover_url = ref("https://storage.googleapis.com/jukebox-playlist-covers/default.webp")
 
 const new_playlist = async () => {
    if (!name.value) return alert("Playlist needs a name")
@@ -77,6 +85,11 @@ const new_playlist = async () => {
    loading.value = false
    emit("close")
 }
+
+const update_cover_preview = () => {
+   if (!cover.value.files[0]) return
+   cover_url.value = URL.createObjectURL(cover.value.files[0])
+}
 </script>
 
 <style scoped>
@@ -99,7 +112,7 @@ const new_playlist = async () => {
    padding: 20px;
    margin: 20px;
    width: 100%;
-   max-width: 600px;
+   max-width: 750px;
    box-sizing: border-box;
    z-index: 1;
 }
@@ -108,6 +121,7 @@ const new_playlist = async () => {
    display: flex;
    flex-direction: column;
    gap: 10px;
+   width: 100%;
 }
 
 .name {
@@ -141,16 +155,63 @@ textarea {
    align-items: center;
 }
 
-.button {
+button {
    margin-top: 10px;
    background-color: #e7e7e7;
    border: none;
    padding: 10px 20px;
    cursor: pointer;
+   width: fit-content;
 }
 
-.button:hover {
-   background-color: lightsalmon;
+button:hover {
+   background-color: lightgreen;
 }
 
+.upload-cover:hover {
+   background-color: lightyellow;
+}
+
+.upload-cover-input {
+   display: none;
+}
+
+.cover {
+   max-width: 200px;
+   height: 200px;
+   aspect-ratio: 1.0;
+   cursor: pointer;
+   object-fit: cover;
+}
+
+.cover span {
+   user-select: none;
+}
+
+.cover {
+   position: relative;
+}
+
+.cover span {
+   position: absolute;
+   width: 100%;
+   height: 100%;
+   left: 0;
+   top: 0;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   font-size: 64px;
+   color: goldenrod;
+   background-color: #30303090;
+   opacity: 0;
+}
+
+.cover:hover span {
+   opacity: 1;
+}
+
+.row.main {
+   align-items: flex-start;
+}
 </style>
