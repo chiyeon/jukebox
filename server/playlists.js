@@ -211,7 +211,7 @@ module.exports = {
 
       let tracks = []
       for (let i = 0; i < playlistdata.tracks.length; i++) {
-         let track = await fb.get_doc("tracks", playlistdata.tracks[i].uuid)
+         let track = req.tracks[playlistdata.tracks[i].uuid]
          if (track) {
             track.uploader = playlistdata.tracks[i].uploader
             tracks.push(track)

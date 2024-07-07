@@ -57,7 +57,7 @@ app.post("/api/eventdelete", users.authenticate_token_admin, async (req, res) =>
 
    // delete tracks inside event
    for (let i = 0; i < event.tracks.length; i++) {
-      let track = await fb.get_doc("tracks", event.tracks[i])
+      let track = tracks[event.tracks[i]]
       if (!track) continue
 
       await delete_track(track)
@@ -317,7 +317,7 @@ app.post("/api/deletetrack", users.authenticate_token, async (req, res) => {
    if (!track_id) return res.status(400).send({ message: "Invalid track" })
 
    // try to find our track
-   const trackdata = await fb.get_doc("tracks", track_id)
+   const trackdata = tracks[track_id]
    if (!trackdata) return res.status(400).send({ message: "Invalid track" })
    if (trackdata.artist != req.username) return res.status(400).send({ message: "You cannot delete this track" })
 
@@ -336,7 +336,7 @@ app.post("/api/edittrack", users.authenticate_token, files.upload.single("album"
    const album = req.file ? req.file : null
 
    // get our copy
-   const trackdata = await fb.get_doc("tracks", uuid)
+   const trackdata = await tracks[uuid]
    if (!trackdata) return res.status(400).send({ message: "Invalid UUID" })
    if (trackdata.artist != req.username) return res.status(400).send({ message: "You cannot edit this track" })
 
@@ -394,7 +394,7 @@ app.post("/api/removefromtrack", users.authenticate_token, async (req, res) => {
    const track_id = req.body.track_id
    if (!track_id) return res.status(400).send({ message: "Invalid track" })
 
-   const trackdata = await fb.get_doc("tracks", track_id)
+   const trackdata = tracks[track_id]
    if (!trackdata) return res.status(400).send({ message: "Invalid track" })
    if (trackdata.artist == req.username) return res.status(400).send({message: "You own this track" })
    if (!trackdata.artists.includes(req.username)) return res.status(400).send({ message: "You are not part of this track" })
@@ -585,7 +585,11 @@ app.post("/api/playlist_edit", users.authenticate_token, files.upload.single("co
 app.post("/api/playlist_add_tracks", users.authenticate_token, playlists.add_to_playlist)
 app.post("/api/playlist_remove_tracks", users.authenticate_token, playlists.remove_from_playlist)
 app.post("/api/playlists", users.authenticate_optional_token, playlists.get_playlists_from_user)
-app.post("/api/playlist", users.authenticate_optional_token, playlists.get_playlist_data)
+app.post("/api/playlist", users.authenticate_optional_token, (req, res) => {
+   // pass our tracks cache
+   req.tracks = tracks
+   playlists.get_playlist_data(req, res)
+})
 
 const get_display_names = async (track) => {
    return track.artists
