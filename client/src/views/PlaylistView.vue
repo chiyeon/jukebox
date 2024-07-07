@@ -98,7 +98,7 @@ const remove_from_playlist = async (track) => {
    })
 
    if (res.ok) {
-      alert("Removed tracks")
+      await update_playlist_data(route.params.playlist)
    } else {
       alert("Error: " + (await res.json()).message)
    }
