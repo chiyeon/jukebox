@@ -278,15 +278,6 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             tracks: fb.FieldValue.arrayUnion(uuid)
          })
 
-         // temporary for renewer badge
-         if (current_event == "a1b7d7cf-d514-457a-a9a9-dbf09701814c") {
-            if (!user_data.badges.includes("renewer")) {
-               let badges = user_data.badges
-               badges.push("renewer")
-               await fb.update_doc("users", req.username, { badges })
-            }
-         }
-
          res.status(200).send({ message: "Successfully uploaded" })
       } catch (err) {
          throw err

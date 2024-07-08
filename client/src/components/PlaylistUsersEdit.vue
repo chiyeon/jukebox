@@ -14,6 +14,9 @@
                <p class="header">Can Edit</p>
             </span>
             <p class="header">Remove</p>
+            <hr />
+            <hr />
+            <hr />
             <template
                v-for="(user, index) in users"
                :key="index"
@@ -23,7 +26,7 @@
                <span class="material-symbols-rounded icon delete" @click="users.splice(index, 1)">delete</span>
             </template>
          </div>
-         <button class="add-user" @click="users.length < 7 && users.push(User('', 1, 0))">
+         <button class="add-user" @click="users.length < 7 && users.push(User('', true, false))">
             <span class="material-symbols-rounded icon">person_add</span>
             <p>Add Listener</p>
          </button>
@@ -108,13 +111,13 @@ const save_edited_users = async () => {
 onMounted(() => {
    // ignore first one (owner)
    for (let i = 1; i < props.editors.length; i++) {
-      users.value.push(User(props.editors[i], 1, 1))
+      users.value.push(User(props.editors[i], true, true))
    }
 
    for (let i = 1; i < props.viewers.length; i++) {
       if (!props.editors.includes(props.viewers[i])) {
          // only add viewers that werent already included in editors list
-         users.value.push(User(props.viewers[i], 1, 0))
+         users.value.push(User(props.viewers[i], true, false))
       }
    }
 })

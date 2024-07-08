@@ -4,7 +4,7 @@
          <span class="material-symbols-rounded icon close" @click.stop="eventbus.emit('set_add_to_playlist_visibility', false)">close</span>
          <p class="hint">Add <strong>{{ track.title }} by {{ track.artist }}</strong> to:</p>
 
-         <div class="playlists" v-if="playlists">
+         <div class="playlists">
             <div
                class="new-playlist"
                @click="show_new_playlist = true"
@@ -14,13 +14,14 @@
                </div>
                <p>New Playlist</p>
             </div>
-            <Playlist
-               v-for="playlist in playlists"
-               :key="playlist.uuid"
-               :disable_click="true"
-               :playlist="playlist"
-               @click.stop="add_to_playlist(playlist.uuid)"
-            />
+            <template v-if="playlists" v-for="playlist in playlists" :key="playlist.uuid">
+               <Playlist
+                  :disable_click="true"
+                  :playlist="playlist"
+                  v-if="user && playlist && playlist.editors.includes(user.username)"
+                  @click.stop="add_to_playlist(playlist.uuid)"
+               />
+            </template>
          </div>
       </div>
    </div>
