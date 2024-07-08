@@ -159,7 +159,7 @@ module.exports = {
          else {
             // only push private playlists if we are the user in question
             if (data.visibility === "public") playlists.push(data)
-            else if (data.visibility === "private" && (data.editors.includes(req.username) || data.viewers.includes(req.username))) {
+            else if (data.visibility === "private" && data.owner == req.username) {
                playlists.push(data)
             }
          }
@@ -229,6 +229,7 @@ module.exports = {
             }
          }
          changes.editors = req.body.editors
+         changes.viewers = fb.FieldValue.arrayUnion(...req.body.editors)
       }
 
       /*
@@ -291,7 +292,7 @@ module.exports = {
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid playlist UUID" })
 
-      if (playlistdata.visibility != "public" && !playlistdata.viewers.includes(req.username)) {
+      if (playlistdata.visibility != "public" && playlistdata.owner != req.username) {
          return res.status(400).send({ message: "You do not have permission to view this playlist" })
       }
 
@@ -368,5 +369,11 @@ module.exports = {
       })
 
       return res.status(200).send({ message: "updated successfully" })
+   },
+
+   // any user can add a public playlist to their library
+   save_to_library: async (req, res) => {
+      if (!req.username) return res.status(400).send({ message: "Invalid user" })
+      if (!req.body.uuid) return res.status(400).send({ message: "No Playlist" })
    }
 }

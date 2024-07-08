@@ -41,15 +41,20 @@
                <textarea class="description" :value="playlist.description" ref="description_ref" />
             </template>
 
-            <div class="playlist-controls" v-if="user && playlist.owner == user.username">
-               <span class="material-symbols-rounded icon" style="color: goldenrod" v-if="!editing" @click="editing = true;">edit</span>
-               <div class="edit-box" v-else>
-                  <span class="material-symbols-rounded icon" style="color: darkseagreen" @click="submit_edit">check_circle</span>
-                  <span class="material-symbols-rounded icon" style="color: darkred" @click="cancel_edit">cancel</span>
-               </div>
+            <div class="playlist-controls" v-if="user">
+               <template v-if="playlist.owner == user.username">
+                  <span class="material-symbols-rounded icon" style="color: goldenrod" v-if="!editing" @click="editing = true;">edit</span>
+                  <div class="edit-box" v-else>
+                     <span class="material-symbols-rounded icon" style="color: darkseagreen" @click="submit_edit">check_circle</span>
+                     <span class="material-symbols-rounded icon" style="color: darkred" @click="cancel_edit">cancel</span>
+                  </div>
 
-               <span class="material-symbols-rounded icon" style="color: green" @click="editing_users = true">manage_accounts</span>
-               <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
+                  <span class="material-symbols-rounded icon" style="color: green" @click="editing_users = true">manage_accounts</span>
+                  <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
+               </template>
+               <template v-else>
+                  <span :title="playlist.viewers.includes(user.username) ? 'Unsave from Library' : 'Save from Library'" class="material-symbols-rounded icon" :style="{ color: playlist.viewers.includes(user.username) ? 'red' : 'gray' }" @click="playlist.viewers.includes(user.username) ? unsave_from_library : save_to_library">favorite</span>
+               </template>
             </div>
          </div>
       </div>
@@ -173,6 +178,14 @@ const delete_playlist = async () => {
       alert("Failed to delete playlist: " + (await res.json()).message)
    }
 } 
+
+const unsave_from_library = () => {
+   
+}
+
+const save_to_library = () => {
+
+}
 
 const cancel_edit = () => {
    cover_url.value = playlist.value.cover
