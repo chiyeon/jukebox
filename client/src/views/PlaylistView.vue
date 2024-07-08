@@ -33,6 +33,7 @@
             <template v-else>
                <input type="text" ref="name_ref" class="name" :value="playlist.name" />
                <select class="visibility" ref="visibility_ref" :value="playlist.visibility">
+                  <option value="solo">Me Only</option>
                   <option value="private">Private</option>
                   <option value="public">Public</option>
                </select>

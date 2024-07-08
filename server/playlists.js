@@ -4,6 +4,10 @@ const short = require("short-uuid")
 
 const translator = short()
 
+const playlist_types = [
+   "public", "private", "solo"
+]
+
 const MAX_PLAYLIST_EDITORS = 8
 
 const get_timestamp_as_date = (timestamp) => {
@@ -81,7 +85,7 @@ module.exports = {
          }
       }
 
-      if (req.body.visibility && !["public", "private"].includes(req.body.visibility)) return res.status(400).send({ message: "Invalid playlist invisibility" })
+      if (req.body.visibility && !playlist_types.includes(req.body.visibility)) return res.status(400).send({ message: "Invalid playlist visibility" })
       if (req.file) {
          let url = await upload_playlist_cover(req.file)
          if (typeof url !== "string") {
@@ -102,7 +106,7 @@ module.exports = {
          req.username,
          req.body.description ? req.body.description : "",
          req.body.cover_url,
-         req.body.visibility ? req.body.visibility : "private",
+         req.body.visibility ? req.body.visibility : "solo",
          uuid
       )
 
@@ -159,7 +163,9 @@ module.exports = {
          else {
             // only push private playlists if we are the user in question
             if (data.visibility === "public") playlists.push(data)
-            else if (data.visibility === "private" && data.owner == req.username) {
+            else if (data.visibility === "solo" && data.owner == req.username) {
+               playlists.push(data)
+            } else if (data.visibility == "private" && data.viewers.includes(req.username)) {
                playlists.push(data)
             }
          }
@@ -200,7 +206,7 @@ module.exports = {
 
       if (req.body.visibility) {
          // validate visibliity
-         if (!["public", "private"].includes(req.body.visibility)) {
+         if (!playlist_types.includes(req.body.visibility)) {
             return res.status(400).send({ message: "Invalid visibility value: " + req.body.visibility })
          }
          changes.visibility = req.body.visibility
@@ -292,7 +298,8 @@ module.exports = {
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid playlist UUID" })
 
-      if (playlistdata.visibility != "public" && playlistdata.owner != req.username) {
+      if ((playlistdata.visibility == "solo" && playlistdata.owner != req.username) ||
+         (playlistdata.visibility == "private" && !playlistdata.viewers.includes(req.username))) {
          return res.status(400).send({ message: "You do not have permission to view this playlist" })
       }
 
@@ -317,6 +324,8 @@ module.exports = {
       let playlistdata = await fb.get_doc("playlists", req.body.uuid)
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
+
+      if (playlistdata.visibility == "solo" && playlistdata.owner != req.username) return res.status(400).send({ message: "This playlist is owner only" })
 
       if (!playlistdata.editors.includes(req.username)) return res.status(400).send({ message: "You cannot edit this playlist" })
 
@@ -347,6 +356,8 @@ module.exports = {
       let playlistdata = await fb.get_doc("playlists", req.body.uuid)
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
+
+      if (playlistdata.visibility == "solo" && playlist.data.owner != req.username) return res.status(400).send({ message: "This playlist is owner only" })
 
       if (!playlistdata.editors.includes(req.username)) return res.status(400).send({ message: "You cannot edit this playlist" })
 

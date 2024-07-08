@@ -17,6 +17,7 @@
                <span class="row">
                   <p style="margin: 0">Visibility</p>
                   <select class="dropdown" v-model="visibility">
+                     <option value="solo">Me Only</option>
                      <option value="private">Private</option>
                      <option value="public">Public</option>
                   </select>
