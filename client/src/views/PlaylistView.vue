@@ -15,12 +15,18 @@
                <h1 class="name">{{ playlist.name }}</h1>
                <p class="visibility">{{ playlist.visibility == "public" ? "Public" : "Private" }} playlist</p>
                <div class="contributors">
-                  <p>By </p>
-                  <RouterLink
-                     v-for="user in playlist.editors"
-                     :key="user.uuid"
-                     :to="`/u/${user}`"
-                  >{{ user }}</RouterLink>
+                  <p style="margin-right: 4px">By </p>
+                  <template 
+                     v-for="(user, index) in playlist.editors"
+                     :key="index"
+                  >
+                     <RouterLink
+                        :to="`/u/${user}`"
+                     >
+                        {{ user }}
+                     </RouterLink>
+                     <p style="margin-right: 4px">{{(index != playlist.editors.length - 1) ? ", " : ""}}</p>
+                  </template>
                </div>
                <p class="description">{{ playlist.description }}</p>
             </template>
@@ -31,12 +37,18 @@
                   <option value="public">Public</option>
                </select>
                <div class="contributors">
-                  <p>By </p>
-                  <RouterLink
-                     v-for="user in playlist.editors"
-                     :key="user.uuid"
-                     :to="`/u/${user}`"
-                  >{{ user }}</RouterLink>
+                  <p style="margin-right: 4px">By </p>
+                  <template 
+                     v-for="(user, index) in playlist.editors"
+                     :key="index"
+                  >
+                     <RouterLink
+                        :to="`/u/${user}`"
+                     >
+                        {{ user }}
+                     </RouterLink>
+                     <p style="margin-right: 4px">{{(index != playlist.editors.length - 1) ? ", " : ""}}</p>
+                  </template>
                </div>
                <textarea class="description" :value="playlist.description" ref="description_ref" />
             </template>
@@ -307,8 +319,13 @@ watch(() => route.params.playlist, (newval) => {
 
 <style scoped>
 @media (max-width: 600px) {
-   .playlist-box .cover {
-      width: 128px;
+   .playlist-box .info-box {
+      flex-direction: column;
+      gap: 0px;
+   }
+
+   .playlist-box .info-box .cover {
+      margin: auto;
    }
 }
 
@@ -342,7 +359,7 @@ watch(() => route.params.playlist, (newval) => {
    display: flex;
    flex-direction: row;
    align-items: center;
-   gap: 4px;
+   flex-wrap: wrap;
 }
 
 .contributors p {
