@@ -43,6 +43,10 @@
 
             <div class="playlist-controls" v-if="user">
                <template v-if="playlist.owner == user.username">
+                  <span class="row" style="margin-right: 20px">
+                     <span class="material-symbols-rounded icon nointeract" style="color: red;">favorite</span>
+                     <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
+                  </span>
                   <span class="material-symbols-rounded icon" style="color: goldenrod" v-if="!editing" @click="editing = true;">edit</span>
                   <div class="edit-box" v-else>
                      <span class="material-symbols-rounded icon" style="color: darkseagreen" @click="submit_edit">check_circle</span>
@@ -53,7 +57,11 @@
                   <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
                </template>
                <template v-else>
-                  <span :title="is_playlist_viewer ? 'Unsave from Library' : 'Save from Library'" class="material-symbols-rounded icon" :style="{ color: is_playlist_viewer ? 'red' : 'gray' }" @click="toggle_save">favorite</span>
+                  <span class="row">
+                     <span :title="is_playlist_viewer ? 'Unsave from Library' : 'Save from Library'" class="material-symbols-rounded icon" :style="{ color: is_playlist_viewer ? 'red' : 'gray' }" @click="toggle_save">favorite</span>
+
+                     <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
+                  </span>
                </template>
             </div>
          </div>
@@ -431,6 +439,20 @@ textarea.description {
 
 .edit:hover .icon {
    color: goldenrod;
+}
+
+.icon.nointeract:hover {
+   opacity: initial;
+}
+.nointeract {
+   cursor: default !important;
+}
+
+.row {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   gap: 6px;
 }
 
 </style>
