@@ -1,42 +1,44 @@
 <template>
     <div v-if="show_page" class="upload-box">
-        <div class="header">
-            <p>UPLOAD TRACK</p>
-        </div>
-        <form>
+        <form @submit="stop_page_refresh">
             <label for="event">Event</label>
             <select name="event" ref="event_ref">
                 <option v-for="event in open_events" :key="event.id" :value="event.id">{{ event.name }}</option>
             </select>
 
-            <label for="title">Title</label>
-            <input ref="title_ref" type="text" placeholder="The_NewStuff" required>
+            <div class="album">
+               <img class="album" :src="cover_url" />
+               <div class="album-edit" @click="album_ref.click()">
+                  <span class="material-symbols-rounded icon">edit</span>
+               </div>
+               <input ref="album_ref" class="album-input" type="file" accept=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp" @change="update_cover_url">
+            </div>
+            <input ref="title_ref" type="text" placeholder="Track Title" class="title" style="margin-top: 20px" maxlength="50" required>
 
+         <div class="artists-box">
             <label for="artists">Artists<p class="tag">(optional)</p></label>
             <input type="text" class="artist" value="You" disabled>
-            <p class="tag" v-if="artists.length != 0" style="margin-top: 6px; margin-bottom: 4px;">Enter the artist's
-                USERNAME, not display name.</p>
             <span class="artist-entry" v-for="(artist, index) in artists" :key="index">
-                <input class="artist" type="text" v-model="artists[index]" placeholder="a very cool person" />
+                <input class="artist" type="text" v-model="artists[index]" placeholder="Artist" maxlength="20" />
                 <span class="material-symbols-rounded remove-artist" @click="remove_artist(index)">cancel</span>
             </span>
             <span class="new-artist-box" @click="add_artist" v-if="artists.length < 8">
                 <span class="material-symbols-rounded">person_add</span>
                 <p>Add Artist</p>
             </span>
+         </div>
 
             <label for="lyrics">lyrics<p class="tag">(optional)</p></label>
             <textarea ref="lyrics_ref" placeholder="there's a light over the ocean
- ..."></textarea>
+ ..." maxlength="2000"></textarea>
 
-            <label for="track">Audio File</label>
-            <input ref="track_ref" type="file" accept=".mp3," required>
+            <span class="row">
+               <button class="upload" @click="track_ref.click()">Upload Audio</button>
+               <input ref="track_ref" type="file" accept=".mp3," style="display: none" @change="update_current_file" required>
+               <p class="filename">{{ current_file ? current_file : "No file chosen" }}</p>
+            </span>
 
-            <label for="album">Album Cover<p class="tag">(optional)</p></label>
-            <input ref="album_ref" type="file" accept=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp">
-
-
-            <button ref="submit_button_ref" type="submit" @click="upload">UPLOAD</button>
+            <button class="submit" ref="submit_button_ref" type="submit" @click="upload">Submit</button>
         </form>
     </div>
     <div v-else>
@@ -69,6 +71,9 @@ const uploading = ref(false)
 const show_page = ref(false)
 const artists = ref([])
 
+const current_file = ref("")
+const cover_url = ref("https://storage.googleapis.com/jukebox-albums/default.webp")
+
 const add_artist = () => {
     if (artists.value.length >= 7) return alert("Maximum number of artists reached!")
     artists.value.push("")
@@ -76,6 +81,10 @@ const add_artist = () => {
 
 const remove_artist = (index) => {
     artists.value.splice(index, 1)
+}
+
+const stop_page_refresh = (e) => {
+   e.preventDefault()
 }
 
 onBeforeMount(async () => {
@@ -181,6 +190,16 @@ const upload = async (e) => {
     uploading.value = false
 }
 
+const update_cover_url = () => {
+   if (!album_ref.value.files[0]) return
+   cover_url.value = URL.createObjectURL(album_ref.value.files[0])
+}
+
+const update_current_file = () => {
+   if (!track_ref.value.files[0]) return
+   current_file.value = track_ref.value.files[0].name
+}
+
 </script>
  
 <style scoped>
@@ -188,9 +207,39 @@ const upload = async (e) => {
     max-width: 600px;
     margin: auto;
     margin-top: 100px;
-    background-color: #e4e4e4;
 
     margin-bottom: 300px;
+}
+
+.album {
+   width: 225px;
+   height: 225px;
+   margin: auto;
+   position: relative;
+   object-fit: cover;
+}
+
+.album-edit {
+   position: absolute;
+   width: 100%;
+   height: 100%;
+   top: 0;
+   left: 0;
+   background-color: #30303090;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   cursor: pointer;
+   opacity: 0;
+}
+
+.album-edit:hover {
+   opacity: 1;
+}
+
+.album-edit span {
+   font-size: 48px;
+   color: white;
 }
 
 .header {
@@ -221,6 +270,18 @@ select {
     font-size: 14px;
 }
 
+input[type="text"],
+textarea {
+   border: none;
+   font-size: 16px;
+}
+
+.title {
+   font-size: 24px !important;
+   font-weight: bold;
+   text-align: center;
+}
+
 textarea {
     resize: vertical;
 }
@@ -248,7 +309,6 @@ input[type="file"] {
     gap: 4px;
     align-items: center;
     margin-top: 4px;
-    margin-bottom: 20px;
 
     cursor: pointer;
 }
@@ -281,6 +341,61 @@ input.artist {
 
 .remove-artist:hover {
     opacity: 0.6;
+}
+
+.album-input {
+   display: none;
+}
+
+.artist, .artist-entry {
+   background: none;
+}
+
+.artists-box {
+   display: flex;
+   flex-direction: column;
+   background-color: #e7e7e7;
+   padding: 10px;
+   border-radius: 10px;
+   margin-bottom: 20px;
+}
+
+.upload {
+   margin: 0;
+   width: 150px;
+}
+
+button {
+   border: none;
+   border-radius: 10px;
+}
+
+.row {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   gap: 10px;
+}
+
+.filename {
+   margin: 0;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.submit {
+   width: 175px;
+   margin: auto;
+   font-weight: bold;
+   margin-top: 40px;
+   font-size: 16px !important;
+   background-color: darkseagreen;
+   color: white;
+}
+
+.submit:hover {
+   background-color: seagreen;
 }
 </style>
  
