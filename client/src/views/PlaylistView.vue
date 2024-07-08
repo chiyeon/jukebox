@@ -48,7 +48,7 @@
                   <span class="material-symbols-rounded icon" style="color: darkred" @click="cancel_edit">cancel</span>
                </div>
 
-               <span class="material-symbols-rounded icon" style="color: green">manage_accounts</span>
+               <span class="material-symbols-rounded icon" style="color: green" @click="editing_users = true">manage_accounts</span>
                <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
             </div>
          </div>
@@ -73,12 +73,14 @@
    <p v-else>Loading</p>
    <ConfirmDelete v-if="show_delete" @close="show_delete=false" message="Delete Playlist?" @delete="delete_playlist" />
    <Loading v-if="loading" message="Updating Playlist" />
+   <PlaylistUsersEdit v-if="editing_users" @close="editing_users = false" @reload="update_playlist_data(playlist.uuid)" :editors="playlist.editors" :viewers="playlist.viewers" :uuid="playlist.uuid" />
 </template>
 
 <script setup>
 import Track from "../components/TrackComponent.vue"
 import ConfirmDelete from "../components/ConfirmDelete.vue"
 import Loading from "../components/LoadingComponent.vue"
+import PlaylistUsersEdit from "../components/PlaylistUsersEdit.vue"
 import { ref, watch, onBeforeMount, computed } from "vue"
 import { useRoute, RouterLink } from "vue-router"
 import { useStore } from "vuex"
@@ -94,6 +96,7 @@ const playlist = ref(null)
 const show_delete = ref(false)
 const editing = ref(false)
 const loading = ref(false)
+const editing_users = ref(false)
 
 const name_ref = ref(null)
 const description_ref = ref(null)

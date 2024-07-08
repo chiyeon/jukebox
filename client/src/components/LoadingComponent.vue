@@ -15,7 +15,7 @@ defineProps(["message"])
    position: fixed;
    left: 0;
    top: 0;
-   z-index: 300;
+   z-index: 400;
 
    width: 100vw;
    height: 100vh;

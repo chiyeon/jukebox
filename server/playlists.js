@@ -4,6 +4,8 @@ const short = require("short-uuid")
 
 const translator = short()
 
+const MAX_PLAYLIST_EDITORS = 8
+
 const get_timestamp_as_date = (timestamp) => {
    return new Date(timestamp._seconds * 1000)
 }
@@ -205,12 +207,35 @@ module.exports = {
       }
 
       if (req.body.editors) {
-         if (!changes.editors.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
+         if (!req.body.editors.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
+         if (req.body.editors.length > MAX_PLAYLIST_EDITORS) return res.status(400).send({ message: "Exceeds maximum editor limit" })
+
+         // make sure all editors exist now... (better way to do this surely...)
+         for (let i = 0; i < req.body.editors.length; i++) {
+            if (req.body.editors[i].length == 0) {
+               return res.status(400).send({ message: "Invalid name" })
+            }
+            if (!(await fb.get_doc("users", req.body.editors[i]))) {
+               return res.status(400).send({ message: "User \"" + req.body.editors[i] + "\" doesn't exist." })
+            }
+         }
+
          changes.editors = req.body.editors
       }
 
       if (req.body.viewers) {
-         if (!changes.viewers.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
+         if (!req.body.viewers.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
+
+         // make sure all viewers exist now... (better way to do this surely...)
+         for (let i = 0; i < req.body.viewers.length; i++) {
+            if (req.body.viewers[i].length == 0) {
+               return res.status(400).send({ message: "Invalid name" })
+            }
+            if (!(await fb.get_doc("users", req.body.viewers[i]))) {
+               return res.status(400).send({ message: "User \"" + req.body.viewers[i] + "\" doesn't exist." })
+            }
+         }
+
          changes.viewers = req.body.viewers
       }
 
