@@ -46,6 +46,15 @@
                      })
                   }}
                </p>
+            <ProfileStats
+               :username="user.username"
+               :stats="{
+                  tracks: user.num_tracks,
+                  wins: user.num_wins,
+                  badges: user.badges.length,
+                  playlist_count: user.num_playlists
+               }"
+            />
             </div>
          </div>
          <div class="info-box">
@@ -53,14 +62,7 @@
             <!-- stats box also supported here -->
          </div>
       </div>
-      <ProfileStats
-         :username="user.username"
-         :stats="{
-            tracks: user.num_tracks,
-            wins: user.num_wins,
-            badges: user.badges.length
-         }"
-      />
+
 
       <h3>Bio</h3>
       <template v-if="!editing_bio">
@@ -280,6 +282,7 @@ h2 {
    font-weight: 900;
 }
 .date {
+   margin-bottom: 10px !important;
 }
 
 .user-profile {

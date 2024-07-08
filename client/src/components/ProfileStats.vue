@@ -41,7 +41,8 @@ const tooltip = ref("")
 const stats = computed(() => [
    Stat("music_note", props.stats.tracks | 0, "teal", "white", "tracks"),
    Stat("trophy", props.stats.wins | 0, "#f08000", "#ffc000", "wins"),
-   Stat("playing_cards", props.stats.badges | 0, "darkseagreen", "white", "badges")
+   Stat("playing_cards", props.stats.badges | 0, "darkseagreen", "white", "badges"),
+   Stat("library_music", props.stats.playlist_count | 0, "firebrick", "white", "playlists")
 ])
 </script>
 
@@ -75,9 +76,9 @@ const stats = computed(() => [
    justify-content: center;
    align-items: center;
    gap: 2px;
-   height: 42px;
+   height: 36px;
    cursor: default;
-   width: 64px;
+   width: 56px;
 }
 
 .stat .label {
@@ -89,5 +90,9 @@ const stats = computed(() => [
    height: 15px;
    margin: 0;
    margin-top: 4px;
+}
+
+.icon {
+   font-size: 22px;
 }
 </style>

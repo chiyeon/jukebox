@@ -510,9 +510,12 @@ app.post("/api/user", async (req, res) => {
       let tracks = await fb.get_docs_by_query("tracks", [ "artists", "array-contains", userdata.username ])
       userdata.num_tracks = tracks.length
       userdata.num_wins = tracks.filter(t => t.winner).length
+      // lets censor their playlists, it may be "private"
+      userdata.num_playlists = userdata.playlists.length
       // also replace their badge ids with the badge data. see statement above
       let user_badges = userdata.badges.map(badge => badges[badge])
       userdata.badges = user_badges
+      delete userdata.playlists
       res.status(200).send({ message: "Found user data", user: userdata })
    } else {
       res.status(400).send({ message: "Invalid username", user: undefined })
