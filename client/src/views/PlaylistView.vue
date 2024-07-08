@@ -73,7 +73,7 @@
    <p v-else>Loading</p>
    <ConfirmDelete v-if="show_delete" @close="show_delete=false" message="Delete Playlist?" @delete="delete_playlist" />
    <Loading v-if="loading" message="Updating Playlist" />
-   <PlaylistUsersEdit v-if="editing_users" @close="editing_users = false" @reload="update_playlist_data(playlist.uuid)" :editors="playlist.editors" :viewers="playlist.viewers" :uuid="playlist.uuid" />
+   <PlaylistUsersEdit v-if="editing_users" @close="editing_users = false" @reload="update_playlist_data(playlist.uuid)" :editors="playlist.editors" :uuid="playlist.uuid" />
 </template>
 
 <script setup>

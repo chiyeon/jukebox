@@ -2,31 +2,28 @@
    <div class="full-window" @click="emit('close')">
       <div class="edit-users" @click.stop="undefined">
          <span class="material-symbols-rounded icon close" @click.stop="emit('close')">close</span>
-         <p>Add users to view this playlist. With <span class="material-symbols-rounded" style="font-size: 20px">edit_note</span> Edit permissions they can also add/delete tracks.</p>  
+         <p>Add users to add/remove tracks</p>  
 
          <div class="users-box">
-            <span class="row">
-               <span class="material-symbols-rounded icon">person</span>
-               <p class="header">Username</p>
-            </span>
-            <span class="row">
-               <span class="material-symbols-rounded icon">edit_note</span>
-               <p class="header">Can Edit</p>
-            </span>
-            <p class="header">Remove</p>
-            <hr />
-            <hr />
+            <div class="user">
+               <span class="row">
+                  <span class="material-symbols-rounded icon">person</span>
+                  <p class="header">Username</p>
+               </span>
+               <p class="header">Remove</p>
+            </div>
             <hr />
             <template
-               v-for="(user, index) in users"
+               v-for="(user, index) in users.slice(1)"
                :key="index"
             >
-               <input type="text" class="username" placeholder="Artist name" v-model="users[index].username" />
-               <input class="edit" type="checkbox" v-model="users[index].edit" />
-               <span class="material-symbols-rounded icon delete" @click="users.splice(index, 1)">delete</span>
+               <div class="user">
+                  <input type="text" class="username" placeholder="Artist name" v-model="users[index+1]" />
+                  <span class="material-symbols-rounded icon delete" @click="users.splice(index+1, 1)">delete</span>
+               </div>
             </template>
          </div>
-         <button class="add-user" @click="users.length < 7 && users.push(User('', true, false))">
+         <button class="add-user" @click="users.length < 7 && users.push('')">
             <span class="material-symbols-rounded icon">person_add</span>
             <p>Add Listener</p>
          </button>
@@ -52,41 +49,16 @@ const users = ref([])
 
 const loading = ref(false)
 
-const User = (username, view, edit) => {
-   return {
-      username, view, edit
-   }
-}
-
 const save_edited_users = async () => {
    loading.value = true
-   // turn back into editors and viewers lists
-   let editors = []
-   let viewers = []
-
-   // push original back first
-   editors.push(user.value.username)
-   viewers.push(user.value.username)
-
-   // parse list
-   for (let i = 0; i < users.value.length; i++) {
-      let user = users.value[i] 
-      if (user.username.length == 0) {
-         loading.value = false
-         return alert("Invalid username")
-      }
-      // all are viewers
-      viewers.push(user.username)
-      // not all are editors
-      if (user.edit) {
-         editors.push(user.username)
-      }
-   }
-
    // basic checks
-   if (editors.length > 8) {
+   if (users.value.length > 8) {
       loading.value = false
       return alert("Too many editors")
+   }
+
+   for (let i = 0; i < users.value.length; i++) {
+      if (users.value[i].length == 0) return alert("Invalid name")
    }
 
    let res = await fetch("/api/playlist_edit", {
@@ -94,7 +66,7 @@ const save_edited_users = async () => {
       headers: {
          "Content-Type": "application/json",
       },
-      body: JSON.stringify({ uuid: props.uuid, editors, viewers }),
+      body: JSON.stringify({ uuid: props.uuid, editors: users.value }),
       credentials: "include",
    })
 
@@ -109,17 +81,7 @@ const save_edited_users = async () => {
 }
 
 onMounted(() => {
-   // ignore first one (owner)
-   for (let i = 1; i < props.editors.length; i++) {
-      users.value.push(User(props.editors[i], true, true))
-   }
-
-   for (let i = 1; i < props.viewers.length; i++) {
-      if (!props.editors.includes(props.viewers[i])) {
-         // only add viewers that werent already included in editors list
-         users.value.push(User(props.viewers[i], true, false))
-      }
-   }
+   users.value = props.editors
 })
 </script>
 
@@ -141,7 +103,7 @@ onMounted(() => {
    padding: 20px;
    margin: 20px;
    background-color: #e7e7e7;
-   width: 600px;
+   width: 300px;
 }
 
 .icon {
@@ -154,8 +116,8 @@ onMounted(() => {
 }
 
 .users-box {
-   display: grid;
-   grid-template-columns: 2fr 1fr 1fr;
+   display: flex;
+   flex-direction: column;
 }
 
 .row {
@@ -174,21 +136,18 @@ onMounted(() => {
    align-items: center;
 }
 
-.edit {
-   width: 16px;
-   height: 16px;
-   margin: 0;
-   margin-top: 4px;
-   cursor: pointer;
-}
-
 .username {
    margin: 0;
    width: 80%;
    border: none;
    background: none;
-   padding: 0;
-   font-size: 14px;
+   padding: 4px;
+   font-size: 16px;
+   margin-right: 10px;
+}
+
+.user > *:first-child {
+   flex: 1;
 }
 
 .delete {

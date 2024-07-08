@@ -208,24 +208,16 @@ module.exports = {
 
       let removed_editors = []
       let added_editors = []
-      let removed_viewers = []
-      let added_viewers = []
+      //let removed_viewers = []
+      //let added_viewers = []
 
       if (req.body.editors) {
          if (!req.body.editors.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
          if (req.body.editors.length > MAX_PLAYLIST_EDITORS) return res.status(400).send({ message: "Exceeds maximum editor limit" })
 
-         // make sure all editors are viewers
-         for (let i = 0; i < req.body.editors.length; i++) {
-            if (!req.body.viewers.includes(req.body.editors[i])) {
-               return res.status(400).send({ message: "All editors must be viewers." })
-            }
-         }
-
          // figure out: what are the removals, changes, & nothing burgers
          removed_editors = playlistdata.editors.filter(user => !req.body.editors.includes(user))
          added_editors = req.body.editors.filter(user => !playlistdata.editors.includes(user))
-
 
          // for additions, make sure they exist & add to their data
          for (let i = 0; i < added_editors.length; i++) {
@@ -239,6 +231,7 @@ module.exports = {
          changes.editors = req.body.editors
       }
 
+      /*
       if (req.body.viewers) {
          if (!req.body.viewers.includes(req.username)) return res.status(400).send({ message: "You cannot remove yoursel from the playlist!" })
          
@@ -258,6 +251,7 @@ module.exports = {
          }
          changes.viewers = req.body.viewers
       }
+      */
 
       // at this point, we are set on changing db and stuff
       if (req.file) {
@@ -276,23 +270,13 @@ module.exports = {
          if (old_cover != "default.webp") await files.delete_file(old_cover, files.playlists_bucket)
       }
 
-
-      // for removed users, take playlist off their list
-      // if all editors are viewers, and we checked earlier that all editors in the list are viewers
-      // we can remove anyone removed from teh viewers list
-      for (let i = 0; i < removed_viewers.length; i++) {
+      // for added editors, make sure its in their playsts list
+      // for removed editors, lets keep it in their saved
+      for (let i = 0; i < added_editors.length; i++) {
          try {
-            await fb.update_doc("users", removed_viewers[i], { playlists: fb.FieldValue.arrayRemove(playlistdata.uuid) })
+            await fb.update_doc("users", added_editors[i], { playlists: fb.FieldValue.arrayUnion(playlistdata.uuid) })
          } catch(e) {
-            console.log(`Incorrect user playlist removal. Cannot remove playlist (UUID ${playlistdata.uuid}) from user (${removed_viewers[i]}). Will continue as normal. Error: ${e}`)
-         }
-      }
-      // for all added viewers (this includes editors), add to their playlists list
-      for (let i = 0; i < added_viewers.length; i++) {
-         try {
-            await fb.update_doc("users", added_viewers[i], { playlists: fb.FieldValue.arrayUnion(playlistdata.uuid) })
-         } catch(e) {
-            console.log(`Unable to add playlist (UUID ${playlistdata.uuid}) to user (${added_viewers[i]}): ${e}`)
+            console.log(`Unable to add playlist (UUID ${playlistdata.uuid}) to user (${added_editors[i]}): ${e}`)
          }
       }
       // update in db
