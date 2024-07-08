@@ -511,7 +511,7 @@ app.post("/api/user", async (req, res) => {
       userdata.num_tracks = tracks.length
       userdata.num_wins = tracks.filter(t => t.winner).length
       // lets censor their playlists, it may be "private"
-      userdata.num_playlists = userdata.playlists.length
+      userdata.num_playlists = userdata.playlists ? userdata.playlists.length : 0
       // also replace their badge ids with the badge data. see statement above
       let user_badges = userdata.badges.map(badge => badges[badge])
       userdata.badges = user_badges
