@@ -286,8 +286,30 @@ module.exports = {
             console.log(`Unable to add playlist (UUID ${playlistdata.uuid}) to user (${added_editors[i]}): ${e}`)
          }
       }
+
+      // however, if its a PRIVATE playlist, REMOVE REMOVED EDITORS AS VIEWERS AS WELL
+      // if you think about this next if statement line a bit too hard, you might think it wont work
+      // the case where a client changes users AND changes visibilities is technically possible
+      // but isn't coded into the client
+      // even if it does occur through a hacked client, it wont really hurt anything or break anything
+      if (playlistdata.visibility != "public") {
+         for (let i = 0; i < removed_editors.length; i++) {
+            try {
+               await fb.update_doc("users", removed_editors[i], { playlists: fb.FieldValue.arrayRemove(playlistdata.uuid) })
+            } catch(e) {
+               console.log(`Unable to add playlist (UUID ${playlistdata.uuid}) to user (${added_editors[i]}): ${e}`)
+            }
+         }
+      }
+
       // update in db
       await fb.update_doc("playlists", req.body.uuid, changes)
+      // now that its updated, remove if private (and needed)
+      if (playlistdata.visibility != "public" && removed_editors.length != 0) {
+         await fb.update_doc("playlists", req.body.uuid, {
+            viewers: fb.FieldValue.arrayRemove(...removed_editors)
+         })
+      }
       return res.status(200).send({ message: "Playlist updated successfully" })
    },
 

@@ -13,7 +13,7 @@
          <div class="info">
             <template v-if="!editing">
                <h1 class="name">{{ playlist.name }}</h1>
-               <p class="visibility">{{ playlist.visibility == "public" ? "Public" : "Private" }} playlist</p>
+               <p class="visibility">{{ visibilities[playlist.visibility] }} playlist</p>
                <div class="contributors">
                   <p style="margin-right: 4px">By </p>
                   <template 
@@ -133,6 +133,12 @@ const visibility_ref = ref(null)
 const image_ref = ref(null)
 const cover = ref(null)
 const cover_url = ref("")
+
+const visibilities = {
+   "private": "Private",
+   "public": "Public",
+   "solo": "Me Only"
+}
 
 const update_playlist_data = async (uuid) => {
    let res = await fetch("/api/playlist", {
