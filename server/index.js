@@ -582,6 +582,8 @@ app.post("/api/playlist", users.authenticate_optional_token, (req, res) => {
    req.tracks = tracks
    playlists.get_playlist_data(req, res)
 })
+app.post("/api/playlist_save", users.authenticate_token, playlists.save_to_library)
+app.post("/api/playlist_unsave", users.authenticate_token, playlists.remove_from_library)
 
 const get_display_names = async (track) => {
    return track.artists

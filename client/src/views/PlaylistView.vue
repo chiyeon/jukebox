@@ -53,7 +53,7 @@
                   <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
                </template>
                <template v-else>
-                  <span :title="playlist.viewers.includes(user.username) ? 'Unsave from Library' : 'Save from Library'" class="material-symbols-rounded icon" :style="{ color: playlist.viewers.includes(user.username) ? 'red' : 'gray' }" @click="playlist.viewers.includes(user.username) ? unsave_from_library : save_to_library">favorite</span>
+                  <span :title="is_playlist_viewer ? 'Unsave from Library' : 'Save from Library'" class="material-symbols-rounded icon" :style="{ color: is_playlist_viewer ? 'red' : 'gray' }" @click="toggle_save">favorite</span>
                </template>
             </div>
          </div>
@@ -97,6 +97,9 @@ const route = useRoute()
 const user = computed(() => store.state.user)
 
 const playlist = ref(null)
+const is_playlist_viewer = ref(false)
+let debounce = false
+let debounce_interval = undefined
 
 const show_delete = ref(false)
 const editing = ref(false)
@@ -125,6 +128,7 @@ const update_playlist_data = async (uuid) => {
    if (res.ok) {
       playlist.value = (await res.json()).playlist
       cover_url.value = playlist.value.cover
+      is_playlist_viewer.value = playlist.value.viewers.includes(user.value.username)
       store.dispatch("setTracks", playlist.value.tracks)
    } else {
       alert("Error: " + (await res.json()).message)
@@ -179,12 +183,42 @@ const delete_playlist = async () => {
    }
 } 
 
-const unsave_from_library = () => {
-   
+const unsave_from_library = async () => {
+   let res = await fetch("/api/playlist_unsave", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+         uuid: playlist.value.uuid
+      }),
+      credentials: "include"
+   })
+
+   if (res.ok) {
+      update_playlist_data(playlist.value.uuid)
+   } else {
+      alert((await res.json()).message)
+   }
 }
 
-const save_to_library = () => {
+const save_to_library = async () => {
+   let res = await fetch("/api/playlist_save", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+         uuid: playlist.value.uuid
+      }),
+      credentials: "include"
+   })
 
+   if (res.ok) {
+      update_playlist_data(playlist.value.uuid)
+   } else {
+      alert((await res.json()).message)
+   }
 }
 
 const cancel_edit = () => {
@@ -231,6 +265,26 @@ const submit_edit = async () => {
    }
 
    loading.value = false
+}
+
+const toggle_save = () => {
+   // debounce
+   if (debounce) return
+
+   if (debounce_interval) {
+      clearTimeout(debounce_interval)
+   }
+
+   debounce = true
+   debounce_interval = setTimeout(() => debounce = false, 500)
+
+   if (is_playlist_viewer.value) {
+      unsave_from_library()
+   } else {
+      save_to_library()
+   }
+
+   is_playlist_viewer.value = !is_playlist_viewer.value
 }
 
 onBeforeMount(() => {

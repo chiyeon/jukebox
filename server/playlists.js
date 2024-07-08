@@ -375,5 +375,30 @@ module.exports = {
    save_to_library: async (req, res) => {
       if (!req.username) return res.status(400).send({ message: "Invalid user" })
       if (!req.body.uuid) return res.status(400).send({ message: "No Playlist" })
+
+      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
+      if (playlistdata.visibility != "public") return res.status(400).send({ message: "Playlist is private" })
+
+      // add us
+      await fb.update_doc("playlists", req.body.uuid, { viewers: fb.FieldValue.arrayUnion(req.username) })
+      await fb.update_doc("users", req.username, { playlists: fb.FieldValue.arrayUnion(req.body.uuid) })
+
+      return res.status(200).send({ message: "Saved to library" })
+   },
+
+   remove_from_library: async (req, res) => {
+      if (!req.username) return res.status(400).send({ message: "Invalid user" })
+      if (!req.body.uuid) return res.status(400).send({ message: "No Playlist" })
+
+      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
+      if (!playlistdata.viewers.includes(req.username)) return res.status(400).send({ message: "You are not apart of this playlist" })
+
+      // remove us
+      await fb.update_doc("playlists", req.body.uuid, { viewers: fb.FieldValue.arrayRemove(req.username), editors: fb.FieldValue.arrayRemove(req.username) })
+      await fb.update_doc("users", req.username, { playlists: fb.FieldValue.arrayRemove(req.body.uuid) })
+
+      return res.status(200).send({ message: "Removed from Library" })
    }
 }
