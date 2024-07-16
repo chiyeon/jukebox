@@ -145,6 +145,10 @@
                <span class="material-symbols-rounded icon">add</span>
                <p>Add to Playlist</p>
             </div>
+            <div :class="{ 'dropdown-option': true }" @click.stop="copy_link">
+               <span class="material-symbols-rounded icon">link</span>
+               <p>Copy Link</p>
+            </div>
             <slot name="dropdown-options"></slot>
          </Dropdown>
          <button
@@ -366,6 +370,10 @@ const add_to_playlist = () => {
 
 const remove_from_queue = () => {
    store.dispatch("removeTrack", props.index)
+}
+
+const copy_link = () => {
+   navigator.clipboard.writeText(window.location.origin + `?song=${props.track.uuid}`)
 }
 
 const prevent_parent_click = (e) => {}
