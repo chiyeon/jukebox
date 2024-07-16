@@ -1,5 +1,5 @@
 <template>
-   <div class="event">
+   <div class="event" :id="event.uuid">
       <template v-if="event.name">
          <hr />
          <p class="date">{{ get_event_date() }}</p>

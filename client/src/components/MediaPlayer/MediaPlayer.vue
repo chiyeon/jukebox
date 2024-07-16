@@ -40,7 +40,7 @@
          @nextTrack="next_song"
          @prevTrack="prev_song"
       />
-      <audio ref="audio_ref"></audio>
+      <audio ref="audio_ref" preload="auto"></audio>
    </div>
    <Transition name="lyrics">
       <Lyrics

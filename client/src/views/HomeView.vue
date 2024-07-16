@@ -40,10 +40,13 @@
 <script setup>
 import Event from "../components/EventComponent.vue"
 import TracksSearchBar from "../components/TracksSearchBar.vue"
-import { onBeforeMount, ref } from "vue"
+import { onBeforeMount, onMounted, ref, nextTick } from "vue"
 import { useStore } from "vuex"
+import { useRoute } from "vue-router"
+import eventbus from "../eventbus"
 
 const store = useStore()
+const route = useRoute()
 
 // we are in either events all or filtered mode. when user is
 // typing queries, switch to filtered, otherwise show all events
@@ -58,6 +61,7 @@ const update_tracks = () => {
    })
 
    store.dispatch("setTracks", tracks)
+   return tracks
 }
 
 onBeforeMount(async () => {
@@ -69,7 +73,19 @@ onBeforeMount(async () => {
       ).json()
    ).events
 
-   update_tracks()
+   let tracks = update_tracks()
+
+   // see if we have a uuid in the url
+   let song_uuid = route.query.song
+   if (song_uuid) {
+      // O (n)... replace eventually
+      let found_tracks = tracks.filter(s => s.uuid == song_uuid)
+      if (found_tracks.length > 0) {
+         eventbus.emit("playSong", found_tracks[0])
+         await nextTick()
+         document.getElementById(found_tracks[0].event)?.scrollIntoView()
+      }
+   }
 })
 </script>
 
