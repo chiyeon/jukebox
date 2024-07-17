@@ -81,6 +81,7 @@ h2 {
    flex-direction: row;
    gap: 4px;
    margin: 10px 0;
+   flex-wrap: wrap;
 }
 
 .tag {
@@ -88,6 +89,7 @@ h2 {
    background-color: #e0e0e0;
    padding: 4px 6px;
    border-radius: 100px;
+   white-space: nowrap;
 }
 
 .description {
