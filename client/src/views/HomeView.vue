@@ -1,40 +1,38 @@
 <template>
-   <main>
-      <TracksSearchBar
-         @onSearch="(tracks) => (filtered_tracks = tracks)"
-         :nullOnEmpty="true"
-         class="search-bar"
+   <TracksSearchBar
+      @onSearch="(tracks) => (filtered_tracks = tracks)"
+      :nullOnEmpty="true"
+      class="search-bar"
+   />
+   <div class="tracks">
+      <Event
+         v-if="filtered_tracks && filtered_tracks.length > 0"
+         :event="{ tracks: filtered_tracks }"
+         class="filtered-tracks"
       />
-      <div class="tracks">
-         <Event
-            v-if="filtered_tracks && filtered_tracks.length > 0"
-            :event="{ tracks: filtered_tracks }"
-            class="filtered-tracks"
-         />
-         <p v-else-if="filtered_tracks && filtered_tracks.length == 0">
-            No tracks match search
-         </p>
-         <p v-else-if="!events">Loading tracks</p>
-         <p v-else-if="events.length == 0">No tracks found</p>
-         <template v-else>
-            <div class="open-now-box" v-if="events.filter(e => e.featured).length != 0">
-               <h2><strong>Active Events</strong></h2>
-               <Event
-                  v-for="event in events.filter(e => e.featured)"
-                  :key="event.date"
-                  :event="event"
-                  :preview="!event.open"
-               />
-            </div>
+      <p v-else-if="filtered_tracks && filtered_tracks.length == 0">
+         No tracks match search
+      </p>
+      <p v-else-if="!events">Loading tracks</p>
+      <p v-else-if="events.length == 0">No tracks found</p>
+      <template v-else>
+         <div class="open-now-box" v-if="events.filter(e => e.featured).length != 0">
+            <h2><strong>Active Events</strong></h2>
             <Event
-               v-for="event in events.filter(e => !e.featured)"
+               v-for="event in events.filter(e => e.featured)"
                :key="event.date"
                :event="event"
-               :preview="event.featured && !event.open"
+               :preview="!event.open"
             />
-         </template>
-      </div>
-   </main>
+         </div>
+         <Event
+            v-for="event in events.filter(e => !e.featured)"
+            :key="event.date"
+            :event="event"
+            :preview="event.featured && !event.open"
+         />
+      </template>
+   </div>
 </template>
 
 <script setup>

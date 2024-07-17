@@ -2,7 +2,9 @@
    <div class="horizontal-contents">
       <div class="page-contents">
          <Header />
-         <RouterView />
+         <main>
+            <RouterView />
+         </main>
       </div>
 
       <Transition>

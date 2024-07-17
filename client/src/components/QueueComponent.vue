@@ -128,4 +128,8 @@ const close_queue = () => {
 .close {
    font-size: 32px;
 }
+
+.up-next {
+   padding-bottom: 100px;
+}
 </style>
