@@ -18,6 +18,7 @@
                <Playlist
                   :disable_click="true"
                   :playlist="playlist"
+                  compact="true"
                   v-if="user && playlist && playlist.editors.includes(user.username)"
                   @click.stop="add_to_playlist(playlist.uuid)"
                />
@@ -95,6 +96,30 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
+@media(max-width: 600px) {
+   .new-playlist .cover {
+      width: 64px;
+      height: 64px;
+   }
+
+   .new-playlist .cover span {
+      font-size: 40px;
+   }
+
+   .playlists .new-playlist {
+      flex-direction: row;
+      width: 100%;
+      padding-bottom: 10px;
+      border-bottom: 1px solid black;
+      gap: 10px;
+   }
+
+   .playlists .new-playlist p {
+      flex: 1;
+   }
+
+}
+
 .add-to-playlist-box {
    position: fixed;
    left: 0;
@@ -125,9 +150,10 @@ onBeforeMount(() => {
 
 .playlists {
    display: flex;
-   flex-direction: row;
-   flex-wrap: wrap;
-   gap: 20px;
+   flex-direction: column;
+   overflow-y: auto;
+   gap: 10px;
+   max-height: 500px;
 }
 
 .close {
