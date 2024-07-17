@@ -1,6 +1,7 @@
 <template>
    <div class="playlist-creation-box" @click="emit('close')">
       <div class="panel" @click.stop="null">
+         <span class="material-symbols-rounded icon close" @click="emit('close')">close</span>
          <div class="info-box">
             <div class="info">
                <div class="row main" style="gap: 20px">
@@ -109,6 +110,17 @@ const update_cover_preview = () => {
    align-items: center;
 }
 
+.close {
+   font-size: 32px;
+   margin-bottom: 20px;
+   user-select: none;
+   cursor: pointer;
+}
+
+.close:hover {
+   color: darkred;
+}
+
 .panel {
    background-color: #f7f7f7;
    padding: 20px;
@@ -171,6 +183,7 @@ button {
    padding: 10px 20px;
    cursor: pointer;
    width: fit-content;
+   border-radius: 8px;
 }
 
 button:hover {

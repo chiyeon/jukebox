@@ -18,7 +18,7 @@
                <Playlist
                   :disable_click="true"
                   :playlist="playlist"
-                  compact="true"
+                  :compact="is_mobile_size"
                   v-if="user && playlist && playlist.editors.includes(user.username)"
                   @click.stop="add_to_playlist(playlist.uuid)"
                />
@@ -45,6 +45,7 @@ const user = computed(() => store.state.user)
 const playlists = ref(null)
 
 const show_new_playlist = ref(false)
+const is_mobile_size = ref(false)
 
 const add_to_new_list = async () => {
    await fetch_playlists()
@@ -92,6 +93,10 @@ const add_to_playlist = async (playlist_uuid) => {
 
 onBeforeMount(() => {
    fetch_playlists() 
+   is_mobile_size.value = window.innerWidth <= 600
+   window.addEventListener("resize", () => {
+      is_mobile_size.value = window.innerWidth <= 600
+   })
 })
 </script>
 
@@ -104,6 +109,10 @@ onBeforeMount(() => {
 
    .new-playlist .cover span {
       font-size: 40px;
+   }
+
+   .playlists {
+      flex-direction: column !important;
    }
 
    .playlists .new-playlist {
@@ -150,7 +159,8 @@ onBeforeMount(() => {
 
 .playlists {
    display: flex;
-   flex-direction: column;
+   flex-direction: row;
+   flex-wrap: wrap;
    overflow-y: auto;
    gap: 10px;
    max-height: 500px;
