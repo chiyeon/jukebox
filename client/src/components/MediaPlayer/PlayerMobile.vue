@@ -269,10 +269,12 @@ button {
 
 /* bigt player */
 .big {
+   top: 0;
    --padding: 40px;
    padding: 10px var(--padding) var(--padding) var(--padding);
-   height: 90vh;
-   height: 90vdh;
+   height: 100vh;
+   height: 100vdh;
+   border-top: none;
 }
 
 .mobile_expanded span {
