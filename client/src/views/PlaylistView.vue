@@ -54,8 +54,8 @@
                <textarea class="description" :value="playlist.description" ref="description_ref" />
             </template>
 
-            <div class="playlist-controls" v-if="user">
-               <template v-if="playlist.owner == user.username">
+            <div class="playlist-controls">
+               <template v-if="user && playlist.owner == user.username">
                   <span class="row" style="margin-right: 20px">
                      <span class="material-symbols-rounded icon nointeract" style="color: red;">favorite</span>
                      <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
@@ -69,13 +69,20 @@
                   <span class="material-symbols-rounded icon" style="color: green" @click="editing_users = true">manage_accounts</span>
                   <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
                </template>
-               <template v-else>
-                  <span class="row">
-                     <span :title="is_playlist_viewer ? 'Unsave from Library' : 'Save from Library'" class="material-symbols-rounded icon" :style="{ color: is_playlist_viewer ? 'red' : 'gray' }" @click="toggle_save">favorite</span>
-
-                     <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
+               <span class="row">
+                  <span 
+                     :title="is_playlist_viewer ? 'Unsave from Library' : 'Save from Library'" 
+                     :class="{
+                        'material-symbols-rounded icon': true,
+                        'like-icon': true,
+                        'liked': is_playlist_viewer,
+                        'no-interact': !user
+                     }"
+                     @click="toggle_save">favorite
                   </span>
-               </template>
+
+                  <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
+               </span>
             </div>
          </div>
       </div>
@@ -155,7 +162,7 @@ const update_playlist_data = async (uuid) => {
    if (res.ok) {
       playlist.value = (await res.json()).playlist
       cover_url.value = playlist.value.cover
-      is_playlist_viewer.value = playlist.value.viewers.includes(user.value.username)
+      if (user.value) is_playlist_viewer.value = playlist.value.viewers.includes(user.value.username)
       store.dispatch("setTracks", playlist.value.tracks)
    } else {
       alert("Error: " + (await res.json()).message)
@@ -165,6 +172,7 @@ const update_playlist_data = async (uuid) => {
 const remove_from_playlist = async (track) => {
    // remember, we must match the server request... it takes a PlaylistTrack, containing
    // uploader & uuid
+   loading.value = true
    let res = await fetch("/api/playlist_remove_tracks", {
       method: "POST",
       headers: {
@@ -187,9 +195,11 @@ const remove_from_playlist = async (track) => {
    } else {
       alert("Error: " + (await res.json()).message)
    }
+   loading.value = false
 }
 
 const delete_playlist = async () => {
+   loading.value = true
    let res = await fetch("/api/playlist_delete", {
       method: "POST",
       headers: {
@@ -208,6 +218,7 @@ const delete_playlist = async () => {
    } else {
       alert("Failed to delete playlist: " + (await res.json()).message)
    }
+   loading.value = false
 } 
 
 const unsave_from_library = async () => {
@@ -295,6 +306,9 @@ const submit_edit = async () => {
 }
 
 const toggle_save = () => {
+
+   if (!user.value) return
+
    // debounce
    if (debounce) return
 
@@ -477,6 +491,22 @@ textarea.description {
    flex-direction: row;
    align-items: center;
    gap: 6px;
+}
+
+.like-icon {
+   color: gray;
+}
+
+.icon.liked {
+   color: red;
+}
+
+.icon.no-interact {
+   cursor: default;
+}
+
+.icon.no-interact:hover {
+   opacity: initial;
 }
 
 </style>

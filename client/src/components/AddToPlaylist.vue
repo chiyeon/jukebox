@@ -27,6 +27,7 @@
       </div>
    </div>
    <PlaylistCreation v-if="show_new_playlist" @close="show_new_playlist = false" :run_after="add_to_new_list" />
+   <Loading message="Adding to playlist" v-if="loading" />
 </template>
 
 <script setup>
@@ -34,6 +35,7 @@ import { defineProps, computed, onBeforeMount, ref } from "vue"
 import eventbus from "../eventbus"
 import { useStore } from "vuex"
 
+import Loading from "./LoadingComponent.vue"
 import Playlist from "./PlaylistComponent.vue"
 import PlaylistCreation from "./PlaylistCreation.vue"
 
@@ -43,11 +45,13 @@ const props = defineProps([ "track" ])
 
 const user = computed(() => store.state.user)
 const playlists = ref(null)
+const loading = ref(false)
 
 const show_new_playlist = ref(false)
 const is_mobile_size = ref(false)
 
 const add_to_new_list = async () => {
+   loading.value = true
    await fetch_playlists()
    add_to_playlist(playlists.value[0].uuid) // newest should be first
 }
@@ -73,6 +77,8 @@ const fetch_playlists = async () => {
 const add_to_playlist = async (playlist_uuid) => {
    if (!playlist_uuid || !props.track) return
 
+   loading.value = true
+
    let res = await fetch("/api/playlist_add_tracks", {
       method: "POST",
       headers: {
@@ -87,6 +93,8 @@ const add_to_playlist = async (playlist_uuid) => {
    } else {
       alert((await res.json()).message)
    }
+
+   loading.value = false
 
    eventbus.emit("set_add_to_playlist_visibility", false)
 }
