@@ -146,6 +146,8 @@
                <span class="material-symbols-rounded icon">add</span>
                <p>Add to Playlist</p>
             </div>
+            <slot name="playlist-dropdown-options"></slot>
+            <hr />
             <div :class="{ 'dropdown-option': true }" @click.stop="copy_link">
                <span class="material-symbols-rounded icon">link</span>
                <p>Copy Link</p>

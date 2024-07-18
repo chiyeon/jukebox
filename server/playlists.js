@@ -314,9 +314,11 @@ module.exports = {
    },
 
    get_playlist_data: async (req, res) => {
+      // this one won't use the playlist cache
+      // perofrms better on deletion/adding updates for clients
       if (!req.body.uuid) return res.status(400).send({ message: "Invalid/missing UUID" }) 
 
-      let playlistdata = req.playlists[req.body.uuid]
+      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid playlist UUID" })
 

@@ -51,7 +51,7 @@ a:hover {
 
 hr {
    border: none;
-   height: 1px;
+   border-bottom: 1px solid black;
    background: black;
    width: 100%;
    box-sizing: border-box;
