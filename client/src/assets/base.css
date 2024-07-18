@@ -65,7 +65,7 @@ select {
 }
 
 button {
-   color: white;
+   color: black;
 }
 
 @media (max-width: 600px) {
