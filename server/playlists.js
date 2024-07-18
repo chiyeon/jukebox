@@ -412,6 +412,7 @@ module.exports = {
       let playlistdata = req.playlists[req.body.uuid]
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
       if (playlistdata.visibility != "public") return res.status(400).send({ message: "Playlist is private" })
+      if (playlistdata.owner == req.username) return res.status(400).send({ message: "You are the playlist owner" })
 
       // add us
       await fb.update_doc("playlists", req.body.uuid, { viewers: fb.FieldValue.arrayUnion(req.username) })
@@ -427,6 +428,7 @@ module.exports = {
       let playlistdata = req.playlists[req.body.uuid]
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
       if (!playlistdata.viewers.includes(req.username)) return res.status(400).send({ message: "You are not apart of this playlist" })
+      if (playlistdata.owner == req.username) return res.status(400).send({ message: "You are the playlist owner" })
 
       // remove us
       await fb.update_doc("playlists", req.body.uuid, { viewers: fb.FieldValue.arrayRemove(req.username), editors: fb.FieldValue.arrayRemove(req.username) })
