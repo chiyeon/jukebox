@@ -69,20 +69,22 @@
                   <span class="material-symbols-rounded icon" style="color: green" @click="editing_users = true">manage_accounts</span>
                   <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
                </template>
-               <span class="row">
-                  <span 
-                     :title="is_playlist_viewer ? 'Unsave from Library' : 'Save from Library'" 
-                     :class="{
-                        'material-symbols-rounded icon': true,
-                        'like-icon': true,
-                        'liked': is_playlist_viewer,
-                        'no-interact': !user
-                     }"
-                     @click="toggle_save">favorite
-                  </span>
+               <template v-else>
+                  <span class="row">
+                     <span 
+                        :title="is_playlist_viewer ? 'Unsave from Library' : 'Save from Library'" 
+                        :class="{
+                           'material-symbols-rounded icon': true,
+                           'like-icon': true,
+                           'liked': is_playlist_viewer,
+                           'no-interact': !user
+                        }"
+                        @click="toggle_save">favorite
+                     </span>
 
-                  <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
-               </span>
+                     <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
+                  </span>
+               </template>
             </div>
          </div>
       </div>
