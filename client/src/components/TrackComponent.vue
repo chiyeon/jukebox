@@ -11,6 +11,7 @@
       <img
          v-if="!is_queue_element()"
          class="album"
+         loading="lazy"
          :src="track.album"
          @click="emit('click')"
       />
