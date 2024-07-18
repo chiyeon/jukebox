@@ -25,6 +25,7 @@ const cookie_settings = {
 let tracks = {}
 let events = {}
 let events_list = []
+let playlists_cache = {}
 
 app.use(express.json())
 app.use(cookieparser())
@@ -574,13 +575,18 @@ app.get("/api/openevents", users.authenticate_token, async (req, res) => {
    res.status(200).send({ events: open_events })
 })
 
-app.post("/api/playlist_create", users.authenticate_token, files.upload.single("cover"), playlists.create_new_playlist)
-app.post("/api/playlist_delete", users.authenticate_token, playlists.delete_playlist)
-app.post("/api/playlist_edit", users.authenticate_token, files.upload.single("cover"), playlists.edit_playlist)
-app.post("/api/playlist_add_tracks", users.authenticate_token, playlists.add_to_playlist)
-app.post("/api/playlist_remove_tracks", users.authenticate_token, playlists.remove_from_playlist)
-app.post("/api/playlists", users.authenticate_optional_token, playlists.get_playlists_from_user)
-app.post("/api/playlist", users.authenticate_optional_token, (req, res) => {
+const add_playlist_cache = (req, res, next) => {
+   req.playlists = playlists_cache
+   next()
+}
+
+app.post("/api/playlist_create", users.authenticate_token, add_playlist_cache, files.upload.single("cover"), playlists.create_new_playlist)
+app.post("/api/playlist_delete", users.authenticate_token, add_playlist_cache, playlists.delete_playlist)
+app.post("/api/playlist_edit", users.authenticate_token, add_playlist_cache, files.upload.single("cover"), playlists.edit_playlist)
+app.post("/api/playlist_add_tracks", users.authenticate_token, add_playlist_cache, playlists.add_to_playlist)
+app.post("/api/playlist_remove_tracks", users.authenticate_token, add_playlist_cache, playlists.remove_from_playlist)
+app.post("/api/playlists", users.authenticate_optional_token, add_playlist_cache, playlists.get_playlists_from_user)
+app.post("/api/playlist", users.authenticate_optional_token, add_playlist_cache, (req, res) => {
    // pass our tracks cache
    req.tracks = tracks
    playlists.get_playlist_data(req, res)
@@ -687,6 +693,20 @@ const update_tracks = async (new_tracks) => {
    // theoretically events_list is still sorted here
 }
 
+const update_playlists = async (new_playlists) => {
+   for (let key in new_playlists) {
+      switch (new_playlists[key].type) {
+         case "added":
+         case "modified":
+            playlists_cache[key] = new_playlists[key]
+            break
+         case "removed":
+            delete playlists_cache[key]
+            break
+      }
+   } 
+}
+
 app.use(express.static(path.join(__dirname, "dist")))
 app.get("*", (req, res) => {
    res.sendFile(path.join(__dirname, "/dist/index.html"))
@@ -697,6 +717,7 @@ app.listen(PORT, async () => {
 
    fb.setup_collection_listener("events", update_events)
    fb.setup_collection_listener("tracks", update_tracks)
+   fb.setup_collection_listener("playlists", update_playlists)
 
    print("started on port " + PORT)
 })

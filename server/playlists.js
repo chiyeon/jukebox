@@ -121,7 +121,7 @@ module.exports = {
       if (!req.username) return res.status(400).send({ message: "Not logged in" })
       if (!req.body.uuid) return res.status(400).send({ message: "Playlist to delete required" })
 
-      const playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      const playlistdata = req.playlists[req.body.uuid]
       if (!playlistdata) return res.status(400).send({ message: "Invalid playlist" })
 
       if (playlistdata.owner != req.username) return res.status(400).send({ message: "You cannot delete this playlist" })
@@ -158,7 +158,7 @@ module.exports = {
       if (!userdata.playlists || userdata.playlists.length == 0) return res.status(200).send({ playlists })
 
       for (let i = 0; i < userdata.playlists.length; i++) {
-         let data = await fb.get_doc("playlists", userdata.playlists[i])
+         let data = req.playlists[userdata.playlists[i]]
          if (!data) console.log("Found invalid playlist: " + userdata.playlists[i])
          else {
             // only push private playlists if we are the user in question
@@ -186,7 +186,7 @@ module.exports = {
       if (!req.body.uuid) return res.status(400).send({ message: "Invalid playlist UUID" })
       if (!userdata.playlists.includes(req.body.uuid)) return res.status(400).send({ message: "Playlist not registered to user" })
 
-      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      let playlistdata = req.playlists[req.body.uuid]
       if (!playlistdata) return res.status(400).send({ message: "Playlist not found" })
       if (playlistdata.owner != req.username) return res.status(400).send({ message: "You cannot edit this playlist" })
 
@@ -316,7 +316,7 @@ module.exports = {
    get_playlist_data: async (req, res) => {
       if (!req.body.uuid) return res.status(400).send({ message: "Invalid/missing UUID" }) 
 
-      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      let playlistdata = req.playlists[req.body.uuid]
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid playlist UUID" })
 
@@ -343,7 +343,7 @@ module.exports = {
    add_to_playlist: async (req, res) => {
       if (!req.body.uuid) return res.status(400).send({ message: "Invalid UUID" })
 
-      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      let playlistdata = req.playlists[req.body.uuid]
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
 
@@ -375,7 +375,7 @@ module.exports = {
    remove_from_playlist: async (req, res) => {
       if (!req.body.uuid) return res.status(400).send({ message: "Invalid UUID" })
 
-      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      let playlistdata = req.playlists[req.body.uuid]
 
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
 
@@ -409,7 +409,7 @@ module.exports = {
       if (!req.username) return res.status(400).send({ message: "Invalid user" })
       if (!req.body.uuid) return res.status(400).send({ message: "No Playlist" })
 
-      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      let playlistdata = req.playlists[req.body.uuid]
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
       if (playlistdata.visibility != "public") return res.status(400).send({ message: "Playlist is private" })
 
@@ -424,7 +424,7 @@ module.exports = {
       if (!req.username) return res.status(400).send({ message: "Invalid user" })
       if (!req.body.uuid) return res.status(400).send({ message: "No Playlist" })
 
-      let playlistdata = await fb.get_doc("playlists", req.body.uuid)
+      let playlistdata = req.playlists[req.body.uuid]
       if (!playlistdata) return res.status(400).send({ message: "Invalid UUID" })
       if (!playlistdata.viewers.includes(req.username)) return res.status(400).send({ message: "You are not apart of this playlist" })
 
