@@ -18,7 +18,7 @@
                      accepts=".png,.jpeg,.jpg,.gif,.bmp,.tiff,.webp"
                   />
                </div>
-               <img class="icon" :src="user.icon" />
+               <img class="user-icon" :src="user.icon" />
             </div>
             <div class="user-info">
                <!-- <template v-if="!editing_name"> -->
@@ -86,6 +86,10 @@
          <p class="edit" @click="editing_bio = false">cancel</p>
          <p class="edit name submit" @click="submit_new_bio">submit</p>
       </template>
+      <a class="link row" :href="`/u/${user.username}/playlists`">
+         <span class="material-symbols-rounded icon">library_music</span>
+         <p>View Playlists</p>
+      </a>
       <hr />
       <!--p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p-->
 
@@ -282,6 +286,34 @@ h2 {
    font-size: 32px;
    font-weight: 900;
 }
+
+hr {
+   margin-top: 20px;
+}
+
+.row {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   gap: 4px;
+}
+
+.link {
+   text-decoration: none;
+}
+
+.link:hover p {
+   text-decoration: underline;
+}
+
+.link p {
+   margin: 0;
+}
+
+.link .icon {
+   display: inline-block;
+}
+
 .date {
    margin-bottom: 10px !important;
 }
@@ -343,8 +375,9 @@ h2 {
 
 .displayname,
 .edit {
-   display: inline;
+   display: inline-block;
 }
+
 
 .icon-box {
    width: 128px;
@@ -353,7 +386,7 @@ h2 {
    position: relative;
 }
 
-.icon {
+.user-icon {
    border-radius: 200px;
    width: 100%;
    aspect-ratio: 1;
@@ -390,7 +423,9 @@ h2 {
 }
 
 .edit {
+   display: inline-block;
    margin: 0;
+   margin-bottom: 10px;
    color: gray;
    cursor: pointer;
 }
