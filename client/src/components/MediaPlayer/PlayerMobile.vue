@@ -274,10 +274,7 @@ button {
    padding: 10px var(--padding) var(--padding) var(--padding);
    height: 100vh;
    height: 100vdh;
-<<<<<<< HEAD
-=======
    border-top: none;
->>>>>>> f66df44a0521235632ab111b163a1d061b79e987
 }
 
 .mobile_expanded span {
