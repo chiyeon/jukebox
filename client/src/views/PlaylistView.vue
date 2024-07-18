@@ -98,7 +98,7 @@
             <p class="uploader">Added by {{ track.uploader }}</p>
          </template>
          <template #dropdown-options>
-            <div class="dropdown-option" @click.stop="remove_from_playlist(track)">
+            <div v-if="user && playlist.editors.includes(user)" class="dropdown-option" @click.stop="remove_from_playlist(track)">
                <span class="material-symbols-rounded icon">delete</span>
                <p>Remove from Playlist</p>
             </div>
