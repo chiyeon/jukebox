@@ -64,6 +64,10 @@ select {
    font-size: 14px;
 }
 
+button {
+   color: white;
+}
+
 @media (max-width: 600px) {
    html body {
       padding: 0 10px;
