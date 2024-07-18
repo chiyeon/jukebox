@@ -85,6 +85,7 @@ import { onBeforeMount, ref, computed } from "vue"
 import { useStore } from "vuex"
 import router from "../router"
 import Dropdown from "./DropdownComponent.vue"
+import eventbus from "../eventbus"
 
 const store = useStore()
 
@@ -113,6 +114,7 @@ const logout = async () => {
    if (res.ok) {
       store.dispatch("setUser", null)
       router.push("/")
+      eventbus.emit("show_notification", "Logged out successfully")
    }
 }
 </script>

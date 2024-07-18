@@ -13,6 +13,7 @@
    </div>
    <MediaPlayer :queue="queue" :show_lyrics="show_lyrics" />
    <AddToPlaylist v-if="show_add_to_playlist" :track="new_playlist_track" />
+   <Notification :hidden="!show_notification_message" :message="notification_message" />
 </template>
 
 <script setup>
@@ -24,6 +25,7 @@ import Header from "./components/HeaderComponent.vue"
 import MediaPlayer from "./components/MediaPlayer/MediaPlayer.vue"
 import Queue from "./components/QueueComponent.vue"
 import AddToPlaylist from "./components/AddToPlaylist.vue"
+import Notification from "./components/NotificationComponent.vue"
 
 const store = useStore()
 
@@ -34,6 +36,22 @@ const show_queue = ref(false)
 const show_lyrics = ref(false)
 const show_add_to_playlist = ref(false)
 const new_playlist_track = ref(null)
+const notification_message = ref("")
+const show_notification_message = ref(false)
+
+let notification_timeout = null
+const notification_duration_ms = 3000
+
+const show_notification = (message) => {
+   if (notification_timeout) clearTimeout(notification_timeout)
+
+   show_notification_message.value = true
+   notification_message.value = message
+
+   notification_timeout = setTimeout(() => {
+      show_notification_message.value = false
+   }, notification_duration_ms)
+}
 
 const set_queue_visibility = (s) => {
    show_queue.value = s
@@ -63,6 +81,8 @@ onMounted(() => {
 
    eventbus.on("set_add_to_playlist_visibility", set_add_to_playlist_visibility)
    eventbus.on("set_new_playlist_track", set_new_playlist_track)
+
+   eventbus.on("show_notification", show_notification)
 })
 
 onUnmounted(() => {
@@ -74,6 +94,8 @@ onUnmounted(() => {
 
    eventbus.off("set_add_to_playlist_visibility", set_add_to_playlist_visibility)
    eventbus.off("set_new_playlist_track", set_new_playlist_track)
+
+   eventbus.off("show_notification", show_notification)
 })
 </script>
 

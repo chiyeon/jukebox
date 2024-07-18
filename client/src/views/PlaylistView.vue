@@ -121,6 +121,7 @@ import { useRoute, RouterLink } from "vue-router"
 import { useStore } from "vuex"
 import { compress_image } from "../utils/image.js"
 import router from "../router"
+import eventbus from "../eventbus"
 
 const store = useStore()
 const route = useRoute()
@@ -167,7 +168,7 @@ const update_playlist_data = async (uuid) => {
       if (user.value) is_playlist_viewer.value = playlist.value.viewers.includes(user.value.username)
       store.dispatch("setTracks", playlist.value.tracks)
    } else {
-      alert("Error: " + (await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 }
 
@@ -193,9 +194,10 @@ const remove_from_playlist = async (track) => {
    })
 
    if (res.ok) {
+      eventbus.emit("show_notification", "Removed track from playlist")
       await update_playlist_data(route.params.playlist)
    } else {
-      alert("Error: " + (await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
    loading.value = false
 }
@@ -218,7 +220,7 @@ const delete_playlist = async () => {
 
       router.push(`/u/${user.value.username}/playlists`)
    } else {
-      alert("Failed to delete playlist: " + (await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
    loading.value = false
 } 
@@ -238,7 +240,7 @@ const unsave_from_library = async () => {
    if (res.ok) {
       update_playlist_data(playlist.value.uuid)
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 }
 
@@ -257,7 +259,7 @@ const save_to_library = async () => {
    if (res.ok) {
       update_playlist_data(playlist.value.uuid)
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 }
 
@@ -273,7 +275,7 @@ const update_cover_preview = () => {
 
 const submit_edit = async () => {
    if (name_ref.value.length == 0) {
-      return alert("Playlist must have a name")
+      eventbus.emit("show_notification", "Playlist must have a name")
    }
 
    loading.value = true
@@ -299,9 +301,10 @@ const submit_edit = async () => {
 
    if (res.ok) {
       update_playlist_data(route.params.playlist)
+      eventbus.emit("show_notification", "Updated playlist")
       editing.value = false
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 
    loading.value = false

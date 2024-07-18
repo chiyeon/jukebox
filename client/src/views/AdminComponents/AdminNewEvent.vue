@@ -44,6 +44,7 @@
 
 <script setup>
 import { ref, onBeforeMount } from "vue"
+import eventbus from "../../eventbus"
 
 const event_title = ref("")
 const event_description = ref("")
@@ -76,9 +77,10 @@ const submit_new_event = async () => {
    })
 
    if (res.ok) {
-      return alert("Uploaded successfully")
+      eventbus.emit("show_notification", "Uploaded successfully")
+   } else {
+      eventbus.emit("show_notification", "Failed to upload")
    }
-   alert("Failed to upload")
 }
 </script>
 

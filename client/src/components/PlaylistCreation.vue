@@ -56,7 +56,7 @@ const visibility = ref("private")
 const cover_url = ref("https://storage.googleapis.com/jukebox-playlist-covers/default.webp")
 
 const new_playlist = async () => {
-   if (!name.value) return alert("Playlist needs a name")
+   if (!name.value) return eventbus.emit("show_notification", "Playlist needs a name")
    if (loading.value) return
 
    loading.value = true
@@ -82,7 +82,7 @@ const new_playlist = async () => {
    if (res.ok) {
       if (props.run_after) props.run_after()
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 
    loading.value = false

@@ -85,6 +85,7 @@
 
 <script setup>
 import { defineProps, ref, onMounted } from "vue"
+import eventbus from "../../eventbus"
 
 const deleting = ref(false)
 const props = defineProps(["event"])
@@ -106,7 +107,7 @@ const delete_event = async () => {
    })
 
    if (res.ok) {
-      return alert("Deleted successfully")
+      eventbus.emit("show_notification", "Deleted successfully")
    }
 
    deleting.value = false
@@ -130,10 +131,10 @@ const edit_event = async (uuid) => {
    })
 
    if (res.ok) {
-      alert("Updated successfully")
+      eventbus.emit("show_notification", "Updated successfully")
    } else {
       let msg = (await res.json()).message
-      alert("Error: " + msg)
+      eventbus.emit("show_notification", "Error: " + msg)
    }
 
    editing.value = false
@@ -150,9 +151,9 @@ const close_event = async () => {
    })
 
    if (res.ok) {
-      return alert("Closed successfully")
+      eventbus.emit("show_notification", "Closed successfully")
    } else {
-      return alert("Error: " + (await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 }
 

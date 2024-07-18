@@ -70,7 +70,7 @@ const fetch_playlists = async () => {
    if (res.ok) {
       playlists.value = (await res.json()).playlists
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 }
 
@@ -89,9 +89,9 @@ const add_to_playlist = async (playlist_uuid) => {
    })
 
    if (res.ok) {
-      alert("Added to playlist")
+      eventbus.emit("show_notification", "Added to Playlist")
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 
    loading.value = false

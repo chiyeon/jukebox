@@ -38,6 +38,7 @@ import PlaylistCreation from "../components/PlaylistCreation.vue"
 import { onMounted, ref, defineProps, computed, watch } from "vue"
 import { useStore } from "vuex"
 import { useRoute } from "vue-router"
+import eventbus from "../eventbus"
 
 const store = useStore()
 const route = useRoute()
@@ -60,7 +61,7 @@ const fetch_playlists = async () => {
    if (res.ok) {
       playlists.value = (await res.json()).playlists
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 }
 

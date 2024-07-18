@@ -110,6 +110,7 @@ import Event from "../components/EventComponent.vue"
 import ProfileStats from "../components/ProfileStats.vue"
 import TracksSearchBar from "../components/TracksSearchBar.vue"
 import ProfileBadges from "../components/ProfileBadges.vue"
+import eventbus from "../eventbus"
 
 const route = useRoute()
 const store = useStore()
@@ -205,12 +206,12 @@ const submit_new_bio = async () => {
    } else {
       let json = await res.json()
       editing_bio.value = false
-      alert(json.message)
+      eventbus.emit("show_notification", "Error: " + json.message)
    }
 }
 
 const submit_new_icon = async () => {
-   if (icon_ref.value.files.length == 0) return alert("select a file!")
+   if (icon_ref.value.files.length == 0) return eventbus.emit("show_notification", "No icon selected")
    let formdata = new FormData()
    formdata.append(
       "icon",
@@ -227,7 +228,7 @@ const submit_new_icon = async () => {
    } else {
       let json = await res.json()
       editing_bio.value = false
-      alert(json.message)
+      eventbus.emit("show_notification", "Error: " + json.message)
    }
 }
 

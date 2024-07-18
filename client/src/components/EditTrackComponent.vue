@@ -75,6 +75,7 @@
 <script setup>
 import { ref, defineProps, onBeforeUnmount, defineEmits } from "vue"
 import { compress_image } from "../utils/image.js"
+import eventbus from "../eventbus"
 
 const emit = defineEmits(["selectFile"])
 const props = defineProps(["track"])
@@ -94,7 +95,7 @@ onBeforeUnmount(() => {
 
 const add_artist = () => {
    if (track.value.artists.length >= 7)
-      return alert("Maximum number of artists reached!")
+      return eventbus.emit("show_notification"< "Maximum number of artists reached")
    track.value.artists.push("")
 }
 

@@ -99,6 +99,7 @@ import router from "../router"
 import { useRoute } from "vue-router"
 import { compress_image } from "../utils/image.js"
 import LoadingScreen from "../components/LoadingComponent.vue"
+import eventbus from "../eventbus"
 
 const props = defineProps({
    is_register: false
@@ -121,7 +122,7 @@ const handle_submit = async (e) => {
    e.preventDefault()
 
    if (username_ref.value.value == "" || password_ref.value.value == "") {
-      return alert("Must include username and password")
+      return eventbus.emit("show_notification", "Must include username & password")
    }
 
    loading.value = true
@@ -131,7 +132,7 @@ const handle_submit = async (e) => {
    formdata.append("password", password_ref.value.value)
 
    if (is_register.value) {
-      if (email_ref.value.value == "") return alert("Must include email!")
+      if (email_ref.value.value == "") eventbus.emit("show_notification", "Email required")
       formdata.append("email", email_ref.value.value)
       if (bio_ref.value.value != "") formdata.append("bio", bio_ref.value.value)
       if (icon_ref.value.files.length != 0) {
@@ -156,10 +157,11 @@ const handle_submit = async (e) => {
 
    loading.value = false
    if (res.status == 200) {
+      eventbus.emit("show_notification", `${is_register.value ? "Registered" : "Logged in"} successfully`)
       store.dispatch("setUser", json.user)
       router.push({ path: "/" })
    } else {
-      alert(
+      eventbus.emit("show_notification",
          `Unable to ${is_register.value ? "register" : "login"}: ${json.message}`
       )
    }

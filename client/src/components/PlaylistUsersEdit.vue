@@ -25,7 +25,7 @@
          </div>
          <button class="add-user" @click="users.length < 7 && users.push('')">
             <span class="material-symbols-rounded icon">person_add</span>
-            <p>Add Listener</p>
+            <p>Add Editors</p>
          </button>
 
          <button class="submit" @click="save_edited_users">Save Changes</button>
@@ -38,6 +38,7 @@
 import Loading from "./LoadingComponent.vue"
 import { defineEmits, defineProps, onMounted, ref, computed } from "vue"
 import { useStore } from "vuex"
+import eventbus from "../eventbus"
 
 const store = useStore()
 
@@ -54,11 +55,11 @@ const save_edited_users = async () => {
    // basic checks
    if (users.value.length > 8) {
       loading.value = false
-      return alert("Too many editors")
+      return eventbus.emit("show_notification", "Exceeded editor limit")
    }
 
    for (let i = 0; i < users.value.length; i++) {
-      if (users.value[i].length == 0) return alert("Invalid name")
+      if (users.value[i].length == 0) eventbus.emit("show_notification", "Invalid name")
    }
 
    let res = await fetch("/api/playlist_edit", {
@@ -73,8 +74,9 @@ const save_edited_users = async () => {
    if (res.ok) {
       emit('close')
       emit('reload')
+      eventbus.emit("show_notification", "Updated playlist editors")
    } else {
-      alert((await res.json()).message)
+      eventbus.emit("show_notification", "Error: " + (await res.json()).message)
    }
 
    loading.value = false

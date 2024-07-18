@@ -254,7 +254,7 @@ const submit_edit_track = async () => {
 
    if (props.track.title == "" || props.track.title == undefined) {
       loading.value = false
-      return alert("Invalid title")
+      return eventbus.emit("show_notification", "Invalid title")
    }
 
    let formdata = new FormData()
@@ -273,9 +273,9 @@ const submit_edit_track = async () => {
 
    if (!res.ok) {
       let msg = (await res.json()).message
-      alert("Error: " + msg)
+      eventbus.emit("show_notification", "Error: " + msg)
    } else {
-      alert("Edited track successfully")
+      eventbus.emit("show_notification", "Edited track successfully")
       window.location.reload()
 
       show_edit.value = false
@@ -303,11 +303,11 @@ const delete_track = async () => {
    })
 
    if (res.ok) {
-      alert("Deleted track")
+      eventbus.emit("show_notification", "Deleted track successfully")
       window.location.reload()
    } else {
       let err = (await res.json()).message
-      alert("Error: " + err)
+      eventbus.emit("show_notification", "Error: " + err)
    }
 
    loading.value = false
@@ -335,11 +335,11 @@ const remove_self_from_track = async () => {
    })
 
    if (res.ok) {
-      alert("Removed your name from the track")
+      eventbus.show_notification("show_notification", "Removed your name from the track")
       window.location.reload()
    } else {
       let err = (await res.json()).message
-      alert("Error: " + err)
+      eventbus.show_notification("show_notification", "Error: " + err)
    }
    loading.value = false
 
