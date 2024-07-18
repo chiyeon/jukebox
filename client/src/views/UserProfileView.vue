@@ -86,10 +86,10 @@
          <p class="edit" @click="editing_bio = false">cancel</p>
          <p class="edit name submit" @click="submit_new_bio">submit</p>
       </template>
-      <a class="link row" :href="`/u/${user.username}/playlists`">
+      <button class="link row" @click="router.push(`/u/${user.username}/playlists`)">
          <span class="material-symbols-rounded icon">library_music</span>
          <p>View Playlists</p>
-      </a>
+      </button>
       <hr />
       <!--p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p-->
 
@@ -115,6 +115,7 @@ import ProfileStats from "../components/ProfileStats.vue"
 import TracksSearchBar from "../components/TracksSearchBar.vue"
 import ProfileBadges from "../components/ProfileBadges.vue"
 import eventbus from "../eventbus"
+import router from "../router"
 
 const route = useRoute()
 const store = useStore()
@@ -299,6 +300,9 @@ hr {
 }
 
 .link {
+   background: none;
+   border: none;
+   cursor: pointer;
    text-decoration: none;
 }
 
@@ -307,6 +311,7 @@ hr {
 }
 
 .link p {
+   font-size: 16px;
    margin: 0;
 }
 
