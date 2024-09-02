@@ -31,5 +31,19 @@ module.exports = {
       "redeem",
       "green",
     ),
+    summer2024_sample: Badge(
+      "summer2024_sample",
+      "Summer 2024 EP",
+      "Used a Summer EP Sample",
+      "cookie",
+      "darkkhaki"
+    ),
+    summer2024_tracks: Badge(
+      "summer2024_tracks",
+      "Summer 2024 EP",
+      "Submitted 3+ tracks",
+      "cast_pause",
+      "rosybrown"
+    )
   },
 };
