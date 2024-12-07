@@ -47,6 +47,11 @@ const router = createRouter({
          component: () => import("../views/AdminView.vue"),
          meta: { requiresauth: true },
       },
+      {
+         path: "/rewind",
+         name: "rewind",
+         component: () => import("../views/Rewind2024View.vue"),
+      }
    ],
 })
 

@@ -501,18 +501,15 @@ app.post("/api/logout", (req, res) => {
    res.status(200).send({ message: "Signed out successfully" })
 })
 
-app.post("/api/user", async (req, res) => {
-
-   if (req.body.username == undefined) {
-      return res.status(400).send({ message: "Requires 'username' in request body" })
-   }
-
-   let userdata = await fb.get_doc("users", req.body.username)
+const get_full_user_data = async(username) => {
+   let userdata = await fb.get_doc("users", username)
    if (userdata) {
-
       // put total num tracks & wins in data. this is for user profile. copy as needed
-      let tracks = await fb.get_docs_by_query("tracks", [ "artists", "array-contains", userdata.username ])
+      let tracks = await fb.get_docs_by_query("tracks", [ "artists", "array-contains", username ])
       userdata.num_tracks = tracks.length
+      userdata.tracks = tracks
+      userdata.plays = tracks.reduce((sum, o) => sum + (o.plays ? o.plays : 0), 0);
+      userdata.listen_time = tracks.reduce((sum, o) => sum + (o.listen_time ? o.listen_time : 0), 0);
       userdata.num_wins = tracks.filter(t => t.winner).length
       // lets censor their playlists, it may be "private"
       userdata.num_playlists = userdata.playlists ? userdata.playlists.length : 0
@@ -520,10 +517,21 @@ app.post("/api/user", async (req, res) => {
       let user_badges = userdata.badges.map(badge => badges[badge])
       userdata.badges = user_badges
       delete userdata.playlists
-      res.status(200).send({ message: "Found user data", user: userdata })
-   } else {
-      res.status(400).send({ message: "Invalid username", user: undefined })
    }
+   return userdata
+}
+
+app.post("/api/user", async (req, res) => {
+
+   if (req.body.username == undefined) {
+      return res.status(400).send({ message: "Requires 'username' in request body" })
+   }
+
+   const data = await get_full_user_data(req.body.username)
+   if (data)
+      res.status(200).send({ message: "Found user data", user: data })
+   else
+      res.status(400).send({ message: "Invalid username", user: undefined })
 })
 
 app.get("/api/userbytoken", async (req, res) => {
@@ -634,7 +642,7 @@ app.post("/api/track_finished", async (req, res) => {
    if (!uuid) return res.status(400).send({ message: "No track ID" })
    track = tracks[uuid]
    if (!track) return res.status(400).send({ message: "Invalid track ID" })
-   if (listen_time > track.duration) return res.status(400).send({ message: "Invalid listen time: exceeds song duration" })
+   if (listen_time - 1 > track.duration * 1.05) return res.status(400).send({ message: "Invalid listen time: exceeds song duration" })
    
    if (!track.listen_time) track.listen_time = listen_time
    else track.listen_time += listen_time
@@ -644,6 +652,20 @@ app.post("/api/track_finished", async (req, res) => {
    })
 
    return res.status(200).send({ message: "Track listen time updated" })
+})
+
+app.get("/api/rewind", users.authenticate_token, async (req, res) => {
+   const user = await get_full_user_data(req.username)
+
+   let filter = (track) => {
+      return get_timestamp_as_date(track.release_date).getFullYear() == 2024
+   }
+
+   user.tracks = user.tracks.filter(filter)
+   user.tracks.sort((a, b) => get_timestamp_as_date(b.release_date) - get_timestamp_as_date(a.release_date))
+   user.creation_date = get_timestamp_as_date([user.creation_date])
+
+   return res.status(200).send({ user: user })
 })
    
 const get_display_names = async (track) => {
