@@ -113,6 +113,9 @@ const history = ref([]) // stack, LIFO
 const current_song = ref(null)
 const tracks = computed(() => store.state.tracks) // all tracks user is "pointed at"
 
+var can_increment_track = true
+var can_update_listen_time = true
+
 const audio_progress = ref(0)
 const volume_progress = ref(1)
 let last_volume = 0 // last volume before muted. if we aren't muted, its 0
@@ -187,10 +190,59 @@ const get_song_duration = () => {
    return get_as_time(audio_ref.value.duration)
 }
 
-const set_current_song = (track) => {
+// tell server we clicked on this track
+const increment_plays = async (track) => {
+   if (!can_increment_track) return
+
+   can_increment_track = false
+   setTimeout(() => {
+      can_increment_track = true
+   }, 2000)
+
+   // increment listens by 1
+   let res = await fetch("/api/track_listen", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uuid: track.uuid }),
+      credentials: "include",
+   })
+}
+
+const update_listen_time = async (track) => {
+   if (!can_update_listen_time) return 
+   if (!audio_ref.value || !track) return
+
+   can_update_listen_time = false
+   setTimeout(() => {
+      can_update_listen_time = true
+   }, 2000)
+
+   // increment listening time of given track by CURRENT TIME LISTENINING in audio ref
+   let res = await fetch("/api/track_finished", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uuid: track.uuid, listen_time: Math.floor(audio_ref.value.currentTime) }),
+      credentials: "include",
+   })
+}
+
+const set_current_song = async (track) => {
+   // update streams for new track
+   // if old track exists, update listen time
+   if (track) {
+      await increment_plays(track)
+      if (current_song.value) {
+         await update_listen_time(current_song.value)
+      }
+   }
    current_song.value = track
 
    if (track) {
+
       audio_ref.value.src = track.url
       audio_ref.value.currentTime = 0
       audio_ref.value.play()
@@ -212,6 +264,7 @@ const set_current_song = (track) => {
             },
          ],
       })
+
    } else {
       audio_ref.value.src = ""
       audio_ref.value.currentTime = 0
@@ -234,9 +287,13 @@ const prev_song = () => {
    }
 }
 
-const next_song = () => {
+const next_song = async () => {
    // replay song if set
    if (repeat_mode.value == REPEAT_SINGLE) {
+      // special case, also increment listens by 1
+      await increment_plays(current_song.value)
+      await update_listen_time(current_song.value)
+
       audio_ref.value.currentTime = 0
       audio_ref.value.play()
       return

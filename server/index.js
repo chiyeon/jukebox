@@ -265,7 +265,10 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             originalfilename: trackfile.originalname,
             url,
             album,
-            plays: 0,
+            duration: await files.get_track_duration(trackfile.buffer),
+            plays: 0, // in clicks
+            listen_time: 0.0, // in seconds
+            likes: 0,
             winner: false,
             event: current_event,
             release_date: [ new Date() ],
@@ -478,7 +481,7 @@ app.post("/api/signup", files.upload.fields([
       }
 
       // get & save token
-      const token = await users.create_new_user(user, users.USER_NORMAL)
+      const token = await users.create_new_user(user)
       let newuser = await fb.get_doc("users", user.username)
 
       res.cookie("authentication_token", token, cookie_settings)
@@ -594,6 +597,55 @@ app.post("/api/playlist", users.authenticate_optional_token, add_playlist_cache,
 app.post("/api/playlist_save", users.authenticate_token, add_playlist_cache, playlists.save_to_library)
 app.post("/api/playlist_unsave", users.authenticate_token, add_playlist_cache, playlists.remove_from_library)
 
+/*
+ * Runs when any client clicks on a track. Increment listens (obviously not secure. but also issues as a ton of people click?
+ */
+app.post("/api/track_listen", async (req, res) => {
+   const uuid = req.body.uuid 
+   let track
+
+   // checks
+   if (!uuid) return res.status(400).send({ message: "No track ID" })
+   track = tracks[uuid]
+   if (!track) return res.status(400).send({ message: "Invalid track ID" })
+
+   if (!track.plays) track.plays = 1
+   else track.plays += 1
+
+   await fb.update_doc("tracks", uuid, {
+      plays: track.plays
+   })
+
+   return res.status(200).send({ message: "Track plays updated" })
+})
+
+/*
+ * Run when a client "moves on" from a track, sends the track that got left behind. used for
+ * record keeping listening time. NOT that accurate. tries to get these scenarios:
+ *  - skips song
+ *  - song finishes playing and goes to next
+ *  - clicks a different song, skipping current
+ */
+app.post("/api/track_finished", async (req, res) => {
+   const uuid = req.body.uuid
+   const listen_time = req.body.listen_time // in seconds
+   let track
+
+   if (!uuid) return res.status(400).send({ message: "No track ID" })
+   track = tracks[uuid]
+   if (!track) return res.status(400).send({ message: "Invalid track ID" })
+   if (listen_time > track.duration) return res.status(400).send({ message: "Invalid listen time: exceeds song duration" })
+   
+   if (!track.listen_time) track.listen_time = listen_time
+   else track.listen_time += listen_time
+
+   await fb.update_doc("tracks", uuid, {
+      listen_time: track.listen_time
+   })
+
+   return res.status(200).send({ message: "Track listen time updated" })
+})
+   
 const get_display_names = async (track) => {
    return track.artists
    let display_names = []
@@ -705,6 +757,39 @@ const update_playlists = async (new_playlists) => {
             break
       }
    } 
+}
+
+const http = require("https")
+const temp_fix = async () => {
+   /*
+   let b = 0
+   for (uuid in tracks) {
+      if (!b) {
+         let track = tracks[uuid]
+         
+         //console.log(track)
+         const f = fs.createWriteStream("p/" + uuid)
+
+         await http.get(track.url, (res) => {
+            if (res.statusCode != 200) return "bruh"
+            res.pipe(f)
+         })
+
+         f.on("finish", async () => {
+            await f.close(async () => {
+               track.duration = await files.get_track_duration("p/" + uuid)
+               console.log(track.title + ": " + track.duration)
+               console.log(track.uuid)
+               await fb.update_doc("tracks", track.uuid, track)
+            })
+         })
+         track.duration = await files.get_track_duration("p/" + uuid)
+         console.log(track.title + ": " + track.duration)
+         await fb.update_doc("tracks", track.uuid, track)
+      }
+   }
+   
+         */
 }
 
 app.use(express.static(path.join(__dirname, "dist")))

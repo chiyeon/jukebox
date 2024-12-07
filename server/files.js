@@ -2,6 +2,7 @@ const multer = require("multer")
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
 const crypto = require("crypto")
+const mp3Duration = require("mp3-duration")
 
 const { Storage } = require("@google-cloud/storage")
 const gstorage = new Storage({
@@ -46,6 +47,11 @@ const delete_file = async (file, bucket) => {
    }
 }
 
+const get_track_duration = async (file) => {
+   const duration = (await mp3Duration(file)) // store in seconds
+   return duration > 0 ? duration : 0
+}
+
 // formulate a link to a file in a bucket
 const get_gcloud_link = (filename, bucketname) => {
    return `https://storage.googleapis.com/${bucketname}/${filename}`
@@ -73,6 +79,7 @@ module.exports = {
    upload_file,
    delete_file,
    get_gcloud_link,
+   get_track_duration,
    tracks_bucket,
    albums_bucket,
    profiles_bucket,
