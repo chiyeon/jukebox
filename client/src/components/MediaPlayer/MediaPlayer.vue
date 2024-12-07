@@ -234,9 +234,9 @@ const set_current_song = async (track) => {
    // update streams for new track
    // if old track exists, update listen time
    if (track) {
-      await increment_plays(track)
+      increment_plays(track)
       if (current_song.value) {
-         await update_listen_time(current_song.value)
+         update_listen_time(current_song.value)
       }
    }
    current_song.value = track
@@ -291,8 +291,8 @@ const next_song = async () => {
    // replay song if set
    if (repeat_mode.value == REPEAT_SINGLE) {
       // special case, also increment listens by 1
-      await increment_plays(current_song.value)
-      await update_listen_time(current_song.value)
+      increment_plays(current_song.value)
+      update_listen_time(current_song.value)
 
       audio_ref.value.currentTime = 0
       audio_ref.value.play()
