@@ -130,22 +130,16 @@ let shortest_track = {}
 let longest_track = {}
 
 onBeforeMount(async () => {
-   let res = await (await fetch("/api/rewind", {
+   let r = await fetch("/api/rewind", {
       method: "GET"
-   })).json()
+   })
+   if (!r) return
+   let res = await r.json()
    if (!res) return
    res.user.creation_date = new Date(res.user.creation_date)
    user.value = res.user
 
-   rand_track = Math.floor(Math.random() * (res.user.tracks.length - 1))
-
    total_length = res.user.tracks.reduce((sum, o) => sum + o.duration, 0)
-
-   if (res.user.tracks.length > 1) {
-      while (rand_track2 == rand_track) {
-         rand_track2 = Math.floor(Math.random() * (res.user.tracks.length - 1))
-      }
-   }
 
    collab_tracks = res.user.tracks.filter(a => a.artists.length > 1)
 
