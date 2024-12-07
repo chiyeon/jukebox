@@ -514,7 +514,7 @@ const get_full_user_data = async(username) => {
       // lets censor their playlists, it may be "private"
       userdata.num_playlists = userdata.playlists ? userdata.playlists.length : 0
       // also replace their badge ids with the badge data. see statement above
-      let user_badges = userdata.badges.map(badge => badges[badge])
+      let user_badges = userdata.badges ? userdata.badges.map(badge => badges[badge]) : []
       userdata.badges = user_badges
       delete userdata.playlists
    }

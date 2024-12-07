@@ -133,6 +133,7 @@ onBeforeMount(async () => {
    let res = await (await fetch("/api/rewind", {
       method: "GET"
    })).json()
+   if (!res) return
    res.user.creation_date = new Date(res.user.creation_date)
    user.value = res.user
 

@@ -1,4 +1,7 @@
 <template>
+   <div class="rewind" v-if="user">
+      <a href="/rewind">View your 2024 rewind here!</a>
+   </div>
    <TracksSearchBar
       @onSearch="(tracks) => (filtered_tracks = tracks)"
       :nullOnEmpty="true"
@@ -38,13 +41,15 @@
 <script setup>
 import Event from "../components/EventComponent.vue"
 import TracksSearchBar from "../components/TracksSearchBar.vue"
-import { onBeforeMount, onMounted, ref, nextTick } from "vue"
+import { onBeforeMount, onMounted, ref, nextTick, computed } from "vue"
 import { useStore } from "vuex"
 import { useRoute } from "vue-router"
 import eventbus from "../eventbus"
 
 const store = useStore()
 const route = useRoute()
+
+const user = computed(() => store.state.user)
 
 // we are in either events all or filtered mode. when user is
 // typing queries, switch to filtered, otherwise show all events
@@ -101,5 +106,17 @@ onBeforeMount(async () => {
 
 .open-now-box h2 {
    margin: 0;
+}
+
+.rewind a {
+   padding: 10px;
+   background-color: #e1ad21;
+   border-radius: 4px;
+   font-weight: bold;
+}
+
+.rewind {
+   margin: auto;
+   width: fit-content;
 }
 </style>
