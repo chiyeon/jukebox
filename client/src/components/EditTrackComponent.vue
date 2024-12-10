@@ -120,7 +120,6 @@ const emit_album_cover = async (e) => {
 form {
    display: flex;
    flex-direction: column;
-   padding: 20px;
 }
 
 input,

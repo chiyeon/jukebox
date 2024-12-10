@@ -38,93 +38,11 @@
          </template>
       </div>
 
+      <div class="track-plays" v-if="is_user_profile()">
+         {{ track.plays }}
+      </div>
+
       <slot name="extra-columns"></slot>
-
-      <div class="controls" v-if="show_edit">
-         <div class="button-block label">
-            <span class="material-symbols-rounded">edit</span>
-         </div>
-         <button
-            class="button-block edit"
-            title="Edit track"
-            @click.stop="submit_edit_track()"
-         >
-            <span class="material-symbols-rounded">check</span>
-         </button>
-         <button
-            class="button-block cancel"
-            title="Cancel edit track"
-            @click.stop="cancel_editing_track"
-         >
-            <span class="material-symbols-rounded">cancel</span>
-         </button>
-      </div>
-
-      <div class="controls">
-         <template v-if="type == 'allowedit'">
-            <button
-               class="button-block edit"
-               title="Edit track"
-               @click.stop="start_editing_track"
-               v-if="!show_edit"
-            >
-               <span class="material-symbols-rounded">edit</span>
-            </button>
-
-            <button
-               class="button-block delete"
-               title="Delete track"
-               @click.stop="delete_track()"
-               v-if="!show_delete"
-            >
-               <span class="material-symbols-rounded">delete</span>
-            </button>
-         </template>
-         <template v-else-if="type == 'allowremove'">
-            <button
-               class="button-block delete"
-               title="Remove self from Track"
-               @click.stop="remove_self_from_track()"
-               v-if="!show_remove_self"
-            >
-               <span class="material-symbols-rounded">person_remove</span>
-            </button>
-            <button
-               class="button-block delete"
-               title="Confirm Removal"
-               @click.stop="remove_self_from_track()"
-               v-else
-            >
-               <span class="material-symbols-rounded">person_remove</span>
-            </button>
-            <button
-               v-if="show_remove_self"
-               title="Cancel Removal"
-               @click.stop="cancel_remove"
-               class="button-block cancel"
-            >
-               <span class="material-symbols-rounded">cancel</span>
-            </button>
-         </template>
-      </div>
-
-      <div class="controls" v-if="show_delete">
-         <button
-            @click.stop="delete_track()"
-            title="Confirm Delete"
-            class="button-block delete"
-         >
-            <span class="material-symbols-rounded">delete_forever</span>
-         </button>
-         <button
-            v-if="show_delete"
-            @click.stop="cancel_delete"
-            title="Cancel Delete"
-            class="button-block cancel"
-         >
-            <span class="material-symbols-rounded">cancel</span>
-         </button>
-      </div>
 
       <div class="controls">
          <Dropdown>
@@ -153,6 +71,26 @@
                <p>Copy Link</p>
             </div>
             <slot name="dropdown-options"></slot>
+
+            <template v-if="type == 'allowedit'">
+               <hr />
+               <div :class="{ 'dropdown-option': true }" @click.stop="start_editing_track">
+                  <span class="material-symbols-rounded icon">edit</span>
+                  <p>Edit Track</p>
+               </div>
+               <div :class="{ 'dropdown-option': true }" @click.stop="delete_track()">
+                  <span class="material-symbols-rounded icon delete">delete</span>
+                  <p class="delete">Delete Track</p>
+               </div>
+            </template>
+
+            <template v-if="type == 'allowremove'">
+               <hr />
+               <div :class="{ 'dropdown-option': true }" @click.stop="remove_self_from_track()">
+                  <span class="material-symbols-rounded icon delete">person_remove</span>
+                  <p class="delete">Remove name from Track</p>
+               </div>
+            </template>
          </Dropdown>
          <button
             v-if="type == 'queue'"
@@ -165,11 +103,39 @@
          </button>
       </div>
    </div>
-   <div class="edit-track" v-if="show_edit">
-      <EditTrack
-         :track="track"
-         @selectFile="(file) => (new_album_file = file)"
-      />
+
+   <div class="window edit-track" v-if="show_edit">
+      <div class="form">
+         <h2>Edit Track</h2>
+         <EditTrack
+            :track="track"
+            @selectFile="(file) => (new_album_file = file)"
+         />
+         <div class="buttons">
+            <button @click.stop="submit_edit_track()" class="confirm">Confirm Changes</button>
+            <button @click.stop="cancel_editing_track" class="cancel">Cancel</button>
+         </div>
+      </div>
+   </div>
+
+   <div class="window confirm-removal" v-if="show_delete">
+      <div class="form">
+         <p>Are you sure you want to delete this track?<br />(This action is NOT reversible).</p>
+         <div class="buttons">
+            <button @click.stop="delete_track()" class="cancel">Confirm Delete</button>
+            <button @click.stop="cancel_delete()">Cancel</button>
+         </div>
+      </div>
+   </div>
+
+   <div class="window confirm-removal" v-if="show_remove_self">
+      <div class="form">
+         <p>Are you sure you want to remove your name from this track?<br />(The owner will have to add you back if you want to return)</p>
+         <div class="buttons">
+            <button @click.stop="remove_self_from_track()" class="cancel">Remove my Name</button>
+            <button @click.stop="cancel_remove()">Cancel</button>
+         </div>
+      </div>
    </div>
    <LoadingScreen v-if="loading" />
 </template>
@@ -206,6 +172,7 @@ const props = defineProps({
    },
    type: String,
    index: Number,
+   is_user_profile: Boolean
 })
 const user = computed(() => store.state.user)
 // what is props.type?
@@ -228,6 +195,11 @@ const is_hiding_queue_button = () => {
 
 const is_media_player = () => {
    return ["player", "playermobile"].includes(props.type)
+}
+
+// is this track apart of  a user profile
+const is_user_profile = () => {
+   return props.is_user_profile
 }
 
 const cancel_delete = () => {
@@ -441,6 +413,12 @@ const prevent_parent_click = (e) => {}
    flex: 1;
 }
 
+.track-plays {
+   flex: 0.25;
+
+   text-align: center;
+}
+
 .title {
    font-weight: bold;
    display: flex;
@@ -629,5 +607,61 @@ const prevent_parent_click = (e) => {}
 
 .icon.nobg:hover {
    color: lightcoral;
+}
+
+.window {
+   position: fixed;
+   left: 0;
+   top: 0;
+   width: 100vw;
+   height: 100vh;
+   background-color: #30303090;
+   z-index: 100;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.edit-track {
+}
+
+.form {
+   max-width: 700px;
+   width: 100%;
+   background-color: #f0f0f0;
+   border-radius: 4px;
+
+   display: flex;
+   flex-direction: column;
+
+   padding: 20px;
+}
+
+.buttons {
+   display: flex;
+   gap: 10px;
+}
+
+.buttons button {
+   color: white;
+   background-color: #909090;
+}
+
+.buttons .confirm {
+   background-color: darkseagreen;
+}
+
+.buttons .cancel {
+   background-color: darkred;
+}
+
+.confirm-removal .form {
+    max-width: 450px;
+    width: fit-content;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 </style>

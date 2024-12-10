@@ -16,6 +16,7 @@
             :key="track.url"
             :track="track"
             :type="get_type(track)"
+            :is_user_profile="user != undefined"
          />
       </div>
       <p class="hint" v-else-if="!event.open && event.featured">Track submissions will open soon.</p>
