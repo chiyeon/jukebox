@@ -27,6 +27,8 @@ let events = {}
 let events_list = []
 let playlists_cache = {}
 
+const stats_collection = "stats-2025"
+
 app.use(express.json())
 app.use(cookieparser())
 
@@ -607,8 +609,10 @@ app.post("/api/playlist_unsave", users.authenticate_token, add_playlist_cache, p
 
 /*
  * Runs when any client clicks on a track. Increment listens (obviously not secure. but also issues as a ton of people click?
+ *
+ * optional token. if token is presented, update stats
  */
-app.post("/api/track_listen", async (req, res) => {
+app.post("/api/track_listen", users.authenticate_optional_token, async (req, res) => {
    const uuid = req.body.uuid 
    let track
 
@@ -623,6 +627,24 @@ app.post("/api/track_listen", async (req, res) => {
    await fb.update_doc("tracks", uuid, {
       plays: track.plays
    })
+
+   // update presonal stats if there
+   if (req.username && req.username.length != 0) {
+      let data = await fb.get_doc(stats_collection, req.username)
+      if (!data) {
+         await fb.set_doc(stats_collection, req.username, {
+            total_plays: 1,
+            tracks: {
+               [uuid]: 1
+            }
+         })
+      } else {
+         await fb.update_doc(stats_collection, req.username, {
+            total_plays: fb.FieldValue.increment(1),
+            [`tracks.${uuid}`]: fb.FieldValue.increment(1)
+         })
+      }
+   }
 
    return res.status(200).send({ message: "Track plays updated" })
 })
