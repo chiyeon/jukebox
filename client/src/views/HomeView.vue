@@ -1,7 +1,4 @@
 <template>
-   <div class="rewind" v-if="user">
-      <a href="/rewind">View your 2024 rewind here!</a>
-   </div>
    <TracksSearchBar
       @onSearch="(tracks) => (filtered_tracks = tracks)"
       :nullOnEmpty="true"
