@@ -255,7 +255,8 @@ const submit_edit_track = async () => {
    formdata.append("uuid", props.track.uuid)
    formdata.append("title", props.track.title)
    formdata.append("artists", JSON.stringify(props.track.artists.slice(1))),
-      formdata.append("lyrics", props.track.lyrics)
+   formdata.append("lyrics", props.track.lyrics)
+   formdata.append("description", props.track.description)
 
    if (new_album_file) formdata.append("album", new_album_file)
 

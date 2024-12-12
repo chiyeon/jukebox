@@ -24,6 +24,7 @@ const MIN_FILENAME_LENGTH = 1
 const MAX_FILENAME_LENGTH = 100
 const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-()[\].&]+$/
 const MAX_LYRICS_LENGTH = 2000
+const MAX_DESCRIPTION_LENGTH = 2000
 const MAX_ARTISTS = 7
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
@@ -93,5 +94,6 @@ module.exports = {
    MAX_ICON_SIZE_KB,
    validate_filename,
    MAX_LYRICS_LENGTH,
+   MAX_DESCRIPTION_LENGTH,
    MAX_ARTISTS,
 }

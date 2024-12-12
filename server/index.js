@@ -191,8 +191,10 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          const artist = user_data.username // important: user USERNAME! this is used to recall a display name later
          const title = req.body.title
          const lyrics = req.body.lyrics ? req.body.lyrics : ""
+         const description = req.body.description ? req.body.description : ""
 
          if (lyrics.length > files.MAX_LYRICS_LENGTH) return res.status(400).send({ message: "Exceeds maximum lyrics length" })
+         if (description.length > files.MAX_DESCRIPTION_LENGTH) return res.status(400).send({ message: "Exceeds maximum description length" })
 
          let pulled_artists = req.body.artists ? JSON.parse(req.body.artists) : []
          let artists = [ artist ]
@@ -263,6 +265,7 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
             artists,
             title,
             lyrics,
+            description,
             filename,
             originalfilename: trackfile.originalname,
             url,
@@ -366,10 +369,21 @@ app.post("/api/edittrack", users.authenticate_token, files.upload.single("album"
          return res.status(400).send({ message: "Album file is too big (exceeds " + Math.floor(files.MAX_ALBUM_SIZE_KB)+ "kb limit)" })
       }
    }
+
+   if (req.body.lyrics) {
+      if (req.body.lyrics.length > files.MAX_LYRICS_LENGTH) {
+         return res.status(400).send({ message: "Maximum lyric length exceeded" })
+      }
+   }
+
+   if (req.body.description && req.body.description > files.MAX_DESCRIPTION_LENGTH) {
+      return res.status(400).send({ message: "Maximum description length exceeded" })
+   }
    
    let updated_track = {
       title: req.body.title,
       lyrics: req.body.lyrics ? req.body.lyrics : "",
+      description: req.body.description ? req.body.description : "",
       artists: pulled_artists
    }
 

@@ -78,6 +78,18 @@
             placeholder="there's a light over the ocean
  ..."
             maxlength="2000"
+            rows="5"
+         ></textarea>
+
+         <label for="description"
+            >description
+            <p class="tag">(optional)</p></label
+         >
+         <textarea
+            ref="description_ref"
+            placeholder="a very cool story..."
+            maxlength="2000"
+            rows="5"
          ></textarea>
 
          <span class="row">
@@ -131,6 +143,7 @@ const title_ref = ref(null)
 const lyrics_ref = ref(null)
 const track_ref = ref(null)
 const album_ref = ref(null)
+const description_ref = ref(null)
 
 const open_events = ref([])
 const uploading = ref(false)
@@ -250,6 +263,7 @@ const upload = async (e) => {
    if (album) formdata.append("album", album)
    formdata.append("title", title)
    if (lyrics_ref.value.value) formdata.append("lyrics", lyrics_ref.value.value)
+   if (description_ref.value.value) formdata.append("description", description_ref.value.value)
    formdata.append("event", event_ref.value.value)
    if (artists.value.length != 0)
       formdata.append("artists", JSON.stringify(artists.value))

@@ -38,7 +38,7 @@
          </p>
 
          <p class="description">
-            {{ track.description ? track.description : "No description available" }}
+            {{ track.description ? (track.description.length == 0 ? "No description available" : track.description) : "No description available" }}
          </p>
 
          <hr />

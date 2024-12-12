@@ -59,6 +59,16 @@
             v-model="track.lyrics"
          ></textarea>
 
+         <label for="description"
+            >description
+            <p class="tag">(optional)</p></label
+         >
+         <textarea
+            ref="description_ref"
+            placeholder="a very cool story..."
+            v-model="track.description"
+         ></textarea>
+
          <label for="album"
             >Album Cover
             <p class="tag">(optional)</p></label
@@ -83,6 +93,7 @@ const track = ref(props.track)
 const old_track = {
    title: props.track.title,
    lyrics: props.track.lyrics,
+   description: props.track.description,
    artists: [...props.track.artists],
 }
 
@@ -90,6 +101,7 @@ onBeforeUnmount(() => {
    // must be manual
    track.value.title = old_track.title
    track.value.lyrics = old_track.lyrics
+   track.value.description = old_track.description
    track.value.artists = old_track.artists
 })
 
