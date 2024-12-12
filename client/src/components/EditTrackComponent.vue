@@ -57,6 +57,7 @@
             placeholder="there's a light over the ocean
  ..."
             v-model="track.lyrics"
+            rows="5"
          ></textarea>
 
          <label for="description"
@@ -67,6 +68,7 @@
             ref="description_ref"
             placeholder="a very cool story..."
             v-model="track.description"
+            rows="5"
          ></textarea>
 
          <label for="album"
