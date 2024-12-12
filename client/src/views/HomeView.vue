@@ -80,9 +80,9 @@ onBeforeMount(async () => {
       // O (n)... replace eventually
       let found_tracks = tracks.filter(s => s.uuid == song_uuid)
       if (found_tracks.length > 0) {
-         eventbus.emit("set_new_info_track", found_tracks[0])
          eventbus.emit("playSong", found_tracks[0])
          await nextTick()
+         eventbus.emit("set_new_info_track", found_tracks[0])
          document.getElementById(found_tracks[0].event)?.scrollIntoView()
       }
    }
