@@ -27,7 +27,7 @@ const MAX_LYRICS_LENGTH = 2000
 const MAX_ARTISTS = 7
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
-   const filename = crypto.randomUUID() + file.originalname.split(".")[0]
+   const filename = crypto.randomUUID()
    const filecloud = bucket.file(filename)
 
    await filecloud.save(file.buffer, {
