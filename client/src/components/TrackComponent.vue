@@ -70,6 +70,10 @@
                <span class="material-symbols-rounded icon">link</span>
                <p>Copy Link</p>
             </div>
+            <a :class="{ 'dropdown-option': true }" :href="track.url" target="__blank">
+               <span class="material-symbols-rounded icon">download</span>
+               <p>Download</p>
+            </a>
             <slot name="dropdown-options"></slot>
 
             <template v-if="type == 'allowedit'">
@@ -581,6 +585,10 @@ const prevent_parent_click = (e) => {}
 
 .edit {
    background-color: goldenrod;
+}
+
+a.dropdown-option {
+   text-decoration: none;
 }
 
 .dropdown-option:not(:last-child) {
