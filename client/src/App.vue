@@ -11,7 +11,7 @@
          <Queue v-if="show_queue" />
       </Transition>
    </div>
-   <MediaPlayer :queue="queue" :show_lyrics="show_lyrics" />
+   <MediaPlayer :queue="queue" :window_state="window_state" />
    <AddToPlaylist v-if="show_add_to_playlist" :track="new_playlist_track" />
    <Notification :hidden="!show_notification_message" :message="notification_message" />
 </template>
@@ -33,7 +33,13 @@ const queue = computed(() => store.state.queue)
 const afterQueue = computed(() => store.state.afterQueue)
 
 const show_queue = ref(false)
-const show_lyrics = ref(false)
+// main window can be a few things, use an int to keep track
+// sent to media player to manage
+// can be nothing, lyrics, or song info
+const window_state = ref(0)
+const WINDOW_NONE = 0
+const WINDOW_LYRIC = 1
+const WINDOW_INFO = 2
 const show_add_to_playlist = ref(false)
 const new_playlist_track = ref(null)
 const notification_message = ref("")
@@ -60,16 +66,25 @@ const toggle_queue_visibilty = () => {
    show_queue.value = !show_queue.value
 }
 const set_lyrics_visibility = (s) => {
-   show_lyrics.value = s
+   window_state.value = s ? WINDOW_LYRIC : WINDOW_NONE
 }
 const toggle_lyrics_visibilty = () => {
-   show_lyrics.value = !show_lyrics.value
+   window_state.value = window_state.value == WINDOW_LYRIC ? WINDOW_NONE : WINDOW_LYRIC
+}
+const set_info_visibility = (s) => {
+   window_state.value = s ? WINDOW_INFO : WINDOW_NONE
+}
+const toggle_info_visibility = () => {
+   window_state.value = window_state.value == WINDOW_INFO ? WINDOW_NONE : WINDOW_INFO
 }
 const set_add_to_playlist_visibility = (s) => {
    show_add_to_playlist.value = s
 }
 const set_new_playlist_track = (track) => {
    new_playlist_track.value = track
+}
+const clear_all_windows = () => {
+   window_state.value = WINDOW_NONE
 }
 
 onMounted(() => {
@@ -79,10 +94,14 @@ onMounted(() => {
    eventbus.on("set_lyrics_visibility", set_lyrics_visibility)
    eventbus.on("toggle_lyrics_visibility", toggle_lyrics_visibilty)
 
+   eventbus.on("set_info_visibility", set_info_visibility)
+   eventbus.on("toggle_info_visibility", toggle_info_visibility)
+
    eventbus.on("set_add_to_playlist_visibility", set_add_to_playlist_visibility)
    eventbus.on("set_new_playlist_track", set_new_playlist_track)
 
    eventbus.on("show_notification", show_notification)
+   eventbus.on("clear_all_windows", clear_all_windows)
 })
 
 onUnmounted(() => {
@@ -92,10 +111,14 @@ onUnmounted(() => {
    eventbus.off("set_lyrics_visibility", set_lyrics_visibility)
    eventbus.off("toggle_lyrics_visibility", toggle_lyrics_visibilty)
 
+   eventbus.off("set_info_visibility", set_info_visibility)
+   eventbus.off("toggle_info_visibility", toggle_info_visibility)
+
    eventbus.off("set_add_to_playlist_visibility", set_add_to_playlist_visibility)
    eventbus.off("set_new_playlist_track", set_new_playlist_track)
 
    eventbus.off("show_notification", show_notification)
+   eventbus.off("clear_all_windows", clear_all_windows)
 })
 </script>
 

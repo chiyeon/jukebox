@@ -26,7 +26,7 @@
                v-if="current_song"
                :track="current_song"
                type="player"
-               @clickArtist="eventbus.emit('set_lyrics_visibility', false)"
+               @clickArtist="eventbus.emit('clear_all_windows')"
             />
             <div v-else class="not-playing-preview">
                <span class="material-symbols-rounded album-icon"> album </span>
@@ -73,6 +73,7 @@
                :track="current_song"
                type="playermobile"
                @clickArtist="show_mini_player = true"
+               @clickTitle="show_mini_player = true"
             />
             <div v-else class="not-playing-preview mobile_expanded">
                <span class="material-symbols-rounded album-icon"> album </span>

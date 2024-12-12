@@ -16,6 +16,7 @@
                :track="current_song"
                type="player"
                @click="() => emit('showAlbum')"
+               @clickArtist="() => eventbus.emit('clear_all_windows')"
             />
             <div
                v-else

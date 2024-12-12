@@ -9,14 +9,22 @@
       }"
    >
       <img
-         v-if="!is_queue_element()"
+         v-if="!is_queue_element() && type != 'info'"
          class="album"
          loading="lazy"
          :src="track.album"
          @click="emit('click')"
       />
-      <div class="track-info">
-         <p class="title">
+      <div class="track-info" v-if="type == 'info'">
+         <span class="play">
+            <span class="material-symbols-rounded"
+               >play_circle</span
+            >
+            <p>Play Song</p>
+         </span>
+      </div>
+      <div class="track-info" v-else>
+         <p class="title" @click.stop="eventbus.emit('set_new_info_track', track); emit('clickTitle')">
             {{ track.title
             }}<span v-if="track.winner" class="material-symbols-rounded trophy"
                >trophy</span
@@ -56,10 +64,19 @@
                   >
                </button>
             </template>
+            <div class="dropdown-option" @click.stop="eventbus.emit('playSong', track)">
+               <span class="material-symbols-rounded icon">play_arrow</span>
+               <p>Play</p>
+            </div>
+            <div class="dropdown-option" @click.stop="eventbus.emit('set_new_info_track', track)" v-if="type != 'info'">
+               <span class="material-symbols-rounded icon">tooltip_2</span>
+               <p>View Info</p>
+            </div>
             <div class="dropdown-option" @click.stop="add_to_queue">
                <span class="material-symbols-rounded icon">playlist_add</span>
                <p>Add to Queue</p>
             </div>
+            <hr />
             <div :class="{ 'dropdown-option': true, disabled: !user }" @click.stop="add_to_playlist">
                <span class="material-symbols-rounded icon">add</span>
                <p>Add to Playlist</p>
@@ -154,7 +171,7 @@ import EditTrack from "./EditTrackComponent.vue"
 import router from "../router"
 import Dropdown from "./DropdownComponent.vue"
 
-const emit = defineEmits(["click", "clickArtist"])
+const emit = defineEmits(["click", "clickArtist", "clickTitle"])
 
 const validated_delete = ref(false)
 const show_delete = ref(false)
@@ -187,6 +204,7 @@ const user = computed(() => store.state.user)
 // playermobile - display for mobile, don't allow it to be pressed
 // allowedit - allows editing/deleting. for user profiles
 // allowremove - lesser version of allowedit. for user profiles
+// info - for info pages. removes song info but keeps playability on click and options
 
 // we should hide the album
 const is_queue_element = () => {
@@ -417,6 +435,21 @@ const prevent_parent_click = (e) => {}
    flex: 1;
 }
 
+.track:hover .play p {
+   text-decoration: underline;
+}
+
+.track-info .play {
+   display: flex;
+   flex-direction: row;
+   gap: 10px;
+   align-items: center;
+}
+
+.track-info .play .material-symbols-rounded {
+   font-size: 30px;
+}
+
 .track-plays {
    flex: 0.25;
 
@@ -427,6 +460,12 @@ const prevent_parent_click = (e) => {}
    font-weight: bold;
    display: flex;
    align-items: center;
+   width: fit-content;
+}
+
+.title:hover {
+   text-decoration: underline;
+   cursor: pointer;
 }
 
 .title .trophy {

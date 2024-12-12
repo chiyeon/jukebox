@@ -78,7 +78,6 @@ onBeforeMount(async () => {
 
    let tracks = update_tracks()
 
-   // see if we have a uuid in the url
    let song_uuid = route.query.song
    if (song_uuid) {
       // O (n)... replace eventually

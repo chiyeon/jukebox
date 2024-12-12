@@ -556,6 +556,15 @@ app.get("/api/events", async (req, res) => {
    })
 })
 
+app.post("/api/track", async (req, res) => {
+   const uuid = req.body.uuid
+   if (!uuid) return res.status(400).send({ message: "No UUID" })
+   const track = await fb.get_doc("tracks", uuid)
+   if (!track) return res.status(400).send({ message: "Invalid UUID" })
+   
+   res.status(200).send({ track })
+})
+
 app.post("/api/tracks", async (req, res) => {
    if (req.body.username == undefined) {
       return res.status(400).send({ message: "Invalid username" })

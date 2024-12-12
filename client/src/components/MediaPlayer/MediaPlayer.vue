@@ -44,8 +44,12 @@
    </div>
    <Transition name="lyrics">
       <Lyrics
-         v-if="show_lyrics"
+         v-if="window_state == 1"
          :lyrics="current_song && current_song.lyrics"
+      />
+      <TrackInfo
+         v-else-if="window_state == 2 && info_song"
+         :track="info_song"
       />
    </Transition>
 
@@ -81,17 +85,22 @@ import {
    onMounted,
    computed,
    onUnmounted,
+   onBeforeMount
 } from "vue"
 import { useStore } from "vuex"
+import { useRoute } from "vue-router"
 import eventbus from "../../eventbus"
 import PlayerDesktop from "./PlayerDesktop.vue"
 import PlayerMobile from "./PlayerMobile.vue"
 import Lyrics from "./LyricsComponent.vue"
+import TrackInfo from "../TrackInfo.vue"
 
 const store = useStore()
+const route = useRoute()
 const emit = defineEmits(["toggle_queue"])
-const props = defineProps(["queue", "show_lyrics"])
+const props = defineProps(["queue", "window_state" ])
 const show_album = ref(false)
+const info_song = ref(null)
 
 const audio_ref = ref(null)
 
@@ -395,7 +404,31 @@ watch(store.state.queue, (newval) => {
    }
 })
 
+watch(() => route.query.song, async (newsong) => {
+   // see if we have a uuid in the url
+   let song_uuid = route.query.song
+   if (song_uuid) {
+      let res = await fetch("/api/track", {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify({ uuid: song_uuid })
+      })
+
+      if (!res.ok) return
+      let song = await res.json()
+
+      info_song.value = song.track
+      eventbus.emit("set_info_visibility", true) 
+   }
+})
+
 onMounted(() => {
+   eventbus.on("set_new_info_track", (s) => {
+      info_song.value = s
+      eventbus.emit("set_info_visibility", true)
+   })
    // on playing a new song
    eventbus.on("playSong", handle_play_song)
    // on skipping to a song in the after queue or queue
@@ -441,6 +474,7 @@ onUnmounted(() => {
    eventbus.off("playSong", handle_play_song)
    eventbus.off("skipQueueTo", handle_skip_queue_to)
    eventbus.off("skipAfterQueueTo", handle_skip_afterqueue_to)
+   eventbus.off("set_new_info_track", () => {})
 })
 </script>
 
