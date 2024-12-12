@@ -404,26 +404,6 @@ watch(store.state.queue, (newval) => {
    }
 })
 
-watch(() => route.query.song, async (newsong) => {
-   // see if we have a uuid in the url
-   let song_uuid = route.query.song
-   if (song_uuid) {
-      let res = await fetch("/api/track", {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify({ uuid: song_uuid })
-      })
-
-      if (!res.ok) return
-      let song = await res.json()
-
-      info_song.value = song.track
-      eventbus.emit("set_info_visibility", true) 
-   }
-})
-
 onMounted(() => {
    eventbus.on("set_new_info_track", (s) => {
       info_song.value = s
