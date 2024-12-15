@@ -15,14 +15,14 @@ module.exports = {
       "Freaky",
       "Stays Fr34ky",
       "voice_selection",
-      "valentinered"
+      "#E55451",
     ),
     scroller: Badge(
       "scroller",
       "Scroller",
       "Always Scrolls",
       "smartphone",
-      "deepmauve"
+      "#DF73D4",
     ),
     contributor: Badge(
       "contributor",
