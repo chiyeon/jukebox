@@ -10,6 +10,20 @@ const Badge = (id, name, description, icon, color) => {
 
 module.exports = {
   badges: {
+    freaky: Badge(
+      "freaky",
+      "Freaky",
+      "Stays Fr34ky",
+      "voice_selection",
+      "valentine_red"
+    ),
+    scroller: Badge(
+      "scroller",
+      "Scroller",
+      "Always Scrolls",
+      "smartphone",
+      "deep_mauve"
+    ),
     contributor: Badge(
       "contributor",
       "Contributor",
