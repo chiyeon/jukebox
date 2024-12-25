@@ -38,7 +38,7 @@
          </p>
 
          <p class="event">
-            Part of the <b><RouterLink @click="eventbus.emit('set_info_visibility', false); eventbus.emit('nav_to', event_info.uuid)" to="/">{{ event_info ? event_info.name : "Loading..." }}</RouterLink></b> event
+            Part of the <b><RouterLink @click="eventbus.emit('set_info_visibility', false); eventbus.emit('nav_to', event_info.uuid)" :to="'/?event=' + event_info.uuid">{{ event_info ? event_info.name : "Loading..." }}</RouterLink></b> event
          </p>
 
          <p class="description">
