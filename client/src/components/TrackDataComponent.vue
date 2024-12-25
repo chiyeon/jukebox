@@ -77,7 +77,7 @@
             ref="lyrics_ref"
             placeholder="there's a light over the ocean
  ..."
-            maxlength="2000"
+            maxlength="9999"
             rows="5"
          ></textarea>
 
@@ -88,7 +88,7 @@
          <textarea
             ref="description_ref"
             placeholder="a very cool story..."
-            maxlength="2000"
+            maxlength="9999"
             rows="5"
          ></textarea>
 
