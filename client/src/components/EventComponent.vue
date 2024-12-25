@@ -3,7 +3,10 @@
       <template v-if="event.name">
          <hr />
          <p class="date">{{ get_event_date() }}</p>
-         <h2>{{ event.name }}</h2>
+         <span @click="copy_event_link" class="title-box">
+            <h2>{{ event.name }}</h2>
+            <span class="material-symbols-rounded copy-link">link</span>
+         </span>
          <div class="tags-box">
             <p class="tag" v-for="tag in event.tags" :key="tag">{{ tag }}</p>
          </div>
@@ -29,6 +32,7 @@
 
 import Track from "./TrackComponent.vue"
 import { defineProps } from "vue"
+import eventbus from "../eventbus"
 
 const props = defineProps(["event", "allowDelete", "user", "preview"])
 
@@ -55,6 +59,11 @@ const get_event_date = () => {
          props.event.date[1]._seconds * 1000
       ).toLocaleDateString()}`
    }
+}
+
+const copy_event_link = () => {
+   navigator.clipboard.writeText(window.location.origin + `?event=${props.event.uuid}`)
+   eventbus.emit("show_notification", "Event URL copied to clipboard") 
 }
 </script>
 
@@ -105,5 +114,27 @@ h2 {
 .hint {
    font-style: italic;
    margin-left: 10px;
+}
+
+.copy-link {
+   opacity: 0;
+   cursor: pointer;
+   font-size: 26px;
+   color: coral;
+}
+
+.title-box {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   gap: 8px;
+}
+
+.title-box:hover .copy-link {
+   opacity: 1;
+}
+
+.copy-link:hover {
+   color: blueviolet;
 }
 </style>

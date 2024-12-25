@@ -372,6 +372,7 @@ const remove_from_queue = () => {
 
 const copy_link = () => {
    navigator.clipboard.writeText(window.location.origin + `?song=${props.track.uuid}`)
+   eventbus.emit("show_notification", "Track URL copied to clipboard")
 }
 
 const prevent_parent_click = (e) => {}
