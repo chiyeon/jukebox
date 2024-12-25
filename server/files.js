@@ -21,10 +21,10 @@ const MAX_TRACK_SIZE_KB = 15000
 const MAX_ALBUM_SIZE_KB = 400
 const MAX_ICON_SIZE_KB = 300
 const MIN_FILENAME_LENGTH = 1
-const MAX_FILENAME_LENGTH = 100
+const MAX_FILENAME_LENGTH = 512
 const FILENAME_REGEX_VALIDATION = /^[a-zA-Z0-9_\-()[\].&]+$/
-const MAX_LYRICS_LENGTH = 2000
-const MAX_DESCRIPTION_LENGTH = 2000
+const MAX_LYRICS_LENGTH = 9999
+const MAX_DESCRIPTION_LENGTH = 9999
 const MAX_ARTISTS = 7
 // given multer file, stream & upload to google cloud storage
 const upload_file = async (file, bucket) => {
