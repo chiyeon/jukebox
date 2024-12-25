@@ -86,6 +86,19 @@ onBeforeMount(async () => {
          document.getElementById(found_tracks[0].event)?.scrollIntoView()
       }
    }
+
+   const nav_to = (id) => {
+      document.getElementById(id)?.scrollIntoView()
+   }
+
+   eventbus.on("nav_to", nav_to)
+
+   /* if event UUID is in URL, quick nav to there */
+   let event_uuid = route.query.event
+   if (event_uuid) {
+      await nextTick()
+      nav_to(event_uuid)
+   }
 })
 </script>
 

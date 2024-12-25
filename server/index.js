@@ -570,6 +570,15 @@ app.get("/api/events", async (req, res) => {
    })
 })
 
+app.post("/api/event", async (req, res) => {
+   const uuid = req.body.uuid
+   if (!uuid || !events[uuid]) return res.status(400).send({ message: "Invalid UUID" })
+
+   res.status(200).send({
+      event: events[uuid]
+   })
+})
+
 app.post("/api/track", async (req, res) => {
    const uuid = req.body.uuid
    if (!uuid) return res.status(400).send({ message: "No UUID" })

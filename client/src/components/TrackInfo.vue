@@ -34,7 +34,11 @@
          <Track :track="track" type="info" />
 
          <p class="release-date">
-            Released {{ get_release_date() }}
+            Released <b>{{ get_release_date() }}</b>
+         </p>
+
+         <p class="event">
+            Part of the <b><RouterLink @click="eventbus.emit('set_info_visibility', false); eventbus.emit('nav_to', event_info.uuid)" :to="'/?event=' + event_info.uuid">{{ event_info ? event_info.name : "Loading..." }}</RouterLink></b> event
          </p>
 
          <p class="description">
@@ -51,13 +55,15 @@
 </template>
 
 <script setup>
-import { defineProps } from "vue"
+import { defineProps, ref, onBeforeMount } from "vue"
 import eventbus from "../eventbus"
 import Track from "./TrackComponent.vue"
+import { RouterLink } from "vue-router"
 
 const props = defineProps([
    "track"
 ])
+const event_info = ref(null)
 
 const get_release_date = () => {
    if (!props.track.release_date) return "No date found"
@@ -65,6 +71,26 @@ const get_release_date = () => {
       return new Date(props.track.release_date[0]._seconds * 1000).toLocaleDateString()
    }
 }
+
+onBeforeMount(async () => {
+   const res = await fetch("/api/event", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+         uuid: props.track.event
+      })
+   })
+
+   if (res.ok) {
+      event_info.value = (await res.json()).event
+   } else {
+      event_info.value = {
+         name: "No event found."
+      }
+   }
+})
 
 </script>
 
