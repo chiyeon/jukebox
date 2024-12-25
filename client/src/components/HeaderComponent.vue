@@ -122,7 +122,16 @@ const logout = async () => {
 <style scoped>
 .header {
    padding-top: 20px;
-   margin-bottom: 20px;
+   padding-bottom: 20px;
+
+   border-bottom: 1px solid gray;
+   border-radius: 4px;
+
+   position: sticky;
+   top: 0;
+   background-color: white;
+
+   z-index: 10;
 }
 
 h1 {

@@ -142,6 +142,7 @@ onUnmounted(() => {
 
 main {
    padding-bottom: 200px;
+   padding-top: 10px;
 }
 
 .v-enter-active,

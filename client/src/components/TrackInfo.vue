@@ -102,11 +102,11 @@ onBeforeMount(async () => {
 }
 .track-info-box {
    position: fixed;
-   top: 0;
+   top: 130px;
    left: 0;
    padding: 0 30px;
    width: 100%;
-   height: calc(100% - 128px); /* about the size of the bottom player */
+   height: calc(100% - 128px - 130px); /* - about the size of the bottom player - top header */
 
    background-color: white;
    box-sizing: border-box;

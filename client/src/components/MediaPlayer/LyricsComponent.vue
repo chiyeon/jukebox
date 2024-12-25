@@ -28,7 +28,7 @@ defineProps(["lyrics"])
 }
 .lyrics-box {
    position: fixed;
-   bottom: 0;
+   top: 130px;
    left: 0;
    padding: 0 30px;
    width: 100%;
@@ -42,7 +42,7 @@ defineProps(["lyrics"])
 
 .lyrics-scroll {
    position: relative;
-   height: calc(100% - 265px); /* about the size of the bottom player */
+   height: calc(100% - 265px - 130px); /* about the size of the bottom player - top header*/
 }
 
 .lyrics-scroll::before,
