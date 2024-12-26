@@ -99,6 +99,11 @@ onBeforeMount(async () => {
    .track-info-box .album {
       width: 100%;
    }
+
+   .track-info-box {
+      height: calc(100% - 128px - 76px) !important;
+      top: 76px !important;
+   }
 }
 .track-info-box {
    position: fixed;

@@ -25,6 +25,12 @@ defineProps(["lyrics"])
    .lyrics-box .lyrics {
       font-size: 20px;
    }
+
+   .lyrics-scroll {
+      /* full - bottom player - top header for mobile */
+      height: calc(100% - 128px - 76px) !important;
+      top: 76px !important;
+   }
 }
 .lyrics-box {
    position: fixed;

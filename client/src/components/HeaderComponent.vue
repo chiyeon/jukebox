@@ -120,6 +120,12 @@ const logout = async () => {
 </script>
 
 <style scoped>
+@media (max-width: 600px) {
+   h1 {
+      display: none;
+   }
+}
+
 .header {
    padding-top: 20px;
    padding-bottom: 20px;
