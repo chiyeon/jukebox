@@ -44,7 +44,7 @@
                ref="password_ref"
                id="login-password"
                type="password"
-               placeholder="passw0rd"
+               placeholder="password"
                name="password"
                maxlength="50"
                required
