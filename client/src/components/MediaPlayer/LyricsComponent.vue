@@ -27,11 +27,23 @@ defineProps(["lyrics"])
    }
 
    .lyrics-scroll {
-      /* full - bottom player - top header for mobile */
-      height: calc(100% - 128px - 76px) !important;
-      top: 76px !important;
+      /* full - bottom player */
+      height: calc(100% - 128px) !important;
+   }
+
+   .lyrics-box {
+      top: 0px !important;
    }
 }
+
+@media (max-height: 675px) {
+   .lyrics-scroll {
+      /* full - bottom player */
+      height: calc(100% - 128px) !important;
+      top: 0px !important;
+   }
+}
+
 .lyrics-box {
    position: fixed;
    top: 130px;

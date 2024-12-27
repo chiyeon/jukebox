@@ -121,14 +121,19 @@ const logout = async () => {
 
 <style scoped>
 @media (max-width: 600px) {
-   h1 {
-      display: none;
+   .header {
+      position: static !important;
+   }
+}
+
+@media (max-height: 675px) {
+   .header {
+      position: static !important;
    }
 }
 
 .header {
-   padding-top: 20px;
-   padding-bottom: 20px;
+   padding: 10px 0;
 
    border-bottom: 1px solid gray;
    border-radius: 4px;
@@ -142,6 +147,8 @@ const logout = async () => {
 
 h1 {
    margin-top: 0;
+   margin-bottom: 4px;
+   font-size: 28px;
 }
 
 .nav {
@@ -185,7 +192,7 @@ a {
 }
 
 .user-icon {
-   width: 36px;
+   width: 32px;
    aspect-ratio: 1;
    border-radius: 100px;
    cursor: pointer;
@@ -200,7 +207,8 @@ a {
 
 .material-symbols-rounded.circle {
    border-radius: 100px;
-   padding: 6px;
+   font-size: 22px;
+   padding: 5px;
    color: white;
    background-color: gray;
    box-sizing: border-box;

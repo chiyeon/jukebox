@@ -101,10 +101,18 @@ onBeforeMount(async () => {
    }
 
    .track-info-box {
-      height: calc(100% - 128px - 76px) !important;
-      top: 76px !important;
+      height: calc(100% - 128px) !important;
+      top: 0px !important;
    }
 }
+
+@media (max-height: 675px) {
+   .track-info-box {
+      height: calc(100% - 128px) !important;
+      top: 0px !important;
+   }
+}
+
 .track-info-box {
    position: fixed;
    top: 130px;
