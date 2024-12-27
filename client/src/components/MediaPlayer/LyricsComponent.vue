@@ -28,7 +28,7 @@ defineProps(["lyrics"])
 
    .lyrics-scroll {
       /* full - bottom player */
-      height: calc(100% - 128px) !important;
+      height: calc(100% - 235px) !important;
    }
 
    .lyrics-box {
@@ -39,14 +39,18 @@ defineProps(["lyrics"])
 @media (max-height: 675px) {
    .lyrics-scroll {
       /* full - bottom player */
-      height: calc(100% - 128px) !important;
+      height: calc(100% - 235px) !important;
+      top: 0px !important;
+   }
+
+   .lyrics-box {
       top: 0px !important;
    }
 }
 
 .lyrics-box {
    position: fixed;
-   top: 130px;
+   top: 100px;
    left: 0;
    padding: 0 30px;
    width: 100%;
@@ -60,7 +64,7 @@ defineProps(["lyrics"])
 
 .lyrics-scroll {
    position: relative;
-   height: calc(100% - 265px - 130px); /* about the size of the bottom player - top header*/
+   height: calc(100% - 235px - 100px); /* about the size of the bottom player - top header*/
 }
 
 .lyrics-scroll::before,

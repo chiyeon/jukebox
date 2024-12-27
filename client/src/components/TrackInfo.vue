@@ -101,25 +101,25 @@ onBeforeMount(async () => {
    }
 
    .track-info-box {
-      height: calc(100% - 128px) !important;
+      height: calc(100% - 110px) !important;
       top: 0px !important;
    }
 }
 
 @media (max-height: 675px) {
    .track-info-box {
-      height: calc(100% - 128px) !important;
+      height: calc(100% - 110px) !important;
       top: 0px !important;
    }
 }
 
 .track-info-box {
    position: fixed;
-   top: 130px;
+   top: 100px;
    left: 0;
    padding: 0 30px;
    width: 100%;
-   height: calc(100% - 128px - 130px); /* - about the size of the bottom player - top header */
+   height: calc(100% - 110px - 100px); /* - about the size of the bottom player - top header */
 
    background-color: white;
    box-sizing: border-box;
@@ -161,6 +161,7 @@ onBeforeMount(async () => {
 .artists {
    display: flex;
    margin-bottom: 20px;
+   flex-wrap: wrap;
 }
 
 .artists > p, .artists > a {
