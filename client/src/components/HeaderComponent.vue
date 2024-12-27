@@ -136,7 +136,6 @@ const logout = async () => {
    padding: 10px 0;
 
    border-bottom: 1px solid gray;
-   border-radius: 4px;
 
    position: sticky;
    top: 0;
@@ -147,7 +146,7 @@ const logout = async () => {
 
 h1 {
    margin-top: 0;
-   margin-bottom: 4px;
+   margin-bottom: 10px;
    font-size: 28px;
 }
 

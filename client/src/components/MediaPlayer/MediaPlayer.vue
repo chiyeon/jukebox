@@ -515,8 +515,8 @@ span.big-album {
 
 .big-background {
    position: fixed;
-   width: 130%;
-   height: 130%;
+   width: 200%;
+   height: 200%;
    filter: blur(100px) contrast(0.75) saturate(0.9) brightness(0.5);
    background-size: cover;
    background-position: center;

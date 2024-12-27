@@ -2,7 +2,7 @@
    <div class="player-mini-box">
       <div class="player-mini">
          <ProgressSlider
-            :style="{ marginBottom: '20px' }"
+            :style="{ marginBottom: '12px' }"
             color="coral"
             :progress="controls.audio_progress"
             :disabled="audio_ref && audio_ref.src == ''"
@@ -136,7 +136,7 @@ const get_volume_icon = () => {
 
 .player-mini {
    margin: auto;
-   padding: 20px 0;
+   padding: 12px 0;
    max-width: 1000px;
 }
 

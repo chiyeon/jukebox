@@ -167,6 +167,7 @@ const show_mini_player = ref(true)
    flex: 1;
    font-size: 12px;
    margin-top: 0;
+   margin-bottom: 4px;
 }
 
 .progress-labels .right {
