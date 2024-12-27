@@ -93,7 +93,18 @@
       <hr />
       <!--p>{{user.display_name}} has listened to {{user.listens}} total tracks and has {{user.streams}} total streams on their music.</p-->
 
-      <TracksSearchBar @onSearch="(tracks) => (visible_tracks = tracks)" />
+      <div class="filter-bar">
+         <p>Sort by</p>
+         <select class="dropdown" v-model="sorting_mode">
+            <option :value="SORTING_TIME">Release Date</option>
+            <option :value="SORTING_PLAYS">Plays</option>
+         </select>
+         <select class="dropdown" v-model="sorting_reversed">
+            <option :value="false">Descending</option>
+            <option :value="true">Ascending</option>
+         </select>
+         <TracksSearchBar @onSearch="(tracks) => (visible_tracks = tracks)" />
+      </div>
       <Event
          v-if="visible_tracks.length != 0"
          :event="{ tracks: visible_tracks }"
@@ -131,6 +142,12 @@ const displayname_input_ref = ref(null)
 const newbio_ref = ref(null)
 const icon_ref = ref(null)
 
+const SORTING_PLAYS = 0
+const SORTING_TIME = 1
+
+const sorting_mode = ref(SORTING_TIME)
+const sorting_reversed = ref(false)
+
 const autoscale_textarea = (e) => {
    e.currentTarget.style.height = "auto"
    e.currentTarget.style.height = e.currentTarget.scrollHeight + "px"
@@ -164,11 +181,29 @@ const update_user_page = async () => {
 
       if (res_tracks.ok) {
          visible_tracks.value = (await res_tracks.json()).tracks
-         store.dispatch("setTracks", visible_tracks.value)
+         sort_by_current_settings()
       }
    } else {
       user.value = `User ${route.params.username} was not found`
    }
+}
+
+const sort_by_current_settings = () => {
+   const by_plays = sorting_reversed.value ? ((a, b) => a.plays - b.plays) : ((a, b) => b.plays - a.plays)
+
+   const by_time = sorting_reversed.value ? ((a, b) => a.release_date[0]._seconds - b.release_date[0]._seconds) : ((a, b) => b.release_date[0]._seconds - a.release_date[0]._seconds)
+
+   switch(sorting_mode.value) {
+      default:
+      case SORTING_PLAYS:
+         visible_tracks.value.sort(by_plays)
+         break
+      case SORTING_TIME:
+         visible_tracks.value.sort(by_time)
+         break
+   }
+
+   store.dispatch("setTracks", visible_tracks.value)
 }
 
 // const submit_new_displayname = async () => {
@@ -251,6 +286,10 @@ onBeforeMount(() => {
    update_user_page()
 })
 
+watch([sorting_mode, sorting_reversed], ([_, __]) => {
+   sort_by_current_settings()
+})
+
 watch(
    () => route.params.username,
    () => {
@@ -280,6 +319,21 @@ watch(newbio_ref, (newval) => {
    .upper-box {
       flex-direction: column !important;
    }
+}
+
+.filter-bar {
+   display: flex;
+   flex-direction: row;
+   justify-content: flex-end;
+   align-items: center;
+   flex-wrap: wrap;
+   gap: 10px;
+}
+
+.filter-bar > * {
+   padding: 8px;
+   border-radius: 4px;
+   margin: 0;
 }
 
 h2 {
