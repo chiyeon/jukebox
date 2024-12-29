@@ -906,7 +906,7 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
       }
 
       res.set("Cache-Control", "public, max-age=31557600")
-      res.status(200).set(headers)
+      res.status(206).set(headers)
       rs.pipe(res)
    } else {
       return res.status(400).send("File not found")
