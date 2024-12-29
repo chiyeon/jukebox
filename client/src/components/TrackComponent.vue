@@ -519,12 +519,25 @@ const prevent_parent_click = (e) => {}
    height: 64px;
 }
 
+.minimal .track-info {
+   overflow: hidden;
+}
+
 .minimal {
    border-bottom: none;
    flex: 1;
    padding: 0;
    align-self: flex-start;
    user-select: inherit;
+   overflow: hidden;
+}
+
+.minimal .title {
+   text-overflow: ellipsis;
+   overflow: hidden;
+   text-wrap: nowrap;
+   display: block;
+   max-width: 100%;
 }
 
 .title {

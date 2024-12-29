@@ -32,7 +32,7 @@
                <span class="material-symbols-rounded album-icon"> album </span>
                <p>No track selected</p>
             </div>
-            <span
+            <!--span
                v-if="current_song && current_song.lyrics != ''"
                class="material-symbols-rounded icon"
                :style="{ color: 'var(--accent-2)' }"
@@ -44,7 +44,7 @@
                @click.stop="eventbus.emit('toggle_queue_visibility')"
                class="material-symbols-rounded icon queue"
                >queue_music</span
-            >
+            -->
             <button class="pause" @click.stop="emit('togglePlayback')">
                <span class="material-symbols-rounded control-icon">
                   {{
@@ -199,6 +199,8 @@ const show_mini_player = ref(true)
 .player.mini {
    overflow-y: hidden;
 }
+
+.player.mini 
 
 .pause .control-icon {
    --size: 56px;

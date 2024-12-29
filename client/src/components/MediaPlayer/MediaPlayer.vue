@@ -291,12 +291,15 @@ const set_current_song = async (track) => {
 
    await nextTick()
 
+   /*
+   previously adjusted size of mini player when changing songs. now should be mostly standard
    if (mobile_player) {
       let height = document.querySelector(".player.mini")?.offsetHeight
       if (height) {
          media_player_box_ref.value.style.minHeight = height + "px"
       }
    }
+   */
 }
 
 const prev_song = () => {
