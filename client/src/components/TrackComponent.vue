@@ -558,7 +558,7 @@ const prevent_parent_click = (e) => {}
 .mobile_expanded .track-info .title {
    font-size: 24px;
    overflow: hidden;
-   display: inline-block;
+   display: block;
    text-overflow: ellipsis;
    white-space: nowrap;
    max-width: 100%;
