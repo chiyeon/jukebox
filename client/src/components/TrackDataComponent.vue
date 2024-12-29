@@ -302,9 +302,16 @@ const update_current_file = () => {
 .upload-box {
    max-width: 600px;
    margin: auto;
-   margin-top: 100px;
 
    margin-bottom: 300px;
+}
+
+input {
+   background: none;
+}
+
+textarea {
+   background-color: var(--background-2);
 }
 
 .album {
@@ -321,7 +328,7 @@ const update_current_file = () => {
    height: 100%;
    top: 0;
    left: 0;
-   background-color: #30303090;
+   background-color: var(--background-transparent);
    display: flex;
    justify-content: center;
    align-items: center;
@@ -335,7 +342,7 @@ const update_current_file = () => {
 
 .album-edit span {
    font-size: 48px;
-   color: white;
+   color: var(--foreground-1);
 }
 
 .header {
@@ -396,7 +403,7 @@ input[type="file"] {
    margin: 0;
    float: right;
    font-size: 12px;
-   color: gray;
+   color: var(--foreground-3);
 }
 
 .new-artist-box {
@@ -431,7 +438,7 @@ input.artist {
 }
 
 .remove-artist {
-   color: darkred;
+   color: var(--accent-cancel);
    cursor: pointer;
 }
 
@@ -451,7 +458,7 @@ input.artist {
 .artists-box {
    display: flex;
    flex-direction: column;
-   background-color: #e7e7e7;
+   background-color: var(--background-2);
    padding: 10px;
    border-radius: 10px;
    margin-bottom: 20px;
@@ -487,11 +494,11 @@ button {
    font-weight: bold;
    margin-top: 40px;
    font-size: 16px !important;
-   background-color: darkseagreen;
-   color: white;
+   background-color: var(--accent-confirm);
+   color: var(--foreground-1);
 }
 
 .submit:hover {
-   background-color: seagreen;
+   opacity: 75%;
 }
 </style>
