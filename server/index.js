@@ -900,6 +900,7 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
             console.error(err)
             res.status(500).send("Error reading file. File was probably not found.")
          })
+      res.set("Cache-Control", "public, max-age=31557600")
       res.status(200)
       rs.pipe(res)
    } else {
