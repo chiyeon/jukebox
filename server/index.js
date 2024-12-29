@@ -903,7 +903,6 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
       const metadata = (await file.getMetadata())[0]
       const headers = {
          "Content-disposition": `attachment; filename="${filename}"`,
-         "Content-Type": "audio/mpeg",
          "Content-Length": metadata.size
       }
 
