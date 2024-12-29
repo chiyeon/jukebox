@@ -900,8 +900,13 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
             console.error(err)
             res.status(500).send("Error reading file. File was probably not found.")
          })
+      let headers = {
+         "Content-disposition": `attachment; filename="${filename}"`,
+         "Content-Type": "audio/mp3"
+      }
+
       res.set("Cache-Control", "public, max-age=31557600")
-      res.status(200)
+      res.status(200).set(headers)
       rs.pipe(res)
    } else {
       return res.status(400).send("File not found")
