@@ -152,7 +152,7 @@ onBeforeMount(() => {
 }
 
 .panel {
-   background-color: #f7f7f7;
+   background-color: var(--background-2);
    padding: 20px;
    margin: 20px;
    width: 100%;
@@ -179,7 +179,7 @@ onBeforeMount(() => {
    cursor: pointer;
 }
 .close:hover {
-   color: darkred;
+   color: var(--accent-cancel);
 }
 
 .new-playlist {
@@ -199,7 +199,7 @@ onBeforeMount(() => {
 .cover {
    width: 100%;
    aspect-ratio: 1;
-   background-color: #303030;
+   background-color: var(--background-1);
 
    display: flex;
    justify-content: center;
@@ -207,7 +207,7 @@ onBeforeMount(() => {
 }
 
 .cover .icon {
-   color: #e7e7e7;
+   color: var(--foreground-2);
    font-size: 64px;
 }
 
