@@ -177,14 +177,14 @@ const show_mini_player = ref(true)
 /* mini player start */
 .player {
    width: 100%;
-   position: fixed;
+   position: sticky;
    bottom: 0;
    left: 0;
    padding: 10px 10px;
 
    box-sizing: border-box;
    border-top: 1px solid var(--foreground-3);
-   background-color: var(--background-2);
+   background-color: var(--background-1);
 
    display: flex;
    flex-direction: column;
