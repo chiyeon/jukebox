@@ -98,13 +98,13 @@ watch(
 }
 
 .new-playlist:hover .cover {
-   filter: invert(1);
+   filter: invert(0.2);
 }
 
 .cover {
    width: 100%;
    aspect-ratio: 1;
-   background-color: #303030;
+   background-color: var(--background-2);
 
    display: flex;
    justify-content: center;
@@ -112,7 +112,7 @@ watch(
 }
 
 .cover .icon {
-   color: #e7e7e7;
+   color: var(--foreground-3);
    font-size: 64px;
 }
 </style>

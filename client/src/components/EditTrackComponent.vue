@@ -168,7 +168,7 @@ input[type="file"] {
    margin: 0;
    float: right;
    font-size: 12px;
-   color: gray;
+   color: var(--foreground-3);
 }
 
 .new-artist-box {
@@ -204,7 +204,8 @@ input.artist {
 }
 
 .remove-artist {
-   color: darkred;
+   color: var(--accent-cancel);
+   margin-left: 10px;
    cursor: pointer;
 }
 

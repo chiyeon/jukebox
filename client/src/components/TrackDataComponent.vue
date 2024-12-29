@@ -152,7 +152,7 @@ const artists = ref([])
 
 const current_file = ref("")
 const cover_url = ref(
-   "https://storage.googleapis.com/jukebox-albums/default.webp"
+   "/static/jukebox-albums/default.webp"
 )
 
 const add_artist = () => {

@@ -30,7 +30,7 @@ defineProps([ "message", "cancelText", "deleteText" ])
    height: 100vh;
    top: 0;
    left: 0;
-   background-color: #303030b0;
+   background-color: var(--background-transparent);
    z-index: 303;
 
    display: flex;
@@ -41,7 +41,7 @@ defineProps([ "message", "cancelText", "deleteText" ])
 .panel {
    width: fit-content;
    margin: 20px;
-   background-color: #e7e7e7;
+   background-color: var(--background-2);
    padding: 20px;
 
    display: flex;
@@ -66,10 +66,10 @@ defineProps([ "message", "cancelText", "deleteText" ])
    flex: 1;
    min-width: 175px;
 
-   background-color: #b0b0b0;
+   background-color: var(--background-3);
    border-radius: 10px;
 
-   color: white;
+   color: var(--foreground-1);
    user-select: none;
 }
 
@@ -81,15 +81,15 @@ defineProps([ "message", "cancelText", "deleteText" ])
 }
 
 .cancel:hover {
-   background-color: #858585;
+   opacity: 75%;
 }
 
 .delete {
-   color: darkred;
+   color: var(--accent-cancel);
 }
 
 .delete:hover {
-   background-color: darkred;
-   color: white;
+   background-color: var(--accent-cancel);
+   color: var(--foreground-1);
 }
 </style>

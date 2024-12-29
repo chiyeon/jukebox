@@ -98,6 +98,7 @@ textarea {
    padding: 0;
    border: none;
    font-size: 16px;
+   background: none;
 }
 
 textarea {

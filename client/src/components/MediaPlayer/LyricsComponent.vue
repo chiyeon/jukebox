@@ -28,7 +28,7 @@ defineProps(["lyrics"])
 
    .lyrics-scroll {
       /* full - bottom player */
-      height: calc(100% - 235px - 50px) !important;
+      height: calc(100% - 235px - 55px) !important;
    }
 
    .lyrics-box {
@@ -39,7 +39,7 @@ defineProps(["lyrics"])
 @media (max-height: 675px) {
    .lyrics-scroll {
       /* full - bottom player */
-      height: calc(100% - 235px - 50px) !important;
+      height: calc(100% - 235px - 55px) !important;
       top: 0px !important;
    }
 
@@ -58,13 +58,13 @@ defineProps(["lyrics"])
    height: 100vh;
    height: 100dvh;
 
-   background-color: white;
+   background-color: var(--background-1);
    box-sizing: border-box;
 }
 
 .lyrics-scroll {
    position: relative;
-   height: calc(100% - 235px - 150px); /* about the size of the bottom player - top header*/
+   height: calc(100% - 235px - 100px); /* about the size of the bottom player - top header*/
 }
 
 .lyrics-scroll::before,
@@ -81,20 +81,20 @@ defineProps(["lyrics"])
 .lyrics-scroll::before {
    top: 0;
    background: none;
-   background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+   background: linear-gradient(to bottom, var(--background-1), transparent);
 }
 
 .lyrics-scroll::after {
    bottom: 0;
    background: none;
-   background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+   background: linear-gradient(to top, var(--background-1), transparent);
 }
 
 .lyrics {
    white-space: pre-line;
    font-size: 32px;
    font-weight: bold;
-   color: cadetblue;
+   color: var(--foreground-1);
    overflow-y: auto;
    height: 100%;
 }
@@ -112,15 +112,15 @@ defineProps(["lyrics"])
 }
 
 .exit {
-   color: white;
+   color: var(--foreground-1);
    font-size: 48px;
-   background-color: lightcoral;
+   background-color: var(--accent-1);
    cursor: pointer;
    margin-top: 30px;
    border-radius: 4px;
 }
 
 .exit:hover {
-   background-color: pink;
+   opacity: 75%;
 }
 </style>

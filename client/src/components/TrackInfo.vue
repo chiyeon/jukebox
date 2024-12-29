@@ -121,7 +121,7 @@ onBeforeMount(async () => {
    width: 100%;
    height: calc(100% - 110px - 100px); /* - about the size of the bottom player - top header */
 
-   background-color: white;
+   background-color: var(--background-1);
    box-sizing: border-box;
 
    overflow-y: auto;
@@ -141,16 +141,16 @@ onBeforeMount(async () => {
 
 .exit {
    position: fixed;
-   color: white;
+   color: var(--foreground-1);
    font-size: 48px;
-   background-color: lightcoral;
+   background-color: var(--accent-cancel);
    cursor: pointer;
    margin-top: 30px;
    border-radius: 4px;
 }
 
 .exit:hover {
-   background-color: pink;
+   opacity: 75%;
 }
 
 .album {

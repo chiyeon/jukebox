@@ -91,7 +91,7 @@ const set_progress = () => {
    width: 100%;
    height: 6px;
    border-radius: 100px;
-   background-color: #e4e4e4;
+   background-color: var(--background-3);
 
    transition: height 300ms cubic-bezier(0, 0.74, 0.04, 1);
 }
@@ -147,21 +147,17 @@ const set_progress = () => {
 .progress-slider::-webkit-slider-thumb {
    -webkit-appearance: none;
    appearance: none;  
-   opacity: 0;
-   border: none;
-   width: 16px;
-   height: 16px;
-   border-radius: 100px;
-   background-color: darkseagreen;
 }
 
+.progress-slider::-webkit-slider-thumb,
 .progress-slider::-moz-range-thumb {
    opacity: 0;
    border: none;
-   width: 16px;
-   height: 16px;
+   width: 11px;
+   height: 11px;
    border-radius: 100px;
-   background-color: darkseagreen;
+   background-color: var(--background-3);
+   border: 5px solid var(--foreground-1);
 }
 
 .label {

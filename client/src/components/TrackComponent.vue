@@ -390,7 +390,7 @@ const prevent_parent_click = (e) => {}
       background-color: inherit !important;
    }
    .track:not(.header, .minimal):active {
-      background-color: #f1f1f1;
+      background-color: var(--background-2);
    }
 
    .track button:hover {
@@ -417,7 +417,7 @@ const prevent_parent_click = (e) => {}
 }
 
 .track:not(.header, .minimal):hover {
-   background-color: #f1f1f1;
+   background-color: var(--background-2);
    cursor: pointer;
 }
 
@@ -505,7 +505,7 @@ const prevent_parent_click = (e) => {}
 }
 
 .delete {
-   color: darkred;
+   color: var(--accent-cancel);
 }
 
 .album {
@@ -588,7 +588,7 @@ const prevent_parent_click = (e) => {}
 .button-block {
    width: 42px;
    aspect-ratio: 1;
-   background-color: #d4d4d4;
+   background-color: var(--background-3);
 
    display: flex;
    justify-content: center;
@@ -596,7 +596,7 @@ const prevent_parent_click = (e) => {}
 }
 
 .button-block span {
-   color: white;
+   color: var(--foreground-1);
 }
 
 .delete-box {
@@ -605,19 +605,19 @@ const prevent_parent_click = (e) => {}
 }
 
 .button-block.delete {
-   background-color: darkred;
+   background-color: var(--accent-cancel);
 }
 
 .delete span {
-   color: white;
+   color: var(--foreground-1);
 }
 
 .button-block.cancel {
-   background-color: rgb(60, 148, 163);
+   background-color: var(--accent-cancel); 
 }
 
 .button-block .queue {
-   color: black;
+   color: var(--background-1);
 }
 .button-block:not(.label):hover span {
    filter: invert(0.2);
@@ -658,11 +658,11 @@ a.dropdown-option {
 }
 
 .icon.nobg {
-   color: black;
+   color: var(--foreground-1);
 }
 
 .icon.nobg:hover {
-   color: lightcoral;
+   color: var(--foreground-3);
 }
 
 .window {
@@ -671,7 +671,7 @@ a.dropdown-option {
    top: 0;
    width: 100vw;
    height: 100vh;
-   background-color: #30303090;
+   background-color: var(--background-transparent);
    z-index: 100;
 
    display: flex;
@@ -689,7 +689,7 @@ a.dropdown-option {
 .form {
    max-width: 700px;
    width: 100%;
-   background-color: #f0f0f0;
+   background-color: var(--background-2);
    border-radius: 4px;
 
    display: flex;
@@ -708,16 +708,15 @@ a.dropdown-option {
 }
 
 .buttons button {
-   color: white;
-   background-color: #909090;
+   color: var(--foreground-1);
 }
 
 .buttons .confirm {
-   background-color: darkseagreen;
+   background-color: var(--accent-confirm);
 }
 
 .buttons .cancel {
-   background-color: darkred;
+   background-color: var(--accent-cancel);
 }
 
 .confirm-removal .form {

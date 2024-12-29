@@ -424,7 +424,7 @@ hr {
    padding: 0;
    border: none;
    cursor: text;
-   color: black;
+   color: var(--foreground-1);
    outline: none;
 }
 
@@ -460,7 +460,7 @@ hr {
    top: 0;
    left: 0;
 
-   background-color: #30303060;
+   background-color: var(--background-transparent);
 
    opacity: 0;
 
@@ -474,7 +474,7 @@ hr {
 }
 
 .edit-icon p {
-   color: lightgray;
+   color: var(--foreground-2);
 }
 
 .edit-icon:hover {
@@ -485,7 +485,7 @@ hr {
    display: inline-block;
    margin: 0;
    margin-bottom: 10px;
-   color: gray;
+   color: var(--foreground-3);
    cursor: pointer;
 }
 
@@ -505,7 +505,7 @@ hr {
    width: 100vw;
    height: 100vh;
 
-   background-color: #30303080;
+   background-color: var(--background-transparent);
 
    display: flex;
    justify-content: center;
@@ -516,6 +516,7 @@ input[type="text"],
 textarea {
    padding: 4px 6px;
    font-size: 14px;
+   background: none;
 }
 
 textarea {
@@ -524,7 +525,7 @@ textarea {
 
 .editing-name {
    padding: 20px;
-   background-color: #e4e4e4;
+   background-color: var(--background-2);
    max-width: 250px;
 
    display: flex;
@@ -562,16 +563,16 @@ h3 {
    flex: 1;
    border: none;
    padding: 12px;
-   background-color: #e4e4e4;
+   background-color: var(--background-3);
    cursor: pointer;
 }
 
 .editing-name .buttons > button:hover {
-   background-color: #d4d4d4;
+   background-color: var(--background-2);
 }
 
 .buttons .cancel {
-   color: red;
+   color: var(--accent-cancel);
 }
 
 .edit-icon input {
@@ -579,6 +580,6 @@ h3 {
 }
 
 .submit {
-   color: lightseagreen;
+   color: var(--accent-confirm);
 }
 </style>

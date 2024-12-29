@@ -480,7 +480,7 @@ onUnmounted(() => {
    top: 0;
    width: 100vw;
    height: 100vh;
-   background-color: #303030ab;
+   background-color: var(--background-transparent);
    z-index: 200;
 
    display: flex;
@@ -497,14 +497,14 @@ onUnmounted(() => {
 
 span.big-album {
    font-size: 512px;
-   color: lightpink;
-   background-color: #303030;
+   color: var(--foreground-3);
+   background-color: var(--background-2);
 }
 
 .big-label {
    font-size: 48px;
    font-weight: bold;
-   color: white;
+   color: var(--foreground-1);
    margin: 0;
    z-index: 1;
 }

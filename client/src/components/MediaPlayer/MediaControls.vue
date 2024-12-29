@@ -1,4 +1,4 @@
-<template>
+var(--accent-3)<template>
    <div :class="{ controls: true, mobile: mobile }">
       <button @click="emit('toggleShuffle')" class="shuffle">
          <span class="material-symbols-rounded control-icon">
@@ -63,7 +63,7 @@ const repeat_modes = ["repeat", "repeat_on", "repeat_one_on"]
 .control-icon {
    text-align: center;
    display: block;
-   color: coral;
+   color: var(--accent-1);
 }
 
 .prev .control-icon,

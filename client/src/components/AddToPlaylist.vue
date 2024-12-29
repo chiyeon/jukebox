@@ -142,7 +142,7 @@ onBeforeMount(() => {
    left: 0;
    top: 0;
    z-index: 202;
-   background-color: #30303090;
+   background-color: var(--background-transparent);
    width: 100vw;
    height: 100vh;
 

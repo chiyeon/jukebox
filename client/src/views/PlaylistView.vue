@@ -57,17 +57,17 @@
             <div class="playlist-controls">
                <template v-if="user && playlist.owner == user.username">
                   <span class="row" style="margin-right: 20px">
-                     <span class="material-symbols-rounded icon nointeract" style="color: red;">favorite</span>
+                     <span class="material-symbols-rounded icon nointeract" style="color: var(--accent-1);">favorite</span>
                      <p>{{ playlist.viewers.length - 1 }} {{ playlist.viewers.length == 2 ? "like" : "likes" }}</p>
                   </span>
-                  <span class="material-symbols-rounded icon" style="color: goldenrod" v-if="!editing" @click="editing = true;">edit</span>
+                  <span class="material-symbols-rounded icon" style="color: var(--accent-2)" v-if="!editing" @click="editing = true;">edit</span>
                   <div class="edit-box" v-else>
-                     <span class="material-symbols-rounded icon" style="color: darkseagreen" @click="submit_edit">check_circle</span>
-                     <span class="material-symbols-rounded icon" style="color: darkred" @click="cancel_edit">cancel</span>
+                     <span class="material-symbols-rounded icon" style="color: var(--accent-3)" @click="submit_edit">check_circle</span>
+                     <span class="material-symbols-rounded icon" style="color: var(--accent-cancel)" @click="cancel_edit">cancel</span>
                   </div>
 
-                  <span class="material-symbols-rounded icon" style="color: green" @click="editing_users = true">manage_accounts</span>
-                  <span class="material-symbols-rounded icon" style="color: darkred" @click="show_delete = true">delete</span>
+                  <span class="material-symbols-rounded icon" style="color: var(--accent-3)" @click="editing_users = true">manage_accounts</span>
+                  <span class="material-symbols-rounded icon" style="color: var(--accent-cancel)" @click="show_delete = true">delete</span>
                </template>
                <template v-else>
                   <span class="row">
@@ -426,7 +426,7 @@ watch(() => route.params.playlist, (newval) => {
 }
 
 .edit-box {
-   background-color: #d2d2d2;   
+   background-color: var(--background-2);   
    padding: 6px;
 
    display: flex;
@@ -440,7 +440,8 @@ input[type="text"],
 textarea {
    padding: 0;
    border: none;
-   color: #606060;
+   color: var(--foreground-2);
+   background: none;
 }
 
 .name {
@@ -471,17 +472,17 @@ textarea.description {
    height: 100%;
    left: 0;
    top: 0;
-   background-color: #30303090;
+   background-color: var(--background-transparent);
    cursor: pointer;
 }
 
 .edit .icon {
    font-size: 48px;
-   color: white;
+   color: var(--foreground-1);
 }
 
 .edit:hover .icon {
-   color: goldenrod;
+   opacity: 75%;
 }
 
 .icon.nointeract:hover {
@@ -499,11 +500,11 @@ textarea.description {
 }
 
 .like-icon {
-   color: gray;
+   color: var(--background-3);
 }
 
 .icon.liked {
-   color: red;
+   color: var(--accent-1);
 }
 
 .icon.no-interact {

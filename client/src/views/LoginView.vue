@@ -222,10 +222,11 @@ watch(() => route.name, (newval) => {
 
 .tab {
    flex: 1;
-   background-color: #f0f0f0;
+   background-color: var(--background-2);
    height: 50px;
    border: none;
    cursor: pointer;
+   border-radius: 4px 4px 0 0;
 }
 
 .tab p {
@@ -233,17 +234,17 @@ watch(() => route.name, (newval) => {
 }
 
 .tab.selected {
-   background-color: #e4e4e4;
+   background-color: var(--background-3);
 }
 
 .form {
    flex: 1;
-   background-color: #e4e4e4;
+   background-color: var(--background-3);
 }
 
 .required {
    display: inline;
-   color: red;
+   color: var(--accent-cancel);
 }
 
 form {
@@ -259,6 +260,7 @@ textarea {
    margin-bottom: 8px;
    width: 100%;
    box-sizing: border-box;
+   background-color: var(--background-2);
 }
 
 input,

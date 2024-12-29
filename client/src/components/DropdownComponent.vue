@@ -40,11 +40,11 @@ onMounted(() => {
 .dropdown {
    position: absolute;
    display: block;
-   border: 1px solid black;
+   border: 1px solid var(--background-3);
    padding: 8px;
    right: 0;
    top: calc(100% + 5px);
-   background-color: white;
+   background-color: var(--background-2);
    z-index: 51;
 }
 
@@ -60,7 +60,7 @@ onMounted(() => {
 .dropdown > hr {
    border: none;
    height: 1px;
-   background-color: black;
+   background-color: var(--background-3);
    margin: 8px;
 }
 

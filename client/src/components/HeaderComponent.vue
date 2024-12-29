@@ -139,7 +139,7 @@ const logout = async () => {
 
    position: sticky;
    top: 0;
-   background-color: white;
+   background-color: var(--background-1);
 
    z-index: 10;
 }
@@ -176,7 +176,7 @@ a {
 
 .link.nocircle .material-symbols-rounded {
    background: none;
-   color: black;
+   color: var(--foreground-1);
    padding: 0;
 }
 
@@ -208,8 +208,8 @@ a {
    border-radius: 100px;
    font-size: 22px;
    padding: 5px;
-   color: white;
-   background-color: gray;
+   color: var(--foreground-1);
+   background-color: var(--background-3);
    box-sizing: border-box;
 }
 

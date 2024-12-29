@@ -96,7 +96,7 @@ h2 {
 
 .tag {
    margin: 0;
-   background-color: #e0e0e0;
+   background-color: var(--background-2);
    padding: 4px 6px;
    border-radius: 100px;
    white-space: nowrap;
@@ -117,10 +117,10 @@ h2 {
 }
 
 .copy-link {
-   opacity: 0;
+   display: none;
    cursor: pointer;
    font-size: 26px;
-   color: coral;
+   color: var(--accent-1);
 }
 
 .title-box {
@@ -131,10 +131,10 @@ h2 {
 }
 
 .title-box:hover .copy-link {
-   opacity: 1;
+   display: block;
 }
 
 .copy-link:hover {
-   color: blueviolet;
+   opacity: 75%;
 }
 </style>

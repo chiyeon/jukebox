@@ -20,7 +20,7 @@ defineProps(["message"])
    width: 100vw;
    height: 100vh;
 
-   background-color: #30303090;
+   background-color: var(--background-transparent);
 
    display: flex;
    justify-content: center;
@@ -30,6 +30,6 @@ defineProps(["message"])
 .loading p {
    font-size: 24px;
    font-weight: bold;
-   color: white;
+   color: var(--foreground-1);
 }
 </style>

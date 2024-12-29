@@ -53,7 +53,6 @@ input {
    padding: 8px;
    border-radius: 4px;
    border: none;
-   background-color: #e7e7e7;
    font-size: 14px;
 }
 

@@ -65,7 +65,7 @@ onBeforeMount(async () => {
 }
 
 .nav-button .icon {
-   font-ize: 24px;
+   font-size: 24px;
 }
 
 .nav {

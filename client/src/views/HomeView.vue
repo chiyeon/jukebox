@@ -108,8 +108,8 @@ onBeforeMount(async () => {
 }
 
 .open-now-box {
-   background: rgb(255,192,0);
-   background: linear-gradient(180deg, rgb(193, 175, 119) 0%, rgb(255, 255, 255) 100%);
+   background: var(--accent-background);
+   background: linear-gradient(180deg, var(--accent-background) 0px, var(--background-1) 500px);
    padding: 20px;
    border-radius: 10px;
 }
@@ -120,7 +120,7 @@ onBeforeMount(async () => {
 
 .rewind a {
    padding: 10px;
-   background-color: #e1ad21;
+   background-color: var(--background-2);
    border-radius: 4px;
    font-weight: bold;
 }

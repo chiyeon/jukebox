@@ -72,8 +72,8 @@ const close_queue = () => {
    overflow-y: hidden;
    overflow-x: hidden;
 
-   background-color: white;
-   border-left: 1px solid black;
+   background-color: var(--background-1);
+   border-left: 1px solid var(--background-3);
    padding-left: 20px;
    padding-top: 30px;
    z-index: 100;

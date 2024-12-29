@@ -97,14 +97,14 @@ onMounted(() => {
    display: flex;
    justify-content: center;
    align-items: center;
-   background-color: #30303090;  
+   background-color: var(--background-transparent);  
    z-index: 303;
 }
 
 .edit-users {
    padding: 20px;
    margin: 20px;
-   background-color: #e7e7e7;
+   background-color: var(--background-2);
    width: 300px;
 }
 
@@ -114,7 +114,7 @@ onMounted(() => {
 }
 
 .close:hover {
-   color: darkred;
+   color: var(--accent-cancel);
 }
 
 .users-box {
@@ -153,11 +153,11 @@ onMounted(() => {
 }
 
 .delete {
-   color: darkred;
+   color: var(--accent-cancel);
 }
 
 .delete:hover {
-   color: coral;
+   opacity: 75%;
 }
 
 .add-user {
@@ -174,7 +174,7 @@ onMounted(() => {
 }
 
 .add-user:hover > * {
-   color: coral;
+   color: var(--foreground-3);
 }
 
 .add-user p {
@@ -186,10 +186,10 @@ onMounted(() => {
    padding: 10px;
    border-radius: 8px;
    border: none;
-   background-color: #d0d0d0;
    cursor: pointer;
+   color: var(--foreground-1);
 }
 .submit:hover {
-   background-color: coral;
+   background-color: var(--accent-confirm);
 }
 </style>

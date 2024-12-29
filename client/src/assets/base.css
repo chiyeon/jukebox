@@ -1,5 +1,21 @@
 :root {
    --mobile-page-width: 600px;
+
+   --background-1: #242424;
+   --background-2: #404040;
+   --background-3: #606060;
+   --foreground-1: #f0f0f0;
+   --foreground-2: #c8c8c8;
+   --foreground-3: #bdbdbd;
+   --background-transparent: #242424bb;
+
+   --accent-background: #847742;
+   --accent-confirm: #3f6b48;
+   --accent-cancel: #5e1d1d;
+
+   --accent-1: #cf6db6;
+   --accent-2: #c9a83a;
+   --accent-3: #61b88b;
 }
 
 @font-face {
@@ -30,6 +46,7 @@ body {
    margin: auto;
    padding: 0 30px;
    padding-bottom: 300px; /* for the mini player */
+   background-color: var(--background-1);
 }
 
 h1 {
@@ -38,11 +55,12 @@ h1 {
 
 h1, h2, h3, p, a, li, button, input, label, textarea, div, select, option {
    font-family: "Satoshi";
+   color: var(--foreground-1);
 }
 
 a {
-   color: black;
    text-decoration: none;
+   color: var(--foreground-2);
 }
 
 a:hover {
@@ -51,24 +69,26 @@ a:hover {
 
 hr {
    border: none;
-   border-bottom: 1px solid black;
-   background: black;
+   border-bottom: 1px solid var(--foreground-2);
+   background: var(--foreground-2);
    width: 100%;
    box-sizing: border-box;
 }
 
 select {
-   background-color: #e7e7e7;
-   border: none;
    padding: 6px 12px;
-   font-size: 14px;
 }
 
-button {
+button, select, textarea, input {
    padding: 10px;
    border-radius: 4px;
    border: none;
-   color: black;
+   font-size: 12px;
+}
+
+select, button, input, textarea {
+   background-color: var(--background-3);
+   color: var(--foreground-3);
 }
 
 button:hover {

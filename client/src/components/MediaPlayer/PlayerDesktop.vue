@@ -3,7 +3,7 @@
       <div class="player-mini">
          <ProgressSlider
             :style="{ marginBottom: '12px' }"
-            color="coral"
+            color="var(--accent-1)"
             :progress="controls.audio_progress"
             :disabled="audio_ref && audio_ref.src == ''"
             @setProgress="(p) => emit('setAudioProgress', p)"
@@ -40,12 +40,12 @@
                <div class="volume-controls">
                   <span
                      class="material-symbols-rounded volume-icon"
-                     :style="{ color: 'purple' }"
+                     :style="{ color: 'var(--accent-1)' }"
                      @click="emit('toggleMute')"
                      >{{ get_volume_icon() }}</span
                   >
                   <ProgressSlider
-                     color="purple"
+                     color="var(--accent-1)"
                      :allow_drag="true"
                      :progress="controls.volume_progress"
                      :disabled="!audio_ref"
@@ -54,7 +54,7 @@
                </div>
                <span
                   class="material-symbols-rounded icon"
-                  :style="{ color: 'green' }"
+                  :style="{ color: 'var(--accent-2)' }"
                   @click="eventbus.emit('toggle_lyrics_visibility')"
                   v-if="current_song && current_song.lyrics != ''"
                >
@@ -62,7 +62,7 @@
                </span>
                <span
                   class="material-symbols-rounded icon"
-                  :style="{ color: 'lightcoral' }"
+                  :style="{ color: 'var(--accent-3)' }"
                   @click="eventbus.emit('toggle_queue_visibility')"
                >
                   queue_music
@@ -129,8 +129,8 @@ const get_volume_icon = () => {
 .player-mini-box {
    width: 100%;
 
-   background-color: white;
-   border-top: 1px solid black;
+   background-color: var(--background-1);
+   border-top: 1px solid var(--foreground-3);
    box-sizing: border-box;
 }
 
@@ -171,7 +171,7 @@ const get_volume_icon = () => {
 
 .album-icon {
    font-size: 64px;
-   color: black;
+   color: var(--foreground-3);
 }
 
 .artist-comma {

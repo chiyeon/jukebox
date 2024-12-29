@@ -19,7 +19,7 @@ defineProps([ "message", "hidden" ])
    font-size: 20px;
    font-weight: bold;
 
-   background-color: lightgray;
+   background-color: var(--background-2);
 
    padding: 10px;
    margin-top: 20px;
@@ -37,5 +37,6 @@ defineProps([ "message", "hidden" ])
 .notification p {
    margin: 0;
    text-align: center;
+   color: var(--foreground-1);
 }
 </style>

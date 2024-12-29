@@ -193,7 +193,7 @@ h3 {
 }
 
 .track {
-   background-color: #e7e7e7;
+   background-color: var(--background-2);
    border-radius: 10px;
    padding: 6px 12px;
    display: flex;
@@ -230,9 +230,10 @@ textarea {
    padding: 0;
    border: none;
    width: 100%;
-   color: teal;
+   color: var(--foreground-3);
    resize: vertical;
    font-size: 16px;
+   background: none;
 }
 
 .description {

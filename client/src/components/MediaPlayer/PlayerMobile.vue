@@ -11,7 +11,7 @@
          "
       >
          <ProgressSlider
-            color="coral"
+            color="var(--accent-1)"
             :progress="controls.audio_progress"
             :disabled="audio_ref && audio_ref.src == ''"
             @setProgress="(p) => emit('setAudioProgress', p)"
@@ -35,7 +35,7 @@
             <span
                v-if="current_song && current_song.lyrics != ''"
                class="material-symbols-rounded icon"
-               :style="{ color: 'green' }"
+               :style="{ color: 'var(--accent-2)' }"
                @click.stop="eventbus.emit('toggle_lyrics_visibility')"
             >
                mic_external_on
@@ -81,7 +81,7 @@
             </div>
          </div>
          <ProgressSlider
-            color="coral"
+            color="var(--accent-1)"
             :progress="controls.audio_progress"
             :disabled="audio_ref && audio_ref.src == ''"
             @setProgress="(p) => emit('setAudioProgress', p)"
@@ -106,7 +106,7 @@
             <span
                v-if="current_song && current_song.lyrics != ''"
                class="material-symbols-rounded icon"
-               :style="{ color: 'green' }"
+               :style="{ color: 'var(--accent-2)' }"
                @click.stop="
                   () =>
                      (show_mini_player = true) &&
@@ -183,8 +183,8 @@ const show_mini_player = ref(true)
    padding: 10px 10px;
 
    box-sizing: border-box;
-   border-top: 1px solid black;
-   background-color: white;
+   border-top: 1px solid var(--foreground-3);
+   background-color: var(--background-2);
 
    display: flex;
    flex-direction: column;
@@ -229,7 +229,7 @@ const show_mini_player = ref(true)
 
 .album-icon {
    font-size: 64px;
-   color: black;
+   color: var(--foreground-3);
 }
 
 .material-symbols-rounded {
@@ -259,7 +259,7 @@ button {
 .control-icon {
    text-align: center;
    display: block;
-   color: coral;
+   color: var(--accent-1);
    --size: 40px;
    display: block;
    font-size: var(--size);
@@ -281,8 +281,8 @@ button {
 
 .mobile_expanded span {
    font-size: calc(100vw - calc(var(--padding) * 2)); /* for padding */
-   color: white;
-   background-color: black;
+   color: var(--foreground-1);
+   background-color: var(--background-1);
 }
 
 .big .not-playing-preview {
@@ -307,11 +307,11 @@ button {
    text-align: left;
    width: 100%;
    user-select: none;
-   color: black;
+   color: var(--foreground-1);
 }
 
 .close:hover span {
-   color: coral;
+   color: var(--foreground-3);
 }
 
 .other-controls {
@@ -325,7 +325,7 @@ button {
 }
 
 .queue.icon {
-   color: purple;
+   color: var(--accent-3);
 }
 
 .big-enter-active,

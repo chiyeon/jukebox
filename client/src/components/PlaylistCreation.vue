@@ -53,7 +53,7 @@ const description = ref(null)
 const visibility = ref("private")
 
 // used for previews
-const cover_url = ref("https://storage.googleapis.com/jukebox-playlist-covers/default.webp")
+const cover_url = ref("/static/jukebox-playlist-covers/default.webp")
 
 const new_playlist = async () => {
    if (!name.value) return eventbus.emit("show_notification", "Playlist needs a name")
@@ -101,7 +101,7 @@ const update_cover_preview = () => {
    left: 0;
    top: 0;
    z-index: 202;
-   background-color: #30303090;
+   background-color: var(--background-transparent);
    width: 100vw;
    height: 100vh;
 
@@ -118,11 +118,11 @@ const update_cover_preview = () => {
 }
 
 .close:hover {
-   color: darkred;
+   color: var(--accent-cancel);
 }
 
 .panel {
-   background-color: #f7f7f7;
+   background-color: var(--background-2);
    padding: 20px;
    margin: 20px;
    width: 95%;
@@ -151,9 +151,9 @@ const update_cover_preview = () => {
 
 input[type="text"],
 textarea {
-   background: none;
    border: none;
-   padding: 0;
+   padding: 8px;
+   box-sizing: border-box;
 }
 
 textarea {
@@ -163,7 +163,6 @@ textarea {
 
 .dropdown {
    width: 100px;
-   background-color: #d7d7d7;
    border: none;
    padding: 8px 16px;
 }
@@ -178,7 +177,6 @@ textarea {
 
 button {
    margin-top: 10px;
-   background-color: #e7e7e7;
    border: none;
    padding: 10px 20px;
    cursor: pointer;
@@ -187,11 +185,11 @@ button {
 }
 
 button:hover {
-   background-color: lightgreen;
+   background-color: var(--accent-confirm);
 }
 
 .upload-cover:hover {
-   background-color: lightyellow;
+   background-color: var(--accent-confirm);
 }
 
 .upload-cover-input {
@@ -224,8 +222,8 @@ button:hover {
    justify-content: center;
    align-items: center;
    font-size: 64px;
-   color: goldenrod;
-   background-color: #30303090;
+   color: var(--accent-2);
+   background-color: var(--background-transparent);
    opacity: 0;
 }
 
