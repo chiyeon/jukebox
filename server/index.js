@@ -910,9 +910,7 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
          "Cache-Control": "public, max-age=31557600"
       }
 
-      /* this needs to be 206 to signal partial response! lets us 
-         * set the current time in chrome clients and some other tings */
-      res.status(206).set(headers)
+      res.status(200).set(headers)
       rs.pipe(res)
    } else {
       return res.status(400).send("File not found")
