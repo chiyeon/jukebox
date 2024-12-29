@@ -22,6 +22,8 @@ const cookie_settings = {
    maxAge: users.TOKEN_EXPIRATION_TIME,
 }
 
+const wl = process.env.WL
+
 let tracks = {}
 let events = {}
 let events_list = []
@@ -564,10 +566,25 @@ app.get("/api/userbytoken", async (req, res) => {
    }
 })
 
-app.get("/api/events", async (req, res) => {
-   res.json({
-      events: events_list
-   })
+app.get("/api/events", users.authenticate_optional_token, async (req, res) => {
+   if (req.username && wl && wl.includes(req.username)) {
+      res.json({ events: events_list })
+   } else {
+      new_events = []
+      events_list.forEach(e => {
+         if (!e.hidden) {
+            ts = []
+            e.tracks.forEach(t => {
+               if (!t.hidden) ts.push(t)
+            })
+            e.tracks = ts
+            new_events.push(e)
+         }
+      })
+      res.json({
+         events: new_events
+      })
+   }
 })
 
 app.post("/api/event", async (req, res) => {
@@ -579,16 +596,24 @@ app.post("/api/event", async (req, res) => {
    })
 })
 
-app.post("/api/track", async (req, res) => {
+app.post("/api/track", users.authenticate_optional_token, async (req, res) => {
    const uuid = req.body.uuid
    if (!uuid) return res.status(400).send({ message: "No UUID" })
    const track = await fb.get_doc("tracks", uuid)
    if (!track) return res.status(400).send({ message: "Invalid UUID" })
+
+   if (track.hidden) {
+      if (req.username && wl && wl.includes(req.username)) {
+         res.status(200).send({ track })
+      } else {
+         return res.status(400).send({ message: "Invalid permissions" })
+      }
+   }
    
    res.status(200).send({ track })
 })
 
-app.post("/api/tracks", async (req, res) => {
+app.post("/api/tracks", users.authenticate_optional_token, async (req, res) => {
    if (req.body.username == undefined) {
       return res.status(400).send({ message: "Invalid username" })
    }
@@ -600,7 +625,12 @@ app.post("/api/tracks", async (req, res) => {
 
    tracks.sort((a, b) => get_timestamp_as_date(b.release_date) - get_timestamp_as_date(a.release_date))
 
-   res.status(200).send({ message: "Found user tracks", tracks: tracks })
+   if (req.username && wl && wl.includes(req.username)) {
+      res.status(200).send({ message: "Found user tracks", tracks: tracks })
+   } else {
+      tracks = tracks.filter(a => !a.hidden)
+      res.status(200).send({ message: "Found user tracks", tracks: tracks })
+   }
 })
 
 app.get("/api/openevents", users.authenticate_token, async (req, res) => {
@@ -633,7 +663,17 @@ app.post("/api/playlist_remove_tracks", users.authenticate_token, add_playlist_c
 app.post("/api/playlists", users.authenticate_optional_token, add_playlist_cache, playlists.get_playlists_from_user)
 app.post("/api/playlist", users.authenticate_optional_token, add_playlist_cache, (req, res) => {
    // pass our tracks cache
-   req.tracks = tracks
+   if (req.username && wl && wl.includes(req.username)) {
+      req.tracks = tracks
+   } else {
+      req.tracks = {}
+      Object.keys(tracks).forEach(t => {
+         if (!tracks[t].hidden) {
+            req.tracks[t] = tracks[t]
+         }
+      })
+   }
+
    playlists.get_playlist_data(req, res)
 })
 app.post("/api/playlist_save", users.authenticate_token, add_playlist_cache, playlists.save_to_library)
