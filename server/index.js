@@ -906,6 +906,7 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
          "Content-disposition": `attachment; filename="${filename}"`,
          "Content-Length": metadata.size,
          "Content-Type": content_type,
+         "Accept-Ranges": "bytes",
          "Cache-Control": "public, max-age=31557600"
       }
 
