@@ -695,6 +695,10 @@ a.dropdown-option {
 .edit-track {
 }
 
+.edit-track h2 {
+   margin: 0;
+}
+
 .form {
    max-width: 700px;
    width: 100%;
@@ -705,6 +709,10 @@ a.dropdown-option {
    flex-direction: column;
 
    padding: 20px;
+   margin: 20px;
+
+   max-height: 75%;
+   overflow-y: auto;
 }
 
 .buttons {
