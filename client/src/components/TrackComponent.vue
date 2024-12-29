@@ -558,9 +558,10 @@ const prevent_parent_click = (e) => {}
 .mobile_expanded .track-info .title {
    font-size: 24px;
    overflow: hidden;
-   display: block;
+   display: inline-block;
    text-overflow: ellipsis;
    white-space: nowrap;
+   max-width: 100%;
 }
 
 .mobile_expanded .track-info .artist {
