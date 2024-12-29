@@ -48,6 +48,12 @@ const delete_file = async (file, bucket) => {
    }
 }
 
+const get_file = async (filename, bucket) => {
+   let file = gstorage.bucket(bucket).file(filename)
+
+   return (await file.exists()) ? file : undefined
+}
+
 const get_track_duration = async (file) => {
    const duration = (await mp3Duration(file)) // store in seconds
    return duration > 0 ? duration : 0
@@ -81,6 +87,7 @@ module.exports = {
    delete_file,
    get_gcloud_link,
    get_track_duration,
+   get_file,
    tracks_bucket,
    albums_bucket,
    profiles_bucket,

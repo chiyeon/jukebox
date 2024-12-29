@@ -875,38 +875,38 @@ const update_playlists = async (new_playlists) => {
    } 
 }
 
-const http = require("https")
+/*
 const temp_fix = async () => {
-   /*
-   let b = 0
+if (true) return
+   let b = 1
    for (uuid in tracks) {
-      if (!b) {
-         let track = tracks[uuid]
-         
-         //console.log(track)
-         const f = fs.createWriteStream("p/" + uuid)
+      let t = tracks[uuid]
+      t.album = t.album.replace("https://storage.googleapis.com", "static")
+      t.url = t.url.replace("https://storage.googleapis.com", "static")
 
-         await http.get(track.url, (res) => {
-            if (res.statusCode != 200) return "bruh"
-            res.pipe(f)
-         })
-
-         f.on("finish", async () => {
-            await f.close(async () => {
-               track.duration = await files.get_track_duration("p/" + uuid)
-               console.log(track.title + ": " + track.duration)
-               console.log(track.uuid)
-               await fb.update_doc("tracks", track.uuid, track)
-            })
-         })
-         track.duration = await files.get_track_duration("p/" + uuid)
-         console.log(track.title + ": " + track.duration)
-         await fb.update_doc("tracks", track.uuid, track)
-      }
+      await fb.update_doc("tracks", uuid, {
+         album: t.album,
+         url: t.url
+      })
    }
-   
-         */
 }
+*/
+
+app.get("/static/:bucketname/:filename", async (req, res) => {
+   const { filename, bucketname } = req.params
+   const file = await files.get_file(filename, bucketname)
+   
+   if (file) {
+      file.createReadStream()
+         .on("error", (err) => {
+            console.error(err)
+            res.status(500).send("Error reading file. File was probably not found.")
+         })
+         .pipe(res)
+   } else {
+      return res.status(400).send("File not found")
+   }
+})
 
 app.use(express.static(path.join(__dirname, "dist")))
 app.get("*", (req, res) => {
@@ -922,4 +922,3 @@ app.listen(PORT, async () => {
 
    print("started on port " + PORT)
 })
-
