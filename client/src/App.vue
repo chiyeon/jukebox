@@ -137,7 +137,6 @@ onUnmounted(() => {
    height: 100%;
    overflow-y: auto;
    overflow-x: hidden;
-   padding-right: 10px; /* for the scrollbar */
 }
 
 main {
