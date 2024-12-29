@@ -895,12 +895,13 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
    const file = await files.get_file(filename, bucketname)
    
    if (file) {
-      file.createReadStream()
+      let rs = file.createReadStream()
          .on("error", (err) => {
             console.error(err)
             res.status(500).send("Error reading file. File was probably not found.")
          })
-         .pipe(res)
+      res.status(200)
+      rs.pipe(res)
    } else {
       return res.status(400).send("File not found")
    }
