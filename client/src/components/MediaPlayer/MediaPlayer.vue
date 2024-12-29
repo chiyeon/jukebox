@@ -206,7 +206,7 @@ const increment_plays = async (track) => {
    can_increment_track = false
    setTimeout(() => {
       can_increment_track = true
-   }, 500)
+   }, 1000)
 
    // increment listens by 1
    let res = await fetch("/api/track_listen", {
