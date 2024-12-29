@@ -284,6 +284,8 @@ const open_edit_bio = () => {
 
 onBeforeMount(() => {
    update_user_page()
+
+   eventbus.on("update_user_page", update_user_page)
 })
 
 watch([sorting_mode, sorting_reversed], ([_, __]) => {

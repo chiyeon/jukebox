@@ -271,7 +271,9 @@ const submit_edit_track = async () => {
       eventbus.emit("show_notification", "Error: " + msg)
    } else {
       eventbus.emit("show_notification", "Edited track successfully")
-      window.location.reload()
+      eventbus.emit("update_user_page")
+      //router.push({ path: router.currentRoute.value.path, query: { refresh: Date.now()} })
+      //window.location.reload()
 
       show_edit.value = false
    }
