@@ -64,6 +64,10 @@ const get_gcloud_link = (filename, bucketname) => {
    return `https://storage.googleapis.com/${bucketname}/${filename}`
 }
 
+const get_static_link = (filename, bucket) => {
+   return `/static/${bucket}/${filename}`
+}
+
 // validates a filename. takes extensions  as a string: ".mp3,.webp"
 const validate_filename = (filename, extensions) => {
    if (!filename || typeof filename != "string") return "Invalid filename"
@@ -86,6 +90,7 @@ module.exports = {
    upload_file,
    delete_file,
    get_gcloud_link,
+   get_static_link,
    get_track_duration,
    get_file,
    tracks_bucket,

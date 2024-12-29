@@ -26,7 +26,7 @@ const upload_playlist_cover = async (cover) => {
       return { message: "Playlist cover file is too big (exceeds " + Math.floor(files.MAX_ALBUM_SIZE_KB) + "kb limit)" }
    }
    let filename = await files.upload_file(cover, files.playlists_bucket) 
-   return files.get_gcloud_link(filename, files.playlists_bucket_name)
+   return files.get_static_link(filename, files.playlists_bucket_name)
 }
 
 const Playlist = (name, artist, description, cover, visibility, uuid) => {
@@ -95,7 +95,7 @@ module.exports = {
             req.body.cover_url = url
          }
       } else {
-         req.body.cover_url = files.get_gcloud_link("default.webp", files.playlists_bucket_name)
+         req.body.cover_url = files.get_static_link("default.webp", files.playlists_bucket_name)
       }
 
 

@@ -153,7 +153,7 @@ app.post("/api/update_icon", users.authenticate_token, files.upload.single("icon
    if (old_icon_name != "default_icon.webp") await files.delete_file(old_icon_name, files.profiles_bucket) 
 
    const iconfile = await files.upload_file(icon, files.profiles_bucket)
-   let iconlink = files.get_gcloud_link(iconfile, files.profiles_bucket_name)
+   let iconlink = files.get_static_link(iconfile, files.profiles_bucket_name)
 
    await fb.update_doc("users", req.username, { icon: iconlink })
 
@@ -254,10 +254,10 @@ app.post("/api/upload", users.authenticate_token, files.upload.fields([
          }
 
          let filename = await files.upload_file(trackfile, files.tracks_bucket)
-         let url = files.get_gcloud_link(filename, files.tracks_bucket_name)
+         let url = files.get_static_link(filename, files.tracks_bucket_name)
          let album
-         if (albumfile) album = files.get_gcloud_link(await files.upload_file(albumfile, files.albums_bucket), files.albums_bucket_name)
-         else album = files.get_gcloud_link("default.webp", files.albums_bucket_name)
+         if (albumfile) album = files.get_static_link(await files.upload_file(albumfile, files.albums_bucket), files.albums_bucket_name)
+         else album = files.get_static_link("default.webp", files.albums_bucket_name)
 
          const uuid = crypto.randomUUID()
 
@@ -393,7 +393,7 @@ app.post("/api/edittrack", users.authenticate_token, files.upload.single("album"
    if (album) {
       // delete old album & upload
       await delete_album(trackdata)
-      let album_link = files.get_gcloud_link(await files.upload_file(album, files.albums_bucket), files.albums_bucket_name)
+      let album_link = files.get_static_link(await files.upload_file(album, files.albums_bucket), files.albums_bucket_name)
       updated_track.album = album_link
    }
 
@@ -493,9 +493,9 @@ app.post("/api/signup", files.upload.fields([
          }
 
          const iconfile = await files.upload_file(icon, files.profiles_bucket)
-         user.icon = files.get_gcloud_link(iconfile, files.profiles_bucket_name)
+         user.icon = files.get_static_link(iconfile, files.profiles_bucket_name)
       } else {
-         user.icon = files.get_gcloud_link("default_icon.webp", files.profiles_bucket_name)
+         user.icon = files.get_static_link("default_icon.webp", files.profiles_bucket_name)
       }
 
       // get & save token
@@ -881,12 +881,10 @@ if (true) return
    let b = 1
    for (uuid in tracks) {
       let t = tracks[uuid]
-      t.album = t.album.replace("https://storage.googleapis.com", "static")
-      t.url = t.url.replace("https://storage.googleapis.com", "static")
 
       await fb.update_doc("tracks", uuid, {
-         album: t.album,
-         url: t.url
+         album: "/" + t.album,
+         url: "/" + t.url
       })
    }
 }
