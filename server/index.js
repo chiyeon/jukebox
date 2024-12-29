@@ -895,14 +895,14 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
    const file = await files.get_file(filename, bucketname)
    
    if (file) {
-      let rs = file.createReadStream()
+      const rs = file.createReadStream()
          .on("error", (err) => {
             console.error(err)
             res.status(500).send("Error reading file. File was probably not found.")
          })
-      let headers = {
+      const headers = {
          "Content-disposition": `attachment; filename="${filename}"`,
-         "Content-Type": "audio/mp3"
+         "Content-Type": "audio/mpeg",
       }
 
       res.set("Cache-Control", "public, max-age=31557600")
