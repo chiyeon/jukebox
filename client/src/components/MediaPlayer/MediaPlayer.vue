@@ -1,5 +1,5 @@
 <template>
-   <div class="media-player-box">
+   <div ref="media_player_box_ref" class="media-player-box">
       <PlayerDesktop
          v-if="!mobile_player"
          :current_song="current_song"
@@ -39,6 +39,7 @@
          @toggleShuffle="toggle_shuffle"
          @nextTrack="next_song"
          @prevTrack="prev_song"
+         ref="mobile_player_ref"
       />
       <audio ref="audio_ref" preload="auto"></audio>
    </div>
@@ -85,7 +86,8 @@ import {
    onMounted,
    computed,
    onUnmounted,
-   onBeforeMount
+   onBeforeMount,
+   nextTick
 } from "vue"
 import { useStore } from "vuex"
 import { useRoute } from "vue-router"
@@ -104,6 +106,8 @@ const info_song = ref(null)
 
 const audio_ref = ref(null)
 const audio_source_ref = ref(null)
+const media_player_box_ref = ref(null)
+const mobile_player_ref = ref(null)
 
 const REPEAT_OFF = 0
 const REPEAT_MULTI = 1
@@ -281,6 +285,15 @@ const set_current_song = async (track) => {
       audio_ref.value.pause()
       audio_progress.value = 0
       eventbus.emit("set_lyrics_visibility", false)
+   }
+
+   await nextTick()
+
+   if (mobile_player) {
+      let height = document.querySelector(".player.mini")?.offsetHeight
+      if (height) {
+         media_player_box_ref.value.style.minHeight = height + "px"
+      }
    }
 }
 
@@ -462,6 +475,7 @@ onUnmounted(() => {
 <style scoped>
 .media-player-box {
    z-index: 50;
+   min-height: 123px;
 }
 
 .lyrics-enter-active,

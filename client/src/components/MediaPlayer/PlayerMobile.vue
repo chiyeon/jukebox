@@ -177,13 +177,13 @@ const show_mini_player = ref(true)
 /* mini player start */
 .player {
    width: 100%;
-   padding: 10px 0;
-   position: sticky;
+   padding: 10px;
+   position: fixed;
    bottom: 0;
    left: 0;
 
    box-sizing: border-box;
-   /*border-top: 1px solid var(--foreground-3);*/
+   /* border-top: 1px solid var(--foreground-3); */
    background-color: var(--background-1);
 
    display: flex;
@@ -339,8 +339,6 @@ button {
    transition:
       transform 0.5s var(--animation-curve),
       opacity 0.5s var(--animation-curve);
-   position: fixed; /* unfortunately only way to fix animation. needs to be sticky otherwise to get scrolling to properly work */
-   padding: 10px 50px 40px 50px;
 }
 
 .big-enter-active {
@@ -362,8 +360,6 @@ button {
    transition:
       transform 0.5s var(--animation-curve),
       opacity 0.5s var(--animation-curve);
-   position: fixed;
-   padding: 10px;
 }
 
 .mini-enter-from,

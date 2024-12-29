@@ -164,9 +164,6 @@ main {
 }
 
 @media (max-width: 600px) {
-   .horizontal-contents .page-contents {
-      padding-right: 0px;
-   }
    .v-enter-active,
    .v-leave-active {
       transition:
