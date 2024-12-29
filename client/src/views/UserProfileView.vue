@@ -380,7 +380,6 @@ hr {
 }
 
 .user-profile {
-   padding-bottom: 300px;
 }
 
 .upper-box {
