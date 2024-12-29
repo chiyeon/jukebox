@@ -45,7 +45,7 @@ onMounted(() => {
    right: 0;
    top: calc(100% + 5px);
    background-color: var(--background-2);
-   z-index: 51;
+   z-index: 75;
 }
 
 .dropdown > * {

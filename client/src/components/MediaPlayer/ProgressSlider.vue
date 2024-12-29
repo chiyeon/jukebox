@@ -147,9 +147,15 @@ const set_progress = () => {
 .progress-slider::-webkit-slider-thumb {
    -webkit-appearance: none;
    appearance: none;  
+   opacity: 0;
+   border: none;
+   width: 18px;
+   height: 18px;
+   border-radius: 100px;
+   background-color: var(--background-3);
+   border: 5px solid var(--foreground-1);
 }
 
-.progress-slider::-webkit-slider-thumb,
 .progress-slider::-moz-range-thumb {
    opacity: 0;
    border: none;

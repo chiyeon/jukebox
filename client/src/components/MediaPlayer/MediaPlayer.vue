@@ -154,6 +154,8 @@ const shuffle_array = (array) => {
 const set_audio_progress = (progress) => {
    if (audio_ref.value.src) {
       audio_ref.value.currentTime = progress * current_song.value.duration
+      console.log(audio_ref.value.currentTime)
+      console.log(current_song.value.duration * progress)
       audio_progress.value = progress
    }
 }
