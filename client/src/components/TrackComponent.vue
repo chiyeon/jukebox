@@ -30,12 +30,6 @@
                >trophy</span
             >
          </p>
-         <p class="title mobile">
-            {{ track.title
-            }}<span v-if="track.winner" class="material-symbols-rounded trophy"
-               >trophy</span
-            >
-         </p>
          <template v-for="(artist, index) in track.artists" :key="index">
             <RouterLink
                @click.stop="emit('clickArtist')"
@@ -386,12 +380,8 @@ const prevent_parent_click = (e) => {}
 
 <style scoped>
 @media (max-width: 600px) {
-   .title.mobile {
-      display: block !important;
-   }
-
-   .title:not(.mobile) {
-      display: none;
+   .track:not(.mobile_expanded) .title {
+      pointer-events: none;
    }
 }
 
@@ -481,11 +471,7 @@ const prevent_parent_click = (e) => {}
    width: fit-content;
 }
 
-.title.mobile {
-   display: none;
-}
-
-.title:not(.mobile):hover {
+.title:hover {
    text-decoration: underline;
    cursor: pointer;
 }
