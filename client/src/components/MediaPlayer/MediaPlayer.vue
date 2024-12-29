@@ -462,6 +462,7 @@ onUnmounted(() => {
 <style scoped>
 .media-player-box {
    z-index: 50;
+   overflow-y: hidden;
 }
 
 .lyrics-enter-active,
