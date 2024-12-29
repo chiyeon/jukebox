@@ -127,17 +127,17 @@ onUnmounted(() => {
    display: flex;
    flex-direction: row;
    width: 100%;
-   height: 100%;
-   overflow-y: auto;
+   height: fit-content;
+   overflow-y: hidden;
    overflow-x: hidden;
 }
 
 .page-contents {
    width: 100%;
-   height: fit-content;
-   overflow-y: hidden;
+   height: 100%;
+   overflow-y: auto;
    overflow-x: hidden;
-   margin-right: 10px; /* for the scrollbar */
+   padding-right: 10px; /* for the scrollbar */
 }
 
 main {
