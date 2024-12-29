@@ -900,13 +900,15 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
             console.error(err)
             res.status(500).send("Error reading file. File was probably not found.")
          })
+      const metadata = (await file.getMetadata())[0]
       const headers = {
          "Content-disposition": `attachment; filename="${filename}"`,
          "Content-Type": "audio/mpeg",
+         "Content-Length": metadata.size
       }
 
       res.set("Cache-Control", "public, max-age=31557600")
-      res.status(206).set(headers)
+      res.status(200).set(headers)
       rs.pipe(res)
    } else {
       return res.status(400).send("File not found")
