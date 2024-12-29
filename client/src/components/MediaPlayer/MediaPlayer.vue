@@ -196,7 +196,7 @@ const get_song_duration = () => {
    if (!audio_ref.value || audio_ref.value.src == "") {
       return "0:00"
    }
-   return get_as_time(audio_ref.value.duration)
+   return get_as_time(current_song.value.duration ? current_song.value.duration : 0)
 }
 
 // tell server we clicked on this track
