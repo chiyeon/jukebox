@@ -40,7 +40,7 @@
          @nextTrack="next_song"
          @prevTrack="prev_song"
       />
-      <audio ref="audio_ref" preload="auto"></audio>
+      <audio ref="audio_ref" preload="auto"><source ref="audio_source_ref" type="audio/mp3"></audio>
    </div>
    <Transition name="lyrics">
       <Lyrics
@@ -103,6 +103,7 @@ const show_album = ref(false)
 const info_song = ref(null)
 
 const audio_ref = ref(null)
+const audio_source_ref = ref(null)
 
 const REPEAT_OFF = 0
 const REPEAT_MULTI = 1
@@ -226,7 +227,7 @@ const update_listen_time = async (track) => {
    can_update_listen_time = false
    setTimeout(() => {
       can_update_listen_time = true
-   }, 2000)
+   }, 1000)
 
    // increment listening time of given track by CURRENT TIME LISTENINING in audio ref
    let res = await fetch("/api/track_finished", {
@@ -421,7 +422,7 @@ onMounted(() => {
 
    audio_ref.value.addEventListener("timeupdate", (e) => {
       audio_progress.value =
-         e.currentTarget.currentTime / e.currentTarget.duration
+         e.currentTarget.currentTime / current_song.value.duration
    })
 
    audio_ref.value.addEventListener("playing", () => {
