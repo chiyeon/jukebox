@@ -901,10 +901,27 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
             res.status(500).send("Error reading file. File was probably not found.")
          })
       const metadata = (await file.getMetadata())[0]
+      // images seem to be fine, but audio needs this
+      const content_type = bucketname == files.tracks_bucket_name ? "audio/mpeg" : ""
+
+      /*
+      switch(bucketname) {
+         case files.tracks_bucket_name:
+            content_type = "audio/mpeg"
+            break
+         case files.albums_bucket_name:
+         case files.profiles_bucket_name:
+         case files.playlists_bucket_name:
+            content_type = "
+      }
+      */
+
       const headers = {
          "Content-disposition": `attachment; filename="${filename}"`,
          "Content-Length": metadata.size
       }
+
+      if (content_type.length != 0) headers["Content-Type"] = content_type
 
       res.set("Cache-Control", "public, max-age=31557600")
       res.status(200).set(headers)
