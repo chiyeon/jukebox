@@ -919,7 +919,41 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
 
 app.use(express.static(path.join(__dirname, "dist")))
 app.get("*", (req, res) => {
-   res.sendFile(path.join(__dirname, "/dist/index.html"))
+   const useragent = req.headers['user-agent']
+   const is_bot = /bot|crawler|spider|discord|facebook|twitter/i.test(useragent)
+   const params = new URLSearchParams(req.query)
+
+   if (is_bot && params.has("song")) {
+      console.log("triggered")
+      const track = tracks[params.get("song")]
+      if (!track) {
+         return res.send(`
+            <html>
+               <head>
+                  <meta property="og:title" content="No Song Found" />
+                  <meta property="og:description" content="URL links to invalid UUID" />
+                  <meta property="og:image" content="/static/jukebox-albums/default.webp" />
+               </head>
+               <body></body>
+            </html>
+         `);  
+      }
+
+      // found it !
+      res.send(`
+         <html>
+            <head>
+               <meta property="og:title" content="${track.title}" />
+               <meta property="og:description" content="${track.artists.join(', ')}" />
+               <meta property="og:image" content="${track.album}" />
+            </head>
+            <body></body>
+         </html>
+      `);  
+   } else {
+      res.sendFile(path.join(__dirname, "/dist/index.html"))
+      console.log("bruh")
+   }
 })
 
 app.listen(PORT, async () => {
