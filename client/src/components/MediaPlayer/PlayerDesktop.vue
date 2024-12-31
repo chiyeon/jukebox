@@ -132,6 +132,8 @@ const get_volume_icon = () => {
    background-color: var(--background-1);
    border-top: 1px solid var(--foreground-3);
    box-sizing: border-box;
+
+   height: 100%;
 }
 
 .player-mini {
