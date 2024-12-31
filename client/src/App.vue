@@ -130,6 +130,7 @@ onUnmounted(() => {
    height: fit-content;
    overflow-y: hidden;
    overflow-x: hidden;
+   flex: 1;
 }
 
 .page-contents {
