@@ -890,8 +890,15 @@ if (true) return
 }
 */
 
+app.get("/static/:bucketname/:filename", (req, res) => {
+   const { filename, bucketname } = req.params
+   res.redirect(`https://storage.googleapis.com/${bucketname}/${filename}`)
+})
+
+/*
 app.get("/static/:bucketname/:filename", async (req, res) => {
    const { filename, bucketname } = req.params
+
    const file = await files.get_file(filename, bucketname)
    
    if (file) {
@@ -916,6 +923,7 @@ app.get("/static/:bucketname/:filename", async (req, res) => {
       return res.status(400).send("File not found")
    }
 })
+*/
 
 app.use(express.static(path.join(__dirname, "dist")))
 app.get("*", (req, res) => {
