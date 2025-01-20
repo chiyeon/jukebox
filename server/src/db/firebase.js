@@ -5,6 +5,8 @@ require('dotenv').config()
 
 const { print } = require("./utils.js")
 
+print("Loading Firebase")
+
 const admin = require("firebase-admin")
 const fb_key = require(process.env.FB_SERVICE_ACC_KEY)
 const { FieldValue, Timestamp } = require("firebase-admin/firestore")
@@ -16,8 +18,6 @@ const app = admin.initializeApp({
 })
 
 const db = admin.firestore(app)
-
-print("Connected to Firebase!")
 
 /*
  * EXPORTS

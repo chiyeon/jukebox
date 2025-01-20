@@ -1,8 +1,0 @@
-<div class="event">
-   <h2><%= event.name %></h2>
-   <p><%= new Date(event.date).toLocaleDateString() %></p>
-   <p><%= event.desc %></p>
-   <% event.tracks.forEach(track => { %>
-      <%- include("track", { track }) %>
-   <% }) %>
-</div>
