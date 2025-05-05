@@ -1,2 +1,15 @@
 # jukebox - ThatMyFavorite.com source
-[thatmyfavorite.com](https://thatmyfavorite.com), a full stack music sharing project. Powered by Express & Vue.
+A full stack music sharing project. Powered by Express & Vue.
+
+Standard build & run:
+```
+cd client
+npm i
+npm run serve
+cd ..
+
+cd server
+npm i
+... <- requires environment file
+npm start
+```
